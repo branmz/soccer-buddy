@@ -43,7 +43,10 @@ No backend, no auth — all data lives in on-device SQLite.
 - `src/app/` — expo-router routes only. `(tabs)/` = teams · tactics · game · history, each a
   folder with its own Stack `_layout.tsx`
 - `src/db/schema.ts` — Drizzle schema; `src/db/migrations/` is generated, never hand-edit
-- `src/db/repositories/` — all DB writes go through these typed async functions
+- `src/db/repositories/` — all DB access. Synchronous (Drizzle's expo driver is sync, and
+  `db.transaction` callbacks must be sync). Reads are exported as `xxxQuery()` builders for
+  `useLiveQuery`; writes validate via `src/domain` and throw `ValidationError` (UI-safe message)
+- `src/db/testing/createTestDb.ts` — test-only: Drizzle's expo driver over `node:sqlite`
 - `src/domain/` — pure TS logic (clock, lineup replay, sub rules, playing time, stats,
   formation JSON parsing). No React, no DB imports. Unit tested in `src/domain/__tests__/`
 - `src/constants/presetFormations.ts` — built-in formations per field size (5/7/9/11)
@@ -67,6 +70,10 @@ No backend, no auth — all data lives in on-device SQLite.
   `Pitch` using measured layout.
 - `starting_lineup_json` is a snapshot — editing a formation never rewrites match history.
 - Players referenced by events can't be hard-deleted; deactivate them (`is_active = false`).
+  Event→player FKs are `NO ACTION`, not `RESTRICT`: RESTRICT fires mid-cascade and would block
+  deleting a whole team.
+- Schema change → edit `schema.ts`, run `npx drizzle-kit generate --name <change>`, commit the
+  generated files. Never edit a migration that has shipped; add a new one.
 - Keep `src/domain` pure and covered by tests; put new business rules there, not in screens.
 - Gestures: use `Gesture.Pan()` + shared values; hop to JS with `runOnJS` only on drop.
   Every drag action must also have a tap-to-select fallback.
@@ -84,6 +91,10 @@ No backend, no auth — all data lives in on-device SQLite.
 ## Testing
 
 - Write domain tests first for clock, lineup, subRules, playingTime, stats
+- Repository tests run real SQL: mark the file `@jest-environment node`, then mock the client
+  with `jest.mock('@/db/client', () => ({ get db() { return mockTest.db; } }))` and create
+  `mockTest = await createTestDb()` in `beforeEach` (see `src/db/repositories/__tests__/`)
+- `src/db/__tests__/migrations.test.ts` applies all migrations and checks constraints/cascades
 - Manual Android checks for gestures, clock across screen lock, and app-kill resume
 
 ## Git Conventions
