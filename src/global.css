@@ -1,0 +1,12 @@
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+
+@import 'nativewind/theme';
+
+@theme {
+  --color-pitch: #2e7d32;
+  --color-pitch-dark: #1b5e20;
+  --color-pitch-line: #e8f5e9;
+  --color-brand: #16a34a;
+}

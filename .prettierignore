@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.expo/
+src/db/migrations/
+expo-env.d.ts
+package-lock.json
+assets/
