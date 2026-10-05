@@ -23,15 +23,23 @@ prepend `/c/Program Files/nodejs` (Bash) before running npm scripts.
    (`git diff HEAD`) and untracked files (`git status --porcelain`).
 3. Read every changed file in full, plus the code it calls into, before judging it. Don't
    flag something you haven't seen the context for.
-4. Skip generated or vendored files: `src/db/migrations/**`, `expo-env.d.ts`, `node_modules`,
-   lockfiles.
+4. Don't review the contents of generated or vendored files: `src/db/migrations/**`,
+   `expo-env.d.ts`, `node_modules`, lockfiles. Still check that migrations were added, not
+   modified (see Schema changes below).
 
 ## What to check
 
 ### Bugs and correctness
 
-- Logic errors, off-by-one, wrong conditions, unhandled `null`/`undefined`, unawaited promises,
-  missing error handling on async DB calls, race conditions between async writes.
+- Logic errors, off-by-one, wrong conditions, unhandled `null`/`undefined`, unawaited promises
+  in non-DB async code (file I/O, kv-store, haptics).
+- Repositories are **synchronous** (Drizzle's expo driver is sync). Flag `async`/`await` inside
+  `db.transaction` callbacks — they must be sync or the transaction commits early. Flag
+  repository functions made `async` without reason.
+- Repository reads should be exported as `xxxQuery()` builders consumed by `useLiveQuery`, not
+  executed eagerly in components. Writes must validate via `src/domain` and throw
+  `ValidationError` (UI-safe message) for bad input; flag raw errors or unvalidated writes, and
+  UI code that catches errors without handling `ValidationError` distinctly.
 - React: stale closures, missing/incorrect hook dependencies, effects without cleanup
   (intervals, listeners, subscriptions), state updates after unmount, keys on lists.
 - Reanimated/gestures: JS-thread functions called from worklets without `runOnJS`, shared
@@ -41,8 +49,13 @@ prepend `/c/Program Files/nodejs` (Bash) before running npm scripts.
   Every start/pause/resume/end must be persisted immediately.
 - **Lineup**: current lineup must come from `deriveLineup(starting_lineup_json, events)`;
   flag any separately stored or mutated "current lineup". Undo deletes the latest `group_id`.
-- Multi-row writes not wrapped in `db.transaction`; DB writes outside `src/db/repositories/`.
+- Multi-row writes not wrapped in `db.transaction`; DB reads or writes outside
+  `src/db/repositories/` (components should import query builders, not `db`).
 - Hard-deleting players that events may reference (must set `is_active = false`).
+- Schema changes: event→player FKs must stay `NO ACTION` (`RESTRICT` blocks deleting a whole
+  team mid-cascade). A `schema.ts` edit needs a matching generated migration
+  (`npx drizzle-kit generate --name <change>`); flag any edit to an existing, shipped migration
+  file — changes must come as a new migration.
 - Editing a formation that rewrites `starting_lineup_json` of existing matches.
 - Coordinates not normalized 0–1, or pixel conversion outside `Pitch`.
 
@@ -74,7 +87,9 @@ prepend `/c/Program Files/nodejs` (Bash) before running npm scripts.
 - Inline `style` used for non-animated/non-measured values instead of NativeWind `className`.
 - File naming: components `PascalCase.tsx`, everything else `camelCase.ts`.
 - `src/domain/` importing React, React Native, Drizzle, or anything from `src/db/`.
-- New domain logic without tests in `src/domain/__tests__/`.
+- New domain logic without tests in `src/domain/__tests__/`; new repository functions without
+  tests in `src/db/repositories/__tests__/` (real SQL via `createTestDb`, file marked
+  `@jest-environment node`, `@/db/client` mocked — see existing tests for the pattern).
 - Drag interactions lacking a tap-to-select fallback.
 - Don't nitpick formatting — Prettier owns it. Do report if `npm run check`
   (lint/format:check/typecheck/test) fails, since it gates every commit.
