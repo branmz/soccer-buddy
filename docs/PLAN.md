@@ -5,17 +5,17 @@ architecture rules and git conventions. Update the **Status** section when a mil
 
 ## Status (as of 2026-10-05)
 
-| #   | Milestone                                                       | State     | PR     |
-| --- | --------------------------------------------------------------- | --------- | ------ |
-| 1   | Scaffold, tooling, lint hook                                    | ✅ merged | #1     |
-| 2   | DB layer: schema, migrations, repositories                      | ✅ merged | #2     |
-| —   | Claude code-review workflow + `code-reviewer` agent             | ✅ merged | #3, #4 |
-| 3   | Teams & roster (+ positions, kit colors, sort)                  | ✅ merged | #5     |
-| 4   | Pitch & Tactics board                                           | ✅ merged | #7     |
-| 5   | **Domain logic: clock, lineup, sub rules, playing time, stats** | ⏭ next    |        |
-| 6   | Game Day: setup, quick-sub presets, live match                  | todo      |        |
-| 7   | History & stats                                                 | todo      |        |
-| 8   | Polish & EAS preview APK                                        | todo      |        |
+| #   | Milestone                                                   | State             | PR     |
+| --- | ----------------------------------------------------------- | ----------------- | ------ |
+| 1   | Scaffold, tooling, lint hook                                | ✅ merged         | #1     |
+| 2   | DB layer: schema, migrations, repositories                  | ✅ merged         | #2     |
+| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged         | #3, #4 |
+| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged         | #5     |
+| 4   | Pitch & Tactics board                                       | ✅ merged         | #7     |
+| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ done (PR open) | #9     |
+| 6   | **Game Day: setup, quick-sub presets, live match**          | ⏭ next            |        |
+| 7   | History & stats                                             | todo              |        |
+| 8   | Polish & EAS preview APK                                    | todo              |        |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -50,7 +50,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
     **Save / Discard / Keep editing**.
   - The TeamSwitcher pill is large and **lightly tinted with the home kit color**.
 
-## What exists now (milestones 1–4)
+## What exists now (milestones 1–5)
 
 - **Schema** (`src/db/schema.ts`, migrations `0000_init`, `0001_player_positions`,
   `0002_team_kit_colors`):
@@ -82,7 +82,8 @@ architecture rules and git conventions. Update the **Status** section when a mil
   Those belong to milestone 6.
 - **Domain** (`src/domain`, tested): types, formations (JSON parsers, `clampCoordinate`),
   validation, roster (duplicate jerseys, `sortRoster`, `resolveActiveTeamId`), positions,
-  colors (`readableTextColor`, `needsOutline`, `kitTextColor`, `withAlpha`), and **board**:
+  colors (`readableTextColor`, `needsOutline`, `kitTextColor`, `withAlpha`), the match
+  logic from milestone 5 (clock, lineup, subRules, playingTime, stats; see below), and **board**:
   pure slot transforms (assign/swap/move/unassign/clear, `changeSlotPosition`),
   `applyDrop` / `applyTap` / `findDropTarget` per `BoardMode` (`players` | `positions`),
   bench helpers (`benchPlayers`, `suggestForRole`, `suggestedSlots`, `keepAvailablePlayers`).
@@ -105,7 +106,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Screens:** Teams list, Roster (`teams/[teamId]`), Tactics list (saved formations +
   presets for the active team's field size), formation editor (`tactics/[formationId]`,
   `new?preset=4-3-3`). Game Day and History are still placeholders.
-- **Tests:** 213 (domain incl. board, presets, boardStore, repositories over real SQLite via
+- **Tests:** 301 (domain incl. board, clock, lineup, subRules, playingTime, stats, presets, boardStore, repositories over real SQLite via
   `createTestDb`, migrations incl. an upgrade test run inside a transaction like the device
   migrator).
 
@@ -129,10 +130,43 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - The editor ghost is hidden only after the drop has rendered, so there is no gap where the
   faded source token shows on its own.
 
-## Next: Milestone 5 — Domain logic
+## Milestone 5 — Domain logic (done)
 
-Branch `feature/domain-logic` off `main`. Test-first, pure TS in `src/domain`; the spec
-is item 5 under **Later milestones** below. No UI in this milestone, so it needs no device test.
+Pure TS in `src/domain`, test-first. Inputs are structural types that DB rows satisfy
+(`ClockPeriod` ⊂ `MatchPeriod`, `LineupEvent` ⊂ `MatchEvent`).
+
+- `clock.ts`: `getClockState(periods, periodLengthMs, now)` → `{ phase (notStarted | running |
+paused | periodEnded), currentPeriod, periodElapsedMs, totalGameMs, isPaused, isStoppage,
+stoppageMs, matchMinute, display }`. `display` is `MM:SS` of game time (`55:00` in the 2nd
+  half), switching to `45+2'` in stoppage. `periodEnded` covers half-time and full-time.
+  Helpers: `periodElapsedMs`, `matchMinuteAt`, `formatMatchMinute`, `formatClock`.
+- **Event time conventions (for milestone 6 writes):** `game_time_ms` = the clock's
+  `totalGameMs` (all periods, stoppage included, pauses excluded). `match_minute` = the
+  clock's `matchMinute`, uncapped in stoppage (47 in a 45' half), shown via
+  `formatMatchMinute(minute, period, periodLengthMs)` → `45+2'`.
+- `lineup.ts`: `deriveLineup(startingLineup, events)` → `{ slots (with locked), bench,
+sentOff, subsUsed }`, replayed in **id (recorded) order**, not game time: the phone clock
+  can jump back mid-match, and undo walks back by id too. Substitution with
+  `related_player_id` null + `slot_id` fills an empty slot (free, not counted in
+  `subsUsed`); position_swap with `related_player_id` null + `slot_id` moves into an empty
+  slot. Events that no longer apply are skipped. Helpers: `applyLineupEvent`,
+  `findPlayerSlot`, `onPitchPlayerIds`, `sortEvents`.
+- `subRules.ts`: check **before** recording, since replay skips invalid events silently.
+  `canSubstitute(lineup, maxSubs, pairs)` → `{ ok, errors[] }` (one message or null per
+  pair; a player can appear in one pair; only valid pairs count toward the limit).
+  `canFillSlot(lineup, slotId, inId)` and `canSwap(lineup, playerId, { playerId } |
+{ slotId })` return a message or null. `subsRemaining(maxSubs, subsUsed)`.
+- `playingTime.ts`: `playingTime(startingLineup, events, nowGameMs)` → `{ msByPlayer,
+appeared }`.
+- `stats.ts`: `matchScore`, `matchResult`, `playerMatchStats`, `seasonStats(matches)` →
+  `{ record, players }`, `sortSeasonTotals(rows, key, dir)`.
+
+## Next: Milestone 6 — Game Day
+
+Branch `feature/game-day` off `main`. The spec is item 6 under **Later milestones** below.
+Build the kickoff and clock writes in the matches repository, validate every event with
+`subRules` before `recordEventGroup`, and derive everything on screen with the milestone 5
+functions. This milestone is UI-heavy: expect device-test rounds with the coach.
 
 ## Later milestones (from the original plan)
 
