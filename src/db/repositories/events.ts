@@ -12,7 +12,7 @@ export function createGroupId(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-/** A match's events in game order. Pass to useLiveQuery or call `.all()`. */
+/** A match's events in game order. Call `.all()`, or read through useLiveData. */
 export function eventsQuery(matchId: number) {
   return db
     .select()

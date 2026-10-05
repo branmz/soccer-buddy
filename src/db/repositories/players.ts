@@ -2,13 +2,14 @@ import { and, asc, count, eq, or, sql } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { matchEvents, players, type Player } from '@/db/schema';
+import { cleanPositions } from '@/domain/positions';
 import { cleanJerseyNumber, cleanName } from '@/domain/validation';
 
 import { NotFoundError, unwrap, ValidationError } from './errors';
 
 /**
  * A team's roster: active players first, then by jersey number (unnumbered last), then name.
- * Pass to useLiveQuery or call `.all()`.
+ * Call `.all()`, or read through useLiveData.
  */
 export function playersQuery(teamId: number, options: { activeOnly?: boolean } = {}) {
   const filter = options.activeOnly
@@ -30,9 +31,12 @@ export function getPlayer(id: number): Player | undefined {
   return db.select().from(players).where(eq(players.id, id)).get();
 }
 
+/** Both positions are optional; a secondary requires a primary. */
+export type PositionsInput = { primaryPosition?: string | null; secondaryPosition?: string | null };
+
 export function addPlayer(
   teamId: number,
-  input: { name: string; jerseyNumber?: number | null },
+  input: { name: string; jerseyNumber?: number | null; positions?: PositionsInput },
 ): Player {
   return db
     .insert(players)
@@ -40,6 +44,7 @@ export function addPlayer(
       teamId,
       name: unwrap(cleanName(input.name, 'Player name')),
       jerseyNumber: unwrap(cleanJerseyNumber(input.jerseyNumber)),
+      ...unwrap(cleanPositions(input.positions ?? {})),
     })
     .returning()
     .get();
@@ -47,14 +52,23 @@ export function addPlayer(
 
 export function updatePlayer(
   id: number,
-  patch: { name?: string; jerseyNumber?: number | null; isActive?: boolean },
+  patch: {
+    name?: string;
+    jerseyNumber?: number | null;
+    isActive?: boolean;
+    /** Replaces both positions; omitted = unchanged. */
+    positions?: PositionsInput;
+  },
 ): Player {
-  const values: Partial<Pick<Player, 'name' | 'jerseyNumber' | 'isActive'>> = {};
+  const values: Partial<
+    Pick<Player, 'name' | 'jerseyNumber' | 'isActive' | 'primaryPosition' | 'secondaryPosition'>
+  > = {};
   if (patch.name !== undefined) values.name = unwrap(cleanName(patch.name, 'Player name'));
   if (patch.jerseyNumber !== undefined) {
     values.jerseyNumber = unwrap(cleanJerseyNumber(patch.jerseyNumber));
   }
   if (patch.isActive !== undefined) values.isActive = patch.isActive;
+  if (patch.positions !== undefined) Object.assign(values, unwrap(cleanPositions(patch.positions)));
 
   const updated =
     Object.keys(values).length === 0

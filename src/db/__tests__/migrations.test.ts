@@ -11,18 +11,68 @@ const MIGRATIONS_DIR = path.join(__dirname, '..', 'migrations');
 
 type Journal = { entries: { tag: string }[] };
 
-function openMigratedDb(): DatabaseSync {
-  const db = new DatabaseSync(':memory:');
-  db.exec('PRAGMA foreign_keys = ON');
-  const journal = JSON.parse(
-    readFileSync(path.join(MIGRATIONS_DIR, 'meta', '_journal.json'), 'utf8'),
-  ) as Journal;
-  for (const { tag } of journal.entries) {
+const journalTags = (
+  JSON.parse(readFileSync(path.join(MIGRATIONS_DIR, 'meta', '_journal.json'), 'utf8')) as Journal
+).entries.map((e) => e.tag);
+
+function applyMigrations(db: DatabaseSync, tags: readonly string[]): void {
+  for (const tag of tags) {
     const sqlText = readFileSync(path.join(MIGRATIONS_DIR, `${tag}.sql`), 'utf8');
     for (const statement of sqlText.split('--> statement-breakpoint')) db.exec(statement);
   }
+}
+
+function openMigratedDb(): DatabaseSync {
+  const db = new DatabaseSync(':memory:');
+  db.exec('PRAGMA foreign_keys = ON');
+  applyMigrations(db, journalTags);
   return db;
 }
+
+// Devices upgrade from whatever version they last ran; existing data must survive.
+describe('upgrading from 0000_init', () => {
+  it.each(journalTags.slice(1))('%s does not rebuild a table', (tag) => {
+    // A rebuild drops the old table inside the migrator's transaction with foreign keys on,
+    // which cascades into match history. See CLAUDE.md "Schema change".
+    const sqlText = readFileSync(path.join(MIGRATIONS_DIR, `${tag}.sql`), 'utf8');
+    expect(sqlText).not.toMatch(/DROP TABLE|__new_/i);
+  });
+
+  it('keeps players and match history when applying later migrations', () => {
+    const db = new DatabaseSync(':memory:');
+    db.exec('PRAGMA foreign_keys = ON');
+    applyMigrations(db, journalTags.slice(0, 1));
+    const now = Date.now();
+    db.exec(`
+      insert into teams (id, name, created_at) values (1, 'U12', ${now});
+      insert into players (id, team_id, name, jersey_number, created_at)
+        values (1, 1, 'Ana', 9, ${now});
+      insert into matches (id, team_id, opponent_name, period_count, period_length_minutes,
+        game_length_minutes, created_at) values (1, 1, 'Rivals', 2, 25, 50, ${now});
+      insert into match_events (match_id, player_id, event_type, period_number, game_time_ms,
+        match_minute, created_at) values (1, 1, 'goal', 1, 60000, 2, ${now});
+    `);
+
+    // Like drizzle's migrator on device: all pending migrations in one transaction, where
+    // SQLite ignores `PRAGMA foreign_keys=OFF` — so table rebuilds would cascade here too.
+    db.exec('BEGIN');
+    applyMigrations(db, journalTags.slice(1));
+    db.exec('COMMIT');
+
+    expect(db.prepare('select name, jersey_number, primary_position from players').get()).toEqual({
+      name: 'Ana',
+      jersey_number: 9,
+      primary_position: null,
+    });
+    expect(count(db, 'match_events')).toBe(1);
+    expect(db.prepare('select name, field_size, home_color from teams').get()).toEqual({
+      name: 'U12',
+      field_size: 11,
+      home_color: null,
+    });
+    db.close();
+  });
+});
 
 function count(db: DatabaseSync, table: string): number {
   const row = db.prepare(`select count(*) as n from ${table}`).get() as { n: number };
