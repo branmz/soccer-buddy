@@ -3,19 +3,19 @@
 The living plan for this app. Read it with `CLAUDE.md`, which has the stack, commands,
 architecture rules and git conventions. Update the **Status** section when a milestone merges.
 
-## Status (as of 2026-10-04)
+## Status (as of 2026-10-05)
 
-| #   | Milestone                                                   | State     | PR     |
-| --- | ----------------------------------------------------------- | --------- | ------ |
-| 1   | Scaffold, tooling, lint hook                                | ✅ merged | #1     |
-| 2   | DB layer: schema, migrations, repositories                  | ✅ merged | #2     |
-| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged | #3, #4 |
-| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged | #5     |
-| 4   | **Pitch & Tactics board**                                   | ⏭ next    |        |
-| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | todo      |        |
-| 6   | Game Day: setup, quick-sub presets, live match              | todo      |        |
-| 7   | History & stats                                             | todo      |        |
-| 8   | Polish & EAS preview APK                                    | todo      |        |
+| #   | Milestone                                                       | State        | PR     |
+| --- | --------------------------------------------------------------- | ------------ | ------ |
+| 1   | Scaffold, tooling, lint hook                                    | ✅ merged    | #1     |
+| 2   | DB layer: schema, migrations, repositories                      | ✅ merged    | #2     |
+| —   | Claude code-review workflow + `code-reviewer` agent             | ✅ merged    | #3, #4 |
+| 3   | Teams & roster (+ positions, kit colors, sort)                  | ✅ merged    | #5     |
+| 4   | Pitch & Tactics board                                           | 🔍 in review | #7     |
+| 5   | **Domain logic: clock, lineup, sub rules, playing time, stats** | ⏭ next       |        |
+| 6   | Game Day: setup, quick-sub presets, live match                  | todo         |        |
+| 7   | History & stats                                                 | todo         |        |
+| 8   | Polish & EAS preview APK                                        | todo         |        |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -35,7 +35,22 @@ architecture rules and git conventions. Update the **Status** section when a mil
   (Game Day setup) and on pitch tokens.
 - **Roster sort:** number / name / position (ST → GK by primary position), persisted.
 
-## What exists now (milestones 1–3)
+- **Tactics board** (decided while testing milestone 4 on the phone):
+  - Spots are **locked by default**. Dragging moves players: bench → spot assigns, spot →
+    spot swaps, spot → bench benches. A **Move spots** mode (bottom toolbar) is the only way
+    to move spots or change a spot's position (e.g. CDM → CM).
+  - **Exactly one GK:** the GK spot can't change position and no other spot can become GK.
+  - **Undo** (bottom toolbar) steps back any spot or player change; renames aren't undone.
+  - Picking up a bench player highlights open spots for their main (solid yellow) and second
+    (dashed) position, falling back to the same line when no exact spot is free.
+  - Bench players drag on a **sideways swipe** or after a short hold; vertical moves scroll.
+  - Filled spots show the position chip above the badge and the name below.
+  - The name in the editor header has a pencil and opens a **rename-only** sheet; **More**
+    holds Clear all players and Delete. Leaving with unsaved changes asks
+    **Save / Discard / Keep editing**.
+  - The TeamSwitcher pill is large and **lightly tinted with the home kit color**.
+
+## What exists now (milestones 1–4)
 
 - **Schema** (`src/db/schema.ts`, migrations `0000_init`, `0001_player_positions`,
   `0002_team_kit_colors`):
@@ -67,17 +82,32 @@ architecture rules and git conventions. Update the **Status** section when a mil
   Those belong to milestone 6.
 - **Domain** (`src/domain`, tested): types, formations (JSON parsers, `clampCoordinate`),
   validation, roster (duplicate jerseys, `sortRoster`, `resolveActiveTeamId`), positions,
-  colors (`readableTextColor`, `needsOutline`).
+  colors (`readableTextColor`, `needsOutline`, `kitTextColor`, `withAlpha`), and **board**:
+  pure slot transforms (assign/swap/move/unassign/clear, `changeSlotPosition`),
+  `applyDrop` / `applyTap` / `findDropTarget` per `BoardMode` (`players` | `positions`),
+  bench helpers (`benchPlayers`, `suggestForRole`, `suggestedSlots`, `keepAvailablePlayers`).
+- **Presets:** `src/constants/presetFormations.ts` (11v11 4-4-2, 4-3-3, 3-5-2, 4-2-3-1; 9v9
+  3-3-2, 3-2-3; 7v7 2-3-1, 3-2-1; 5v5 2-2, 1-2-1), each validated by a test.
 - **Hooks/stores:** `useLiveData`, `useActiveTeam`, `useKeyboardHeight`, `useOpenCount`;
-  `appStore` (activeTeamId, rosterSort, persisted).
+  `appStore` (activeTeamId, rosterSort, persisted); `boardStore` (editor working copy: slots,
+  selection, mode, undo stack; `dirty` compares against what was loaded or last saved).
+- **Pitch** (`src/components/pitch`), reusable for Game Day:
+  - `FormationBoard` (pitch + bench bound to `boardStore`).
+  - `Pitch` + `PitchMarkings` (SVG), `PlayerToken`, `BenchSidebar`.
+  - `BoardDragContext` (`BoardDragProvider`, `useDragGesture`) + `DragLayer` (one ghost at
+    the board root), `SlotPositionSheet`, `FormationThumbnail`.
 - **UI kit** (`src/components/ui`): Button (primary/secondary/danger/dangerOutline/ghost),
-  IconButton, HeaderButton, TextField, Sheet (keyboard-aware bottom sheet), SegmentedControl,
-  SelectField, EmptyState. **Teams** (`src/components/teams`): TeamFormSheet, DeleteTeamSheet,
-  PlayerFormSheet, PositionFields, KitColorFields, ColorSwatch, JerseyBadge, TeamSwitcher.
-- **Screens:** Teams list, Roster (`teams/[teamId]`). Tactics, Game Day and History are still
-  placeholders with the TeamSwitcher in their header.
-- **Tests:** 130 (domain, repositories over real SQLite via `createTestDb`, migrations incl.
-  an upgrade test run inside a transaction like the device migrator).
+  IconButton, HeaderButton (+disabled), TextField, Sheet (keyboard-aware bottom sheet),
+  SegmentedControl, SelectField, EmptyState, ConfirmSheet. **Teams** (`src/components/teams`):
+  TeamFormSheet, DeleteTeamSheet, PlayerFormSheet, PositionFields, KitColorFields, ColorSwatch,
+  JerseyBadge, TeamSwitcher. **Tactics** (`src/components/tactics`): RenameFormationSheet,
+  FormationOptionsSheet, UnsavedChangesSheet.
+- **Screens:** Teams list, Roster (`teams/[teamId]`), Tactics list (saved formations +
+  presets for the active team's field size), formation editor (`tactics/[formationId]`,
+  `new?preset=4-3-3`). Game Day and History are still placeholders.
+- **Tests:** 213 (domain incl. board, presets, boardStore, repositories over real SQLite via
+  `createTestDb`, migrations incl. an upgrade test run inside a transaction like the device
+  migrator).
 
 ## Deviations from the original plan (all intentional)
 
@@ -90,42 +120,19 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - No CHECK constraints added to existing tables: they make drizzle-kit rebuild the table.
   Positions and colors are validated in `src/domain`.
 - Editing and deleting a team live in the roster header, not on the Teams list.
+- **Drops hop to JS with `scheduleOnRN`** (react-native-worklets): Reanimated 4 deprecates
+  `runOnJS`. Drop points are measured on the UI thread with `measure()`, relative to the
+  board root, and hit-tested in JS by `findDropTarget`. There is no `useDropTargets` hook.
+- Spots are locked unless **Move spots** is on (the plan had token → grass always moving a
+  spot); accidental moves were a problem on the phone.
+- Bench drags start on a sideways swipe as well as after the 150 ms hold.
+- The editor ghost is hidden only after the drop has rendered, so there is no gap where the
+  faded source token shows on its own.
 
-## Next: Milestone 4 — Pitch & Tactics board
+## Next: Milestone 5 — Domain logic
 
-Branch `feature/tactics-board`. Goal: build formations on a drag-and-drop pitch and save them.
-
-- **`src/constants/presetFormations.ts`:** slots with x/y and roles for 11v11 4-4-2, 4-3-3,
-  3-5-2, 4-2-3-1; 9v9 3-3-2, 3-2-3; 7v7 2-3-1, 3-2-1; 5v5 2-2, 1-2-1. A test checks that every
-  preset passes `parseFormationLayout` with its field size.
-- **`src/components/pitch/`:**
-  - `Pitch`: vertical green field, `PitchMarkings` drawn with react-native-svg, measured with
-    `onLayout`; tokens positioned at `x·w, y·h`.
-  - `PlayerToken`: reuse `JerseyBadge` (home kit color) plus a name label.
-  - `BenchSidebar`: vertical ScrollView on the right, about 25% of the width.
-  - `DragLayer` + `useDropTargets`.
-- **Gestures:**
-  - Pitch tokens use `Gesture.Pan()` with shared values, and `runOnJS(onDrop)` with normalized
-    coordinates clamped by `clampCoordinate`.
-  - Bench items use `Gesture.Pan().activateAfterLongPress(150)` so scrolling still works. A
-    single `DragLayer` ghost token is drawn at the board root so the drag isn't clipped by the
-    ScrollView. Drops are hit-tested against slot centers and the bench rectangle.
-  - **Tap fallback is required:** tap a player, then tap a slot or player.
-- **What a drop does (editor):** bench → slot assigns; token → token swaps; token → grass
-  moves the slot; token → bench unassigns.
-- **`src/stores/boardStore.ts`:** editor working state (slots, dirty flag, selection) with
-  assign / swap / move / unassign actions. Put the pure transforms in a tested domain module
-  (e.g. `src/domain/board.ts`).
-- **Screens:**
-  - `(tabs)/tactics/index.tsx`: presets and saved formations for the active team's field size
-    (`formationsQuery(teamId, fieldSize)`).
-  - `(tabs)/tactics/[formationId].tsx`: the editor (`new?preset=4-3-3` starts from a preset).
-    Save via `createFormation` / `updateFormation`.
-- When loading a saved layout, drop `playerId`s that are no longer on the roster or are
-  inactive.
-- Use `POSITION_LINE` to suggest bench players whose position fits a slot's line.
-- Verify on a device: dragging on the pitch, long-press drag from the bench, tap fallback,
-  save, then kill and reopen the app to confirm the layout persisted.
+Branch `feature/domain-logic`, after #7 merges. Test-first, pure TS in `src/domain`; the spec
+is item 5 under **Later milestones** below. No UI in this milestone, so it needs no device test.
 
 ## Later milestones (from the original plan)
 

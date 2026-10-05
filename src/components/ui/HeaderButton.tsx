@@ -10,6 +10,7 @@ type HeaderButtonProps = {
   variant?: 'primary' | 'secondary';
   /** Full description for screen readers when `label` is abbreviated (e.g. "Add"). */
   accessibilityLabel?: string;
+  disabled?: boolean;
 };
 
 /** Pill button with icon and text for stack headers. */
@@ -19,17 +20,20 @@ export function HeaderButton({
   onPress,
   variant = 'secondary',
   accessibilityLabel,
+  disabled = false,
 }: HeaderButtonProps) {
   const primary = variant === 'primary';
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
-      className={`min-h-11 flex-row items-center gap-1.5 rounded-full px-3 ${
+      className={`min-h-11 flex-row items-center gap-1.5 rounded-full border px-3 ${
         primary
-          ? 'bg-brand active:bg-pitch-dark'
-          : 'border border-green-200 bg-green-50 active:bg-green-100'
+          ? 'border-brand bg-brand active:bg-pitch-dark'
+          : 'border-green-200 bg-green-50 active:bg-green-100'
       }`}
     >
       <Ionicons name={icon} size={20} color={primary ? '#ffffff' : '#1b5e20'} />
