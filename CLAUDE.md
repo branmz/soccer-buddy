@@ -4,6 +4,9 @@ Local-first, offline Android app for soccer coaches: multi-team rosters, drag-an
 formations, and live match-day management (clock, subs, quick-sub presets, event logging).
 No backend, no auth — all data lives in on-device SQLite.
 
+**Start here:** `docs/PLAN.md` has the build plan, milestone status, product decisions and
+what to build next. Update its Status section when a milestone's PR merges.
+
 ## Stack
 
 - Expo SDK 57 + React Native 0.86 + TypeScript (strict), runs in Expo Go. See `AGENTS.md`:
