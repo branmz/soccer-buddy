@@ -5,17 +5,17 @@ architecture rules and git conventions. Update the **Status** section when a mil
 
 ## Status (as of 2026-10-05)
 
-| #   | Milestone                                                       | State        | PR     |
-| --- | --------------------------------------------------------------- | ------------ | ------ |
-| 1   | Scaffold, tooling, lint hook                                    | ✅ merged    | #1     |
-| 2   | DB layer: schema, migrations, repositories                      | ✅ merged    | #2     |
-| —   | Claude code-review workflow + `code-reviewer` agent             | ✅ merged    | #3, #4 |
-| 3   | Teams & roster (+ positions, kit colors, sort)                  | ✅ merged    | #5     |
-| 4   | Pitch & Tactics board                                           | 🔍 in review | #7     |
-| 5   | **Domain logic: clock, lineup, sub rules, playing time, stats** | ⏭ next       |        |
-| 6   | Game Day: setup, quick-sub presets, live match                  | todo         |        |
-| 7   | History & stats                                                 | todo         |        |
-| 8   | Polish & EAS preview APK                                        | todo         |        |
+| #   | Milestone                                                       | State     | PR     |
+| --- | --------------------------------------------------------------- | --------- | ------ |
+| 1   | Scaffold, tooling, lint hook                                    | ✅ merged | #1     |
+| 2   | DB layer: schema, migrations, repositories                      | ✅ merged | #2     |
+| —   | Claude code-review workflow + `code-reviewer` agent             | ✅ merged | #3, #4 |
+| 3   | Teams & roster (+ positions, kit colors, sort)                  | ✅ merged | #5     |
+| 4   | Pitch & Tactics board                                           | ✅ merged | #7     |
+| 5   | **Domain logic: clock, lineup, sub rules, playing time, stats** | ⏭ next    |        |
+| 6   | Game Day: setup, quick-sub presets, live match                  | todo      |        |
+| 7   | History & stats                                                 | todo      |        |
+| 8   | Polish & EAS preview APK                                        | todo      |        |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -131,7 +131,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
 
 ## Next: Milestone 5 — Domain logic
 
-Branch `feature/domain-logic`, after #7 merges. Test-first, pure TS in `src/domain`; the spec
+Branch `feature/domain-logic` off `main`. Test-first, pure TS in `src/domain`; the spec
 is item 5 under **Later milestones** below. No UI in this milestone, so it needs no device test.
 
 ## Later milestones (from the original plan)
