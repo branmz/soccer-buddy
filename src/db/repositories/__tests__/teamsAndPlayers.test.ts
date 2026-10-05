@@ -14,7 +14,14 @@ import {
   setPlayerActive,
   updatePlayer,
 } from '../players';
-import { createTeam, deleteTeam, getTeam, teamsQuery, updateTeam } from '../teams';
+import {
+  createTeam,
+  deleteTeam,
+  getTeam,
+  teamSummariesQuery,
+  teamsQuery,
+  updateTeam,
+} from '../teams';
 
 let mockTest: TestDb;
 jest.mock('@/db/client', () => ({
@@ -42,6 +49,37 @@ describe('teams repository', () => {
         .all()
         .map((t) => t.name),
     ).toEqual(['Ants', 'Zebras']);
+  });
+
+  it('summarizes teams with active player counts, including empty teams', () => {
+    const lions = createTeam({ name: 'Lions' });
+    createTeam({ name: 'Bears' });
+    addPlayer(lions.id, { name: 'Ana' });
+    addPlayer(lions.id, { name: 'Bea' });
+    setPlayerActive(addPlayer(lions.id, { name: 'Cam' }).id, false);
+
+    expect(
+      teamSummariesQuery()
+        .all()
+        .map((t) => [t.name, t.activePlayerCount]),
+    ).toEqual([
+      ['Bears', 0],
+      ['Lions', 2],
+    ]);
+  });
+
+  it('stores optional kit colors, keeps them when unpatched and clears them with null', () => {
+    const team = createTeam({ name: 'Lions', homeColor: '#1E3A8A', awayColor: '#ffffff' });
+    expect(team).toMatchObject({ homeColor: '#1e3a8a', awayColor: '#ffffff' });
+    expect(createTeam({ name: 'Plain' })).toMatchObject({ homeColor: null, awayColor: null });
+
+    expect(updateTeam(team.id, { name: 'Lions FC' })).toMatchObject({ homeColor: '#1e3a8a' });
+    expect(updateTeam(team.id, { awayColor: null })).toMatchObject({
+      homeColor: '#1e3a8a',
+      awayColor: null,
+    });
+    expect(teamSummariesQuery().all()[0]).toMatchObject({ name: 'Lions FC', homeColor: '#1e3a8a' });
+    expect(() => createTeam({ name: 'Bad', homeColor: 'blue' })).toThrow(ValidationError);
   });
 
   it('validates names and field sizes', () => {
@@ -100,6 +138,32 @@ describe('players repository', () => {
       name: 'Ana B',
       jerseyNumber: null,
     });
+  });
+
+  it('stores primary and secondary positions, and leaves them alone when not patched', () => {
+    const ana = addPlayer(teamId, {
+      name: 'Ana',
+      positions: { primaryPosition: 'CM', secondaryPosition: 'CB' },
+    });
+    expect(ana).toMatchObject({ primaryPosition: 'CM', secondaryPosition: 'CB' });
+
+    expect(updatePlayer(ana.id, { name: 'Ana B' })).toMatchObject({ primaryPosition: 'CM' });
+    expect(
+      updatePlayer(ana.id, { positions: { primaryPosition: 'ST', secondaryPosition: null } }),
+    ).toMatchObject({ primaryPosition: 'ST', secondaryPosition: null });
+    expect(addPlayer(teamId, { name: 'Bea' })).toMatchObject({
+      primaryPosition: null,
+      secondaryPosition: null,
+    });
+  });
+
+  it('rejects invalid positions', () => {
+    expect(() =>
+      addPlayer(teamId, { name: 'Ana', positions: { secondaryPosition: 'CB' } }),
+    ).toThrow('Choose a main position');
+    expect(() => addPlayer(teamId, { name: 'Ana', positions: { primaryPosition: 'SW' } })).toThrow(
+      ValidationError,
+    );
   });
 
   it('deletes players without history but blocks those with match events', () => {

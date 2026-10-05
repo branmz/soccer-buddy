@@ -9,6 +9,7 @@ import {
   type AnySQLiteColumn,
 } from 'drizzle-orm/sqlite-core';
 
+import { PLAYER_POSITIONS } from '@/domain/positions';
 import { MATCH_EVENT_TYPES, MATCH_STATUSES, type FieldSize } from '@/domain/types';
 
 // All timestamps are epoch milliseconds (Date.now()).
@@ -25,6 +26,9 @@ export const teams = sqliteTable(
     id: id(),
     name: text('name').notNull(),
     fieldSize: integer('field_size').$type<FieldSize>().notNull().default(11),
+    /** Optional kit colors as #rrggbb (validated by cleanKitColor). */
+    homeColor: text('home_color'),
+    awayColor: text('away_color'),
     createdAt: createdAt(),
   },
   (t) => [check('teams_field_size_check', fieldSizeCheck(t.fieldSize))],
@@ -39,6 +43,10 @@ export const players = sqliteTable(
       .references(() => teams.id, { onDelete: 'cascade' }),
     name: text('name').notNull(),
     jerseyNumber: integer('jersey_number'),
+    // Validated by cleanPositions, not a CHECK: adding one would make drizzle-kit rebuild this
+    // table, and dropping `players` mid-migration would cascade into match history.
+    primaryPosition: text('primary_position', { enum: PLAYER_POSITIONS }),
+    secondaryPosition: text('secondary_position', { enum: PLAYER_POSITIONS }),
     isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
     createdAt: createdAt(),
   },

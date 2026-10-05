@@ -15,6 +15,13 @@ export class NotFoundError extends Error {
   }
 }
 
+/** A message safe to show the coach. Unexpected errors are logged, not shown verbatim. */
+export function userMessage(error: unknown): string {
+  if (error instanceof ValidationError) return error.message;
+  console.error(error);
+  return 'Something went wrong. Please try again.';
+}
+
 /** Returns the parsed value or throws a ValidationError with the parser's message. */
 export function unwrap<T>(result: ParseResult<T>): T {
   if (!result.ok) throw new ValidationError(result.error);

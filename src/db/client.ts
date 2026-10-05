@@ -7,7 +7,7 @@ export const DATABASE_NAME = 'soccer-buddy.db';
 
 export type AppDatabase = ExpoSQLiteDatabase<typeof schema>;
 
-// enableChangeListener lets Drizzle's useLiveQuery re-run when tables change.
+// enableChangeListener lets useLiveData re-read when tables change.
 const sqlite = openDatabaseSync(DATABASE_NAME, { enableChangeListener: true });
 sqlite.execSync('PRAGMA foreign_keys = ON;');
 
