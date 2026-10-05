@@ -12,7 +12,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
 | —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged         | #3, #4 |
 | 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged         | #5     |
 | 4   | Pitch & Tactics board                                       | ✅ merged         | #7     |
-| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ done (PR open) | #PRNUM |
+| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ done (PR open) | #9     |
 | 6   | **Game Day: setup, quick-sub presets, live match**          | ⏭ next            |        |
 | 7   | History & stats                                             | todo              |        |
 | 8   | Polish & EAS preview APK                                    | todo              |        |
