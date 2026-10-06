@@ -1,13 +1,14 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 
+import { LiveMatchCard } from '@/components/game/LiveMatchCard';
 import { NewMatchSheet } from '@/components/game/NewMatchSheet';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { liveMatchQuery, matchesQuery } from '@/db/repositories/matches';
-import { matches, type Match } from '@/db/schema';
+import { getTeam } from '@/db/repositories/teams';
+import { matches, teams, type Match } from '@/db/schema';
 import { useActiveTeam } from '@/hooks/useActiveTeam';
 import { useLiveData } from '@/hooks/useLiveData';
 
@@ -23,6 +24,13 @@ export default function GameDayScreen() {
   const { team } = useActiveTeam();
   const teamId = team?.id ?? null;
   const live = useLiveData(() => liveMatchQuery().get(), [], [matches]);
+  // The live match may belong to another team than the active one.
+  const liveTeamId = live?.teamId ?? null;
+  const liveTeam = useLiveData(
+    () => (liveTeamId === null ? undefined : getTeam(liveTeamId)),
+    [liveTeamId],
+    [teams],
+  );
   const drafts = useLiveData(
     () => (teamId === null ? [] : matchesQuery(teamId, 'setup').all()),
     [teamId],
@@ -79,24 +87,11 @@ export default function GameDayScreen() {
         ListHeaderComponent={
           <View className="gap-3">
             {live && (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={`Live match against ${live.opponentName}. Resume`}
+              <LiveMatchCard
+                match={live}
+                teamName={liveTeam?.name ?? 'Us'}
                 onPress={() => openLive(live)}
-                className="flex-row items-center gap-3 rounded-2xl bg-pitch-dark p-4 active:bg-pitch"
-              >
-                <View className="h-3 w-3 rounded-full bg-red-500" />
-                <View className="flex-1">
-                  <Text className="text-sm font-semibold text-green-100 uppercase">Live now</Text>
-                  <Text numberOfLines={1} className="text-xl font-bold text-white">
-                    vs {live.opponentName}
-                  </Text>
-                </View>
-                <View className="min-h-11 flex-row items-center gap-1.5 rounded-full bg-white px-4">
-                  <Ionicons name="play" size={18} color="#1b5e20" />
-                  <Text className="text-lg font-semibold text-pitch-dark">Resume</Text>
-                </View>
-              </Pressable>
+              />
             )}
             <Button label="New match" icon="add" onPress={() => setNewOpen(true)} />
             {drafts.length > 0 && (

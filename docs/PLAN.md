@@ -127,10 +127,10 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Game** (`src/components/game`): NewMatchSheet, FormationPickerSheet (setup/live),
   SquadSheet, LineupPreview, QuickSubPresetSheet, ClockBar, LiveBoard (memoised),
   FormationBar/FormationEditBar, QuickSubBar, EventActionBar, PlayerPickSheet, EventTimeline,
-  LiveToast, FinishedSummary, RefereeCardIcon.
+  LiveToast, FinishedSummary, RefereeCardIcon, LiveMatchCard.
 - **UI kit** (`src/components/ui`), **Teams** and **Tactics** components as before.
 - **Screens:** Teams, Roster, Tactics list, formation editor; **Game Day** list
-  (`game/index`: resume card, New match, drafts), **match setup** (`game/[matchId]`),
+  (`game/index`: live card with score + clock, New match, drafts), **match setup** (`game/[matchId]`),
   **lineup editor** (`game/lineup/[matchId]`), **live match** (`live/[matchId]`, full screen
   above the tabs; reopens on launch if a match is live; leave guard; keep-awake; full-time
   summary). History is still a placeholder.
