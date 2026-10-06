@@ -80,7 +80,20 @@ function swap(lineup: LiveLineup, event: LineupEvent): LiveLineup {
     event.relatedPlayerId === null
       ? lineup.slots.find((s) => s.slotId === event.slotId && s.playerId === undefined)
       : findPlayerSlot(lineup, event.relatedPlayerId);
-  if (!from || !to || from === to || to.locked) return lineup;
+  if (!from || !to || from === to) return lineup;
+  if (to.locked) {
+    // Moving into a spot closed by a red card (e.g. an outfielder going in goal after the keeper
+    // is sent off): the spot reopens with them in it, and the one they left closes instead. The
+    // team stays a player down.
+    return {
+      ...lineup,
+      slots: lineup.slots.map((s) => {
+        if (s === from) return { ...withPlayer(s, undefined), locked: true };
+        if (s === to) return { ...withPlayer(s, from.playerId), locked: false };
+        return s;
+      }),
+    };
+  }
   return {
     ...lineup,
     slots: lineup.slots.map((s) => {
@@ -89,6 +102,22 @@ function swap(lineup: LiveLineup, event: LineupEvent): LiveLineup {
       return s;
     }),
   };
+}
+
+/** A late arrival joins the end of the bench (once; never someone already in the match). */
+function joinBench(lineup: LiveLineup, event: LineupEvent): LiveLineup {
+  const playerId = event.playerId;
+  if (playerId === null || isInMatch(lineup, playerId)) return lineup;
+  return { ...lineup, bench: [...lineup.bench, playerId] };
+}
+
+/** On the pitch, on the bench, or sent off. */
+export function isInMatch(lineup: LiveLineup, playerId: number): boolean {
+  return (
+    findPlayerSlot(lineup, playerId) !== undefined ||
+    lineup.bench.includes(playerId) ||
+    lineup.sentOff.includes(playerId)
+  );
 }
 
 function sendOff(lineup: LiveLineup, event: LineupEvent): LiveLineup {
@@ -117,6 +146,8 @@ export function applyLineupEvent(lineup: LiveLineup, event: LineupEvent): LiveLi
       return swap(lineup, event);
     case 'red_card':
       return sendOff(lineup, event);
+    case 'late_arrival':
+      return joinBench(lineup, event);
     default:
       return lineup;
   }

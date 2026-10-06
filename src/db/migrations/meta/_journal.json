@@ -22,6 +22,13 @@
       "when": 1791169576964,
       "tag": "0002_team_kit_colors",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791234421560,
+      "tag": "0003_match_venue_and_formation",
+      "breakpoints": true
     }
   ]
 }

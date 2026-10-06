@@ -278,7 +278,20 @@ export function suggestedSlots(
   slots: readonly FormationSlot[],
   positions: PlayerPositions,
 ): Map<string, Exclude<SlotFit, null>> {
-  const open = slots.filter((s) => s.playerId === undefined);
+  return suggestAmong(
+    slots.filter((s) => s.playerId === undefined),
+    positions,
+  );
+}
+
+/**
+ * The rule behind the spot highlights, over the spots that can take the player: exact
+ * position matches if any, otherwise spots on those positions' lines.
+ */
+export function suggestAmong(
+  open: readonly FormationSlot[],
+  positions: PlayerPositions,
+): Map<string, Exclude<SlotFit, null>> {
   const exact = new Map<string, Exclude<SlotFit, null>>();
   for (const slot of open) {
     if (slot.label === positions.primaryPosition) exact.set(slot.slotId, 'primary');

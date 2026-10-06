@@ -1,6 +1,8 @@
 // Match clock, derived entirely from stored timestamps. Never count ticks: a UI interval only
 // triggers re-renders, and this module turns the `match_periods` rows into what to show.
 
+import type { ParseResult } from './types';
+
 const MS_PER_MINUTE = 60_000;
 
 /** The timestamp fields of a `match_periods` row (epoch ms). */
@@ -120,4 +122,116 @@ export function getClockState(
       ? formatMatchMinute(matchMinute, current.periodNumber, periodLengthMs)
       : formatClock(offsetMs + elapsed),
   };
+}
+
+/** What the coach can do to the clock. Kickoff (starting period 1) is separate. */
+export type ClockAction = 'pause' | 'resume' | 'endPeriod' | 'startNextPeriod' | 'finish';
+
+export type PeriodPatch = Partial<Pick<ClockPeriod, 'endedAt' | 'pausedAt' | 'pausedTotalMs'>>;
+
+/** The writes for one clock action: one DB write per start/pause/resume/end. */
+export type ClockChange = {
+  update: { periodNumber: number; patch: PeriodPatch } | null;
+  insert: ClockPeriod | null;
+  /** The match is over (status → finished). */
+  finishMatch: boolean;
+};
+
+/**
+ * The actions available now. Ending the last period finishes the match, so it's offered as
+ * `finish` rather than `endPeriod`; `finish` is always available once the match has started
+ * (games get cut short).
+ */
+export function availableClockActions(state: ClockState, periodCount: number): ClockAction[] {
+  const hasNext = state.currentPeriod < periodCount;
+  switch (state.phase) {
+    case 'notStarted':
+      return [];
+    case 'running':
+      return hasNext ? ['pause', 'endPeriod', 'finish'] : ['pause', 'finish'];
+    case 'paused':
+      return hasNext ? ['resume', 'endPeriod', 'finish'] : ['resume', 'finish'];
+    case 'periodEnded':
+      return hasNext ? ['startNextPeriod', 'finish'] : ['finish'];
+  }
+}
+
+/** Ends a period, folding an open pause into `pausedTotalMs` so elapsed time is unchanged. */
+function endPatch(period: ClockPeriod, now: number): PeriodPatch {
+  const end = Math.max(now, period.startedAt);
+  if (period.pausedAt === null) return { endedAt: end };
+  return {
+    endedAt: end,
+    pausedAt: null,
+    pausedTotalMs: period.pausedTotalMs + Math.max(0, end - period.pausedAt),
+  };
+}
+
+export function clockTransition(
+  periods: readonly ClockPeriod[],
+  action: ClockAction,
+  now: number,
+  periodCount: number,
+): ParseResult<ClockChange> {
+  const state = getClockState(periods, 0, now);
+  if (!availableClockActions(state, periodCount).includes(action)) {
+    return { ok: false, error: "That can't be done right now" };
+  }
+  const current = [...periods].sort((a, b) => a.periodNumber - b.periodNumber).at(-1);
+  if (!current) return { ok: false, error: "The match hasn't kicked off" };
+  const update = (patch: PeriodPatch) => ({ periodNumber: current.periodNumber, patch });
+  const change: ClockChange = { update: null, insert: null, finishMatch: false };
+
+  switch (action) {
+    case 'pause':
+      return {
+        ok: true,
+        value: { ...change, update: update({ pausedAt: Math.max(now, current.startedAt) }) },
+      };
+    case 'resume': {
+      const pausedAt = current.pausedAt ?? now;
+      const pausedTotalMs = current.pausedTotalMs + Math.max(0, now - pausedAt);
+      return { ok: true, value: { ...change, update: update({ pausedAt: null, pausedTotalMs }) } };
+    }
+    case 'endPeriod':
+      return { ok: true, value: { ...change, update: update(endPatch(current, now)) } };
+    case 'startNextPeriod':
+      return {
+        ok: true,
+        value: {
+          ...change,
+          insert: {
+            periodNumber: current.periodNumber + 1,
+            startedAt: now,
+            endedAt: null,
+            pausedAt: null,
+            pausedTotalMs: 0,
+          },
+        },
+      };
+    case 'finish':
+      return {
+        ok: true,
+        value: {
+          ...change,
+          update: current.endedAt === null ? update(endPatch(current, now)) : null,
+          finishMatch: true,
+        },
+      };
+  }
+}
+
+/** `1st half` / `2nd half` for two periods, `Q1`–`Q4` for four, otherwise `Period n`. */
+export function periodName(periodNumber: number, periodCount: number): string {
+  if (periodCount === 2) return periodNumber === 1 ? '1st half' : '2nd half';
+  if (periodCount === 4) return `Q${periodNumber}`;
+  if (periodCount === 1) return 'Game';
+  return `Period ${periodNumber}`;
+}
+
+/** What to call the break after a period ends. */
+export function breakName(periodNumber: number, periodCount: number): string {
+  if (periodNumber >= periodCount) return 'Full time';
+  if (periodCount === 2) return 'Half-time';
+  return `End of ${periodName(periodNumber, periodCount)}`;
 }

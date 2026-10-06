@@ -3,7 +3,7 @@
 // Check here before recording an event: replay silently skips events that don't apply.
 
 import { findPlayerSlot, type LiveLineup } from './lineup';
-import type { QuickSubPair } from './types';
+import type { ParseResult, QuickSubPair } from './types';
 
 export const SUB_ERRORS = {
   samePlayer: 'Pick two different players',
@@ -11,6 +11,7 @@ export const SUB_ERRORS = {
   outNotOnPitch: "Player going off isn't on the pitch",
   inOnPitch: 'Player coming on is already on the pitch',
   inSentOff: 'Player coming on was sent off',
+  inNotOnBench: "Player coming on isn't on the bench today",
   limitReached: 'No substitutions left',
   slotUnavailable: 'That spot is taken or closed',
   slotLocked: 'That spot is closed after a red card',
@@ -70,6 +71,8 @@ function pairError(
 function incomingError(lineup: LiveLineup, inId: number): SubError | null {
   if (lineup.sentOff.includes(inId)) return SUB_ERRORS.inSentOff;
   if (findPlayerSlot(lineup, inId)) return SUB_ERRORS.inOnPitch;
+  // E.g. an "every match" preset naming a player who is absent today.
+  if (!lineup.bench.includes(inId)) return SUB_ERRORS.inNotOnBench;
   return null;
 }
 
@@ -92,7 +95,24 @@ export function canSwap(
   target: { playerId: number } | { slotId: string },
 ): SubError | null {
   if (!findPlayerSlot(lineup, playerId)) return SUB_ERRORS.notOnPitch;
-  if ('slotId' in target) return openSlotError(lineup, target.slotId);
+  if ('slotId' in target) {
+    // A spot closed by a red card is allowed: the lock moves to the spot the player leaves.
+    const slot = lineup.slots.find((s) => s.slotId === target.slotId);
+    return slot && slot.playerId === undefined ? null : SUB_ERRORS.slotUnavailable;
+  }
   if (target.playerId === playerId) return SUB_ERRORS.samePlayer;
   return findPlayerSlot(lineup, target.playerId) ? null : SUB_ERRORS.notOnPitch;
+}
+
+/** A quick-sub preset: at least one pair, and each player in only one pair. */
+export function checkPresetPairs(pairs: readonly QuickSubPair[]): ParseResult<QuickSubPair[]> {
+  if (pairs.length === 0) return { ok: false, error: 'Add at least one substitution' };
+  const ids = pairs.flatMap((p) => [p.outPlayerId, p.inPlayerId]);
+  if (pairs.some((p) => p.outPlayerId === p.inPlayerId)) {
+    return { ok: false, error: SUB_ERRORS.samePlayer };
+  }
+  if (new Set(ids).size !== ids.length) {
+    return { ok: false, error: 'A player can only be in one substitution' };
+  }
+  return { ok: true, value: [...pairs] };
 }

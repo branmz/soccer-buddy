@@ -17,6 +17,8 @@ export const MATCH_EVENT_TYPES = [
   'substitution',
   'opponent_goal',
   'position_swap',
+  /** A player who wasn't here at kickoff joins the bench. */
+  'late_arrival',
 ] as const;
 export type MatchEventType = (typeof MATCH_EVENT_TYPES)[number];
 
@@ -30,7 +32,7 @@ export type FormationSlot = {
   playerId?: number;
 };
 
-/** Stored in `formations.layout_json` and `matches.live_layout_json`. */
+/** Stored in `formations.layout_json`. (`matches.live_layout_json` holds a LiveLayout.) */
 export type FormationLayout = {
   slots: FormationSlot[];
 };

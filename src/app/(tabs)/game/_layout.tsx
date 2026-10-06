@@ -9,6 +9,8 @@ export default function GameDayLayout() {
         name="index"
         options={{ title: 'Game Day', headerRight: () => <TeamSwitcher /> }}
       />
+      <Stack.Screen name="[matchId]" options={{ title: 'Match setup' }} />
+      <Stack.Screen name="lineup/[matchId]" options={{ title: 'Starting lineup' }} />
     </Stack>
   );
 }
