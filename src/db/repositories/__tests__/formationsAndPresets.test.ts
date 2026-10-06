@@ -17,6 +17,7 @@ import {
   deletePreset,
   getPreset,
   matchPresetsQuery,
+  presetsForMatch,
   teamPresetsQuery,
   updatePreset,
 } from '../presets';
@@ -114,7 +115,10 @@ describe('presets repository', () => {
       { teamId: team.id },
       { name: 'Half-time', substitutions: pairs },
     );
-    const matchPreset = createPreset({ matchId: match.id }, { name: 'Plan B', substitutions: [] });
+    const matchPreset = createPreset(
+      { matchId: match.id },
+      { name: 'Plan B', substitutions: pairs },
+    );
 
     expect(teamPreset).toMatchObject({ teamId: team.id, matchId: null, substitutions: pairs });
     expect(
@@ -147,5 +151,28 @@ describe('presets repository', () => {
     deletePreset(preset.id);
     expect(getPreset(preset.id)).toBeUndefined();
     expect(() => updatePreset(preset.id, { name: 'Gone' })).toThrow('not found');
+  });
+
+  it('lists a match’s own presets first, then the team’s, skipping unreadable rows', () => {
+    const team = createTeam({ name: 'U12' });
+    const match = createMatch(team.id, {
+      opponentName: 'Rivals',
+      periodCount: 2,
+      periodLengthMinutes: 30,
+      maxSubs: null,
+    });
+    const teamPreset = createPreset({ teamId: team.id }, { name: 'A team', substitutions: pairs });
+    const matchPreset = createPreset(
+      { matchId: match.id },
+      { name: 'Z match', substitutions: pairs },
+    );
+    mockTest.sqlite.exec(
+      `insert into quick_sub_presets (team_id, preset_name, substitutions_json, created_at)
+        values (${team.id}, 'Broken', 'not json', 0)`,
+    );
+    expect(presetsForMatch(team.id, match.id).map((x) => x.id)).toEqual([
+      matchPreset.id,
+      teamPreset.id,
+    ]);
   });
 });

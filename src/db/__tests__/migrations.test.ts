@@ -70,6 +70,12 @@ describe('upgrading from 0000_init', () => {
       field_size: 11,
       home_color: null,
     });
+    // 0003: existing matches count as home games, with no formation name.
+    expect(db.prepare('select opponent_name, is_home, formation_name from matches').get()).toEqual({
+      opponent_name: 'Rivals',
+      is_home: 1,
+      formation_name: null,
+    });
     db.close();
   });
 });

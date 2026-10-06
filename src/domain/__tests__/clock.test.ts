@@ -1,9 +1,14 @@
 import {
+  availableClockActions,
+  breakName,
+  clockTransition,
   formatClock,
   formatMatchMinute,
   getClockState,
   matchMinuteAt,
   periodElapsedMs,
+  periodName,
+  type ClockAction,
   type ClockPeriod,
 } from '../clock';
 
@@ -200,5 +205,115 @@ describe('getClockState', () => {
     const p2 = period({ periodNumber: 2, startedAt: T0 + 30 * MIN });
     const state = getClockState([p1, p2], 20 * MIN, T0 + 51 * MIN);
     expect(state).toMatchObject({ currentPeriod: 2, isStoppage: true, display: "40+2'" });
+  });
+});
+
+describe('availableClockActions', () => {
+  const at = (periods: ClockPeriod[]) => getClockState(periods, HALF, T0 + 10 * MIN);
+
+  it('offers nothing before kickoff', () => {
+    expect(availableClockActions(at([]), 2)).toEqual([]);
+  });
+
+  it('offers pause and end period while running', () => {
+    expect(availableClockActions(at([period({ periodNumber: 1 })]), 2)).toEqual([
+      'pause',
+      'endPeriod',
+      'finish',
+    ]);
+  });
+
+  it('offers finish instead of end period in the last period', () => {
+    const p1 = period({ periodNumber: 1, endedAt: T0 + MIN });
+    const p2 = period({ periodNumber: 2, startedAt: T0 + 2 * MIN, pausedAt: T0 + 3 * MIN });
+    expect(availableClockActions(at([p1, p2]), 2)).toEqual(['resume', 'finish']);
+  });
+
+  it('offers the next period at half-time and only finish at full time', () => {
+    const p1 = period({ periodNumber: 1, endedAt: T0 + MIN });
+    expect(availableClockActions(at([p1]), 2)).toEqual(['startNextPeriod', 'finish']);
+    expect(availableClockActions(at([p1]), 1)).toEqual(['finish']);
+  });
+});
+
+describe('clockTransition', () => {
+  const running = period({ periodNumber: 1, pausedTotalMs: MIN });
+  const now = T0 + 20 * MIN;
+
+  const change = (periods: ClockPeriod[], action: ClockAction, periodCount = 2) => {
+    const result = clockTransition(periods, action, now, periodCount);
+    if (!result.ok) throw new Error(result.error);
+    return result.value;
+  };
+
+  it('pauses the running period', () => {
+    expect(change([running], 'pause')).toEqual({
+      update: { periodNumber: 1, patch: { pausedAt: now } },
+      insert: null,
+      finishMatch: false,
+    });
+  });
+
+  it('resumes, adding the pause to the paused total', () => {
+    const paused = { ...running, pausedAt: T0 + 15 * MIN };
+    expect(change([paused], 'resume').update).toEqual({
+      periodNumber: 1,
+      patch: { pausedAt: null, pausedTotalMs: 6 * MIN },
+    });
+  });
+
+  it('ends a period without changing its elapsed time', () => {
+    const paused = { ...running, pausedAt: T0 + 15 * MIN };
+    const patch = change([paused], 'endPeriod').update?.patch;
+    expect(patch).toEqual({ endedAt: now, pausedAt: null, pausedTotalMs: 6 * MIN });
+    const ended = { ...paused, ...patch };
+    expect(periodElapsedMs(ended, now + HALF)).toBe(periodElapsedMs(paused, now));
+  });
+
+  it('starts the next period', () => {
+    const ended = { ...running, endedAt: T0 + HALF };
+    expect(change([ended], 'startNextPeriod')).toEqual({
+      update: null,
+      insert: { periodNumber: 2, startedAt: now, endedAt: null, pausedAt: null, pausedTotalMs: 0 },
+      finishMatch: false,
+    });
+  });
+
+  it('finishes, ending the open period', () => {
+    expect(change([running], 'finish')).toEqual({
+      update: { periodNumber: 1, patch: { endedAt: now } },
+      insert: null,
+      finishMatch: true,
+    });
+    const ended = { ...running, endedAt: T0 + HALF };
+    expect(change([ended], 'finish', 1)).toEqual({
+      update: null,
+      insert: null,
+      finishMatch: true,
+    });
+  });
+
+  it('rejects actions that are not available', () => {
+    expect(clockTransition([running], 'resume', now, 2).ok).toBe(false);
+    expect(clockTransition([], 'pause', now, 2).ok).toBe(false);
+    expect(clockTransition([{ ...running, endedAt: now }], 'startNextPeriod', now, 1).ok).toBe(
+      false,
+    );
+  });
+});
+
+describe('periodName / breakName', () => {
+  it('names halves, quarters and other periods', () => {
+    expect(periodName(1, 2)).toBe('1st half');
+    expect(periodName(2, 2)).toBe('2nd half');
+    expect(periodName(3, 4)).toBe('Q3');
+    expect(periodName(2, 3)).toBe('Period 2');
+    expect(periodName(1, 1)).toBe('Game');
+  });
+
+  it('names breaks', () => {
+    expect(breakName(1, 2)).toBe('Half-time');
+    expect(breakName(2, 2)).toBe('Full time');
+    expect(breakName(2, 4)).toBe('End of Q2');
   });
 });

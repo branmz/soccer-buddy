@@ -15,6 +15,8 @@ export default function RootLayout() {
         <DatabaseGate>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
+            {/* Full screen, above the tabs: every pixel goes to the pitch during a match. */}
+            <Stack.Screen name="live/[matchId]" />
           </Stack>
         </DatabaseGate>
       </SafeAreaProvider>

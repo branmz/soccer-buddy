@@ -113,6 +113,18 @@ describe('playingTime', () => {
     expect(appeared.has(4)).toBe(false);
   });
 
+  it('gives a late arrival minutes only once they come on', () => {
+    const events = [event(10, { eventType: 'late_arrival', playerId: 9 }), sub(20, 9, 3)];
+    const { msByPlayer, appeared } = playingTime(start, events, 40 * MIN);
+    expect(minutes(msByPlayer)).toMatchObject({ 3: 20, 9: 20 });
+    expect(appeared.has(9)).toBe(true);
+
+    const benchOnly = playingTime(start, [events[0]], 40 * MIN);
+    expect(benchOnly.appeared.has(9)).toBe(false);
+    expect(benchOnly.msByPlayer.get(9) ?? 0).toBe(0);
+    expect(minutes(benchOnly.msByPlayer)).toMatchObject({ 1: 40, 2: 40, 3: 40 });
+  });
+
   it('never counts time past now or backwards', () => {
     const { msByPlayer } = playingTime(start, [sub(30, 4, 2)], 20 * MIN);
     expect(minutes(msByPlayer)).toMatchObject({ 1: 20, 2: 20, 4: 0 });

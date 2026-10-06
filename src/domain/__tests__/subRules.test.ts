@@ -1,5 +1,12 @@
 import { applyLineupEvent, deriveLineup, type LineupEvent, type LiveLineup } from '../lineup';
-import { canFillSlot, canSubstitute, canSwap, SUB_ERRORS, subsRemaining } from '../subRules';
+import {
+  canFillSlot,
+  canSubstitute,
+  canSwap,
+  checkPresetPairs,
+  SUB_ERRORS,
+  subsRemaining,
+} from '../subRules';
 import type { StartingLineup } from '../types';
 
 // GK 1 · CB 2 · CM empty · ST 3; bench 4, 5, 6
@@ -76,8 +83,9 @@ describe('canSubstitute', () => {
     expect(canSubstitute(after, null, [pair(4, 2)]).ok).toBe(true);
   });
 
-  it('allows a player who was not on the kickoff bench', () => {
-    expect(canSubstitute(lineup, null, [pair(3, 9)]).ok).toBe(true);
+  it('rejects a player who is not on the bench (absent today)', () => {
+    expect(canSubstitute(lineup, null, [pair(3, 9)]).errors).toEqual([SUB_ERRORS.inNotOnBench]);
+    expect(canFillSlot(lineup, 'cm', 9)).toBe(SUB_ERRORS.inNotOnBench);
   });
 
   it('reports an error per pair', () => {
@@ -154,7 +162,8 @@ describe('canSwap', () => {
     expect(canSwap(lineup, 3, { playerId: 4 })).toBe(SUB_ERRORS.notOnPitch);
     expect(canSwap(lineup, 3, { playerId: 3 })).toBe(SUB_ERRORS.samePlayer);
     expect(canSwap(lineup, 3, { slotId: 'gk' })).toBe(SUB_ERRORS.slotUnavailable);
-    expect(canSwap(redCarded, 3, { slotId: 'cb' })).toBe(SUB_ERRORS.slotLocked);
+    // Moving into a red-card spot is allowed: the lock moves to the spot left behind.
+    expect(canSwap(redCarded, 3, { slotId: 'cb' })).toBeNull();
   });
 });
 
@@ -172,5 +181,14 @@ describe('checks agree with the replay', () => {
     expect(applyLineupEvent(lineup, swap)).not.toBe(lineup);
     expect(canSubstitute(lineup, null, [pair(2, 5)]).ok).toBe(true);
     expect(applyLineupEvent(lineup, sub)).not.toBe(lineup);
+  });
+});
+
+describe('checkPresetPairs', () => {
+  it('needs at least one pair, each player once', () => {
+    expect(checkPresetPairs([pair(2, 4), pair(3, 5)]).ok).toBe(true);
+    expect(checkPresetPairs([])).toEqual({ ok: false, error: 'Add at least one substitution' });
+    expect(checkPresetPairs([pair(2, 2)])).toEqual({ ok: false, error: SUB_ERRORS.samePlayer });
+    expect(checkPresetPairs([pair(2, 4), pair(4, 5)]).ok).toBe(false);
   });
 });

@@ -9,6 +9,7 @@ import { sameItem, type BoardItem, type SlotFit } from '@/domain/board';
 import { formatPositions } from '@/domain/positions';
 
 import { useBoardDrag, useDragGesture } from './BoardDragContext';
+import { ContributionMarks } from './ContributionMarks';
 
 type BenchSidebarProps = {
   /** Bench players in display order (suggested fits first while a slot is selected). */
@@ -25,6 +26,10 @@ type BenchSidebarProps = {
   slotHasPlayer: (slotId: string) => boolean;
   onPlayerPress: (playerId: number) => void;
   onBenchZonePress: () => void;
+  /** An extra line under a player's name (live match: minutes played). */
+  noteFor?: (player: Player) => string | null;
+  /** Live match: goals and assists, shown as small marks on the badge. */
+  statsFor?: (player: Player) => { goals: number; assists: number } | undefined;
 };
 
 /** Right-hand column of players not on the pitch. Hold a player to drag, or tap to select. */
@@ -38,6 +43,8 @@ export function BenchSidebar({
   slotHasPlayer,
   onPlayerPress,
   onBenchZonePress,
+  noteFor,
+  statsFor,
 }: BenchSidebarProps) {
   const { benchRef, dragging } = useBoardDrag();
   // While a pitch token is dragged, the whole bench is a drop target.
@@ -77,6 +84,8 @@ export function BenchSidebar({
                   kitColor={kitColor}
                   disabled={disabled}
                   fit={fitFor(player)}
+                  note={noteFor?.(player) ?? null}
+                  stats={statsFor?.(player)}
                   selected={sameItem(selection, { kind: 'bench', playerId: player.id })}
                   onPress={() => onPlayerPress(player.id)}
                 />
@@ -96,6 +105,8 @@ export function BenchSidebar({
 
 type BenchPlayerProps = {
   player: Player;
+  note: string | null;
+  stats: { goals: number; assists: number } | undefined;
   kitColor: string | null;
   fit: SlotFit;
   selected: boolean;
@@ -103,7 +114,16 @@ type BenchPlayerProps = {
   onPress: () => void;
 };
 
-function BenchPlayer({ player, kitColor, fit, selected, disabled, onPress }: BenchPlayerProps) {
+function BenchPlayer({
+  player,
+  note,
+  stats,
+  kitColor,
+  fit,
+  selected,
+  disabled,
+  onPress,
+}: BenchPlayerProps) {
   const { dragging } = useBoardDrag();
   const item: BoardItem = { kind: 'bench', playerId: player.id };
   const { ref, gesture } = useDragGesture(item, { enabled: !disabled });
@@ -121,6 +141,7 @@ function BenchPlayer({ player, kitColor, fit, selected, disabled, onPress }: Ben
           player.name,
           player.jerseyNumber === null ? '' : `number ${player.jerseyNumber}`,
           fit ? 'suggested for this spot' : '',
+          note ?? '',
         ]
           .filter(Boolean)
           .join(', ')}
@@ -133,7 +154,10 @@ function BenchPlayer({ player, kitColor, fit, selected, disabled, onPress }: Ben
             selected ? 'border-brand bg-green-50' : 'border-transparent bg-transparent'
           } ${isDragged ? 'opacity-30' : 'opacity-100'}`}
         >
-          <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={36} />
+          <View>
+            <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={36} />
+            {stats && <ContributionMarks goals={stats.goals} assists={stats.assists} size={36} />}
+          </View>
           <Text numberOfLines={1} className="text-xs font-semibold text-gray-900">
             {player.name}
           </Text>
@@ -144,6 +168,11 @@ function BenchPlayer({ player, kitColor, fit, selected, disabled, onPress }: Ben
             >
               {fit ? '★ ' : ''}
               {positions}
+            </Text>
+          )}
+          {note !== null && (
+            <Text numberOfLines={1} className="text-[11px] font-semibold text-gray-600">
+              {note}
             </Text>
           )}
         </View>

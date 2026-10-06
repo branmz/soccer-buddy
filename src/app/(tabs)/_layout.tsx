@@ -1,7 +1,9 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Tabs } from 'expo-router';
-import type { ComponentProps } from 'react';
+import { router, Tabs } from 'expo-router';
+import { useEffect, type ComponentProps } from 'react';
 import type { ColorValue } from 'react-native';
+
+import { liveMatchQuery } from '@/db/repositories/matches';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -13,7 +15,19 @@ function tabIcon(name: IconName) {
   };
 }
 
+/** Once per app launch: a match left live (app killed mid-game) reopens straight away. */
+let resumeChecked = false;
+
 export default function TabsLayout() {
+  useEffect(() => {
+    if (resumeChecked) return;
+    resumeChecked = true;
+    const live = liveMatchQuery().get();
+    if (live) {
+      router.push({ pathname: '/live/[matchId]', params: { matchId: String(live.id) } });
+    }
+  }, []);
+
   return (
     <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: BRAND }}>
       <Tabs.Screen name="teams" options={{ title: 'Teams', tabBarIcon: tabIcon('people') }} />

@@ -48,20 +48,25 @@ what to build next. Update its Status section when a milestone's PR merges.
 ## Project Layout
 
 - `src/app/` — expo-router routes only. `(tabs)/` = teams · tactics · game · history, each a
-  folder with its own Stack `_layout.tsx`
+  folder with its own Stack `_layout.tsx`. `live/[matchId]` sits above the tabs (full screen)
+- `src/db/repositories/liveMatch.ts` — kickoff, clock writes, `recordLiveAction`, undo,
+  `setLiveLayout` / `switchLiveFormation` (mid-match shape in `live_layout_json`)
 - `src/db/schema.ts` — Drizzle schema; `src/db/migrations/` is generated, never hand-edit
 - `src/db/repositories/` — all DB access. Synchronous (Drizzle's expo driver is sync, and
   `db.transaction` callbacks must be sync). Reads are exported as `xxxQuery()` builders;
   writes validate via `src/domain` and throw `ValidationError` (show it with `userMessage(e)`)
-- `src/hooks/` — `useLiveData` (reactive DB reads), `useActiveTeam` (active team, self-healing)
+- `src/hooks/` — `useLiveData` (reactive DB reads), `useActiveTeam` (active team, self-healing),
+  `useMatchClock` (re-renders only; call `refresh()` after a clock write)
 - `src/db/testing/createTestDb.ts` — test-only: Drizzle's expo driver over `node:sqlite`
 - `src/domain/` — pure TS logic (clock, lineup replay, sub rules, playing time, stats,
   formation JSON parsing). No React, no DB imports. Unit tested in `src/domain/__tests__/`
 - `src/constants/presetFormations.ts` — built-in formations per field size (5/7/9/11)
 - `src/stores/` — Zustand: `appStore` (activeTeamId, persisted via expo-sqlite/kv-store),
-  `boardStore` (formation editor), `liveMatchStore` (live-screen UI state)
+  `boardStore` (formation editor and match lineup editor). Live-screen UI state is local state
 - `src/components/pitch/` — shared Pitch, PlayerToken, BenchSidebar, DragLayer
-- `src/components/game/` — ClockBar, EventActionBar, EventTimeline, QuickSubBar
+- `src/components/game/` — setup sheets (formation, squad, quick-sub presets), live screen
+  (ClockBar, LiveBoard, QuickSubBar, EventActionBar, EventTimeline, FinishedSummary)
+- `src/lib/haptics.ts` — `confirmHaptic` / `rejectHaptic` (Android haptics engine)
 - `src/components/ui/` — generic primitives (Button, IconButton, TextField, Sheet,
   SegmentedControl, EmptyState); `src/components/teams/` — team/player forms, TeamSwitcher
 

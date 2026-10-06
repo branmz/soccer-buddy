@@ -87,15 +87,22 @@ export const matches = sqliteTable(
       onDelete: 'set null',
     }),
     opponentName: text('opponent_name').notNull(),
+    /** The formation's name when the match was set up (saved or preset), e.g. "4-3-3". */
+    formationName: text('formation_name'),
     periodCount: integer('period_count').notNull(),
     periodLengthMinutes: integer('period_length_minutes').notNull(),
     gameLengthMinutes: integer('game_length_minutes').notNull(),
     /** null = unlimited substitutions. */
     maxSubs: integer('max_subs'),
     status: text('status', { enum: MATCH_STATUSES }).notNull().default('setup'),
-    /** StartingLineup JSON snapshot, written at kickoff. */
+    /** Home or away: picks the team's home or away kit color. */
+    isHome: integer('is_home', { mode: 'boolean' }).notNull().default(true),
+    /** StartingLineup JSON: the draft lineup during setup, frozen as the snapshot at kickoff. */
     startingLineupJson: text('starting_lineup_json'),
-    /** FormationLayout JSON for slot positions moved during the match. */
+    /**
+     * LiveLayout JSON (`{ slots, name }`, no players): the formation's shape after mid-match
+     * edits or a switch, laid over the lineup by slot id. Null: the starting shape.
+     */
     liveLayoutJson: text('live_layout_json'),
     startedAt: integer('started_at'),
     endedAt: integer('ended_at'),

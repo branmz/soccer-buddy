@@ -117,11 +117,34 @@ describe('deriveLineup', () => {
       sub(2, 3), // sent-off players can't return
       sub(4, null, { slotId: 'cb' }), // locked slot
       sub(1, 3), // player 1 is already on the pitch
-      event({ eventType: 'position_swap', playerId: 3, slotId: 'cb' }), // locked slot
       event({ eventType: 'position_swap', playerId: 4, relatedPlayerId: 3 }), // 4 on bench
     ]);
     expect(lineup.slots.map((s) => s.playerId)).toEqual([1, undefined, undefined, 3]);
     expect(lineup.bench).toEqual([4, 5]);
+  });
+
+  it('moves the red-card lock when a player moves into the closed spot', () => {
+    // Keeper sent off; the striker goes in goal, so the striker's spot closes instead.
+    const lineup = deriveLineup(start, [
+      event({ eventType: 'red_card', playerId: 1 }),
+      event({ eventType: 'position_swap', playerId: 3, slotId: 'gk' }),
+    ]);
+    const gk = lineup.slots.find((s) => s.slotId === 'gk');
+    const st = lineup.slots.find((s) => s.slotId === 'st');
+    expect(gk).toMatchObject({ playerId: 3, locked: false });
+    expect(st?.playerId).toBeUndefined();
+    expect(st?.locked).toBe(true);
+    expect(lineup.slots.filter((s) => s.locked)).toHaveLength(1);
+  });
+
+  it('adds a late arrival to the end of the bench, once', () => {
+    const lineup = deriveLineup(start, [
+      event({ eventType: 'late_arrival', playerId: 9 }),
+      event({ eventType: 'late_arrival', playerId: 9 }),
+      event({ eventType: 'late_arrival', playerId: 2 }), // already on the pitch
+    ]);
+    expect(lineup.bench).toEqual([4, 5, 9]);
+    expect(lineup.slots.map((s) => s.playerId)).toEqual([1, 2, undefined, 3]);
   });
 
   it('ignores events that do not change the lineup', () => {
