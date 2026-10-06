@@ -13,7 +13,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
 | 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged         | #5     |
 | 4   | Pitch & Tactics board                                       | ✅ merged         | #7     |
 | 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged         | #9     |
-| 6   | Game Day: setup, quick-sub presets, live match              | ✅ done (PR open) | #PRNUM |
+| 6   | Game Day: setup, quick-sub presets, live match              | ✅ done (PR open) | #10    |
 | 7   | **History & stats**                                         | ⏭ next            |        |
 | 8   | Polish & EAS preview APK                                    | todo              |        |
 
