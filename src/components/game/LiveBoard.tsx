@@ -328,7 +328,10 @@ export function liveHint(
 export function LiveHint({ text, onCancel }: { text: string; onCancel: () => void }) {
   return (
     <View className="min-h-11 flex-row items-center gap-2 border-b border-yellow-300 bg-yellow-50 px-3">
-      <Text accessibilityLiveRegion="polite" className="flex-1 text-sm text-gray-800">
+      <Text
+        accessibilityLiveRegion="polite"
+        className="flex-1 py-1 text-base font-medium text-gray-900"
+      >
         {text}
       </Text>
       <Pressable

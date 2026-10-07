@@ -1,17 +1,19 @@
 import { router, Stack } from 'expo-router';
 import { useState } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { View } from 'react-native';
 
-import { ColorSwatch } from '@/components/teams/ColorSwatch';
+import { TeamCardBody, teamCardLabel } from '@/components/teams/TeamCard';
 import { TeamFormSheet } from '@/components/teams/TeamFormSheet';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { IconButton } from '@/components/ui/IconButton';
-import { teamSummariesQuery, type TeamSummary } from '@/db/repositories/teams';
+import { HeaderButton } from '@/components/ui/HeaderButton';
+import { ReorderList } from '@/components/ui/ReorderList';
+import { ValidationError } from '@/db/repositories/errors';
+import { setTeamOrder, teamSummariesQuery, type TeamSummary } from '@/db/repositories/teams';
 import { players, teams } from '@/db/schema';
-import { kitColorName } from '@/domain/colors';
 import { useActiveTeam } from '@/hooks/useActiveTeam';
 import { useLiveData } from '@/hooks/useLiveData';
+import { rejectHaptic } from '@/lib/haptics';
 
 export default function TeamsScreen() {
   const summaries = useLiveData(() => teamSummariesQuery().all(), [], [teams, players]);
@@ -23,36 +25,54 @@ export default function TeamsScreen() {
     router.push({ pathname: '/teams/[teamId]', params: { teamId: String(team.id) } });
   }
 
+  function saveOrder(ids: number[]): boolean {
+    try {
+      setTeamOrder(ids);
+      return true;
+    } catch (e) {
+      // A team was added or deleted meanwhile: the list shows the saved order again.
+      if (!(e instanceof ValidationError)) throw e;
+      rejectHaptic();
+      return false;
+    }
+  }
+
+  const isActive = (team: TeamSummary) => team.id === activeTeam?.id;
+
   return (
     <View className="flex-1 bg-gray-50">
       <Stack.Screen
         options={{
           headerRight: () => (
-            <IconButton icon="add" label="New team" onPress={() => setCreating(true)} />
+            <HeaderButton
+              label="New team"
+              icon="add"
+              variant="primary"
+              onPress={() => setCreating(true)}
+            />
           ),
         }}
       />
 
-      <FlatList
-        data={summaries}
-        keyExtractor={(t) => String(t.id)}
-        contentContainerClassName="gap-3 p-4 grow"
-        ListEmptyComponent={
-          <EmptyState
-            icon="people-outline"
-            title="No teams yet"
-            message="Create your first team, then add its players."
-            action={<Button label="Create a team" icon="add" onPress={() => setCreating(true)} />}
-          />
-        }
-        renderItem={({ item }) => (
-          <TeamCard
-            team={item}
-            isActive={item.id === activeTeam?.id}
-            onPress={() => openRoster(item)}
-          />
-        )}
-      />
+      {summaries.length === 0 ? (
+        <EmptyState
+          icon="people-outline"
+          title="No teams yet"
+          message="Create your first team, then add its players."
+          action={<Button label="Create a team" icon="add" onPress={() => setCreating(true)} />}
+        />
+      ) : (
+        // Teams can be dragged by their handles at any time; tapping one opens its roster.
+        <ReorderList
+          items={summaries}
+          name={(team) => team.name}
+          accessibilityLabel={(team) => teamCardLabel(team, isActive(team))}
+          renderBody={(team) => <TeamCardBody team={team} isActive={isActive(team)} />}
+          borderClass={(team) => (isActive(team) ? 'border-brand' : 'border-gray-200')}
+          onOpen={openRoster}
+          onReorder={saveOrder}
+        />
+      )}
 
       {/* Editing and deleting a team live on its roster screen. */}
       <TeamFormSheet
@@ -61,50 +81,5 @@ export default function TeamsScreen() {
         onSaved={(saved) => setActiveTeamId(saved.id)}
       />
     </View>
-  );
-}
-
-type TeamCardProps = {
-  team: TeamSummary;
-  isActive: boolean;
-  onPress: () => void;
-};
-
-function TeamCard({ team, isActive, onPress }: TeamCardProps) {
-  const playerLabel = team.activePlayerCount === 1 ? 'player' : 'players';
-  const kits = [
-    team.homeColor && `home kit ${kitColorName(team.homeColor)}`,
-    team.awayColor && `away kit ${kitColorName(team.awayColor)}`,
-  ].filter(Boolean);
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={`${team.name}${isActive ? ', active team' : ''}, ${team.fieldSize} v ${team.fieldSize}, ${team.activePlayerCount} ${playerLabel}${kits.length ? `, ${kits.join(', ')}` : ''}`}
-      accessibilityHint="Opens the roster and makes this the active team"
-      onPress={onPress}
-      className={`gap-1 rounded-2xl border bg-white px-4 py-4 active:bg-gray-50 ${isActive ? 'border-brand' : 'border-gray-200'}`}
-    >
-      <View className="flex-row items-center gap-2">
-        <Text numberOfLines={1} className="shrink text-lg font-bold text-gray-900">
-          {team.name}
-        </Text>
-        {isActive && (
-          <View className="rounded-full bg-green-100 px-2 py-0.5">
-            <Text className="text-xs font-semibold text-pitch-dark">Active</Text>
-          </View>
-        )}
-      </View>
-      <View className="flex-row items-center gap-2">
-        {(team.homeColor || team.awayColor) && (
-          <View className="flex-row gap-1">
-            {team.homeColor && <ColorSwatch color={team.homeColor} size={14} />}
-            {team.awayColor && <ColorSwatch color={team.awayColor} size={14} />}
-          </View>
-        )}
-        <Text className="text-sm text-gray-500">
-          {team.fieldSize}v{team.fieldSize} · {team.activePlayerCount} {playerLabel}
-        </Text>
-      </View>
-    </Pressable>
   );
 }

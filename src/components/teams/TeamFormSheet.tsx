@@ -98,7 +98,11 @@ function TeamForm({ team, onClose, onSaved, onDeletePress }: Omit<TeamFormSheetP
           switch back.
         </Text>
       )}
-      <Button label={team ? 'Save changes' : 'Create team'} onPress={save} />
+      <Button
+        label={team ? 'Save changes' : 'Create team'}
+        icon={team ? 'save-outline' : 'add'}
+        onPress={save}
+      />
       {team && onDeletePress && (
         <Button
           label="Delete team"

@@ -1,6 +1,7 @@
 /**
  * @jest-environment node
  */
+import { formations } from '@/db/schema';
 import { createTestDb, type TestDb } from '@/db/testing/createTestDb';
 import type { FormationLayout } from '@/domain/types';
 
@@ -9,6 +10,7 @@ import {
   deleteFormation,
   formationsQuery,
   getFormation,
+  setFormationOrder,
   updateFormation,
 } from '../formations';
 import { createMatch, getMatch } from '../matches';
@@ -80,6 +82,36 @@ describe('formations repository', () => {
     updateTeam(team.id, { fieldSize: 7 });
     expect(formationsQuery(team.id).all()).toHaveLength(1);
     expect(formationsQuery(team.id, 7).all()).toHaveLength(0);
+  });
+
+  const names = (teamId: number, fieldSize?: 5 | 7) =>
+    formationsQuery(teamId, fieldSize)
+      .all()
+      .map((f) => f.name);
+
+  it('lists formations in the order they were saved, alphabetical if never ordered', () => {
+    const team = createTeam({ name: 'Futsal', fieldSize: 5 });
+    createFormation(team.id, { name: 'Box', layout: fiveASide });
+    createFormation(team.id, { name: 'Arrow', layout: fiveASide });
+    expect(names(team.id)).toEqual(['Box', 'Arrow']);
+    mockTest.db.update(formations).set({ sortOrder: 0 }).run();
+    expect(names(team.id)).toEqual(['Arrow', 'Box']);
+  });
+
+  it("saves a new order for one field size, keeping other sizes' formations", () => {
+    const team = createTeam({ name: 'Futsal', fieldSize: 5 });
+    const [a, b, c] = ['A', 'B', 'C'].map(
+      (name) => createFormation(team.id, { name, layout: fiveASide }).id,
+    );
+    setFormationOrder(team.id, 5, [c, a, b]);
+    expect(names(team.id, 5)).toEqual(['C', 'A', 'B']);
+    createFormation(team.id, { name: 'D', layout: fiveASide });
+    expect(names(team.id, 5)).toEqual(['C', 'A', 'B', 'D']);
+
+    expect(() => setFormationOrder(team.id, 5, [a, b, c])).toThrow('The formation list changed');
+    expect(() => setFormationOrder(team.id, 7, [a])).toThrow('The formation list changed');
+    const other = createTeam({ name: 'U12', fieldSize: 5 });
+    expect(() => setFormationOrder(other.id, 5, [a])).toThrow('The formation list changed');
   });
 
   it('keeps matches when their formation is deleted', () => {

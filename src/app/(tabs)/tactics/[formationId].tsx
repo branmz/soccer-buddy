@@ -196,7 +196,7 @@ export default function FormationEditorScreen() {
               <HeaderButton
                 label={canSave ? 'Save' : 'Saved'}
                 accessibilityLabel={canSave ? 'Save formation' : 'All changes saved'}
-                icon={canSave ? 'checkmark' : 'checkmark-done'}
+                icon={canSave ? 'save-outline' : 'checkmark-done'}
                 variant={canSave ? 'primary' : 'secondary'}
                 disabled={!canSave}
                 onPress={() => save()}

@@ -2,6 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { capitalizeWords } from '@/domain/text';
+
 import { RefereeCardIcon } from './RefereeCardIcon';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -103,7 +105,7 @@ function ActionButton({ label, icon, tone, onPress, disabled = false }: ActionBu
         icon
       )}
       <Text numberOfLines={1} className={`text-sm font-semibold ${style.text}`}>
-        {label}
+        {capitalizeWords(label)}
       </Text>
     </Pressable>
   );

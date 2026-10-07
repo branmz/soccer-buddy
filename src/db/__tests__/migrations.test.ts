@@ -47,6 +47,8 @@ describe('upgrading from 0000_init', () => {
       insert into teams (id, name, created_at) values (1, 'U12', ${now});
       insert into players (id, team_id, name, jersey_number, created_at)
         values (1, 1, 'Ana', 9, ${now});
+      insert into formations (id, team_id, name, field_size, layout_json, created_at, updated_at)
+        values (1, 1, '4-4-2', 11, '{"slots":[]}', ${now}, ${now});
       insert into matches (id, team_id, opponent_name, period_count, period_length_minutes,
         game_length_minutes, created_at) values (1, 1, 'Rivals', 2, 25, 50, ${now});
       insert into match_events (match_id, player_id, event_type, period_number, game_time_ms,
@@ -65,10 +67,14 @@ describe('upgrading from 0000_init', () => {
       primary_position: null,
     });
     expect(count(db, 'match_events')).toBe(1);
-    expect(db.prepare('select name, field_size, home_color from teams').get()).toEqual({
-      name: 'U12',
-      field_size: 11,
-      home_color: null,
+    expect(db.prepare('select name, field_size, home_color, sort_order from teams').get()).toEqual(
+      // 0004: existing teams share order 0, so they list alphabetically until reordered.
+      { name: 'U12', field_size: 11, home_color: null, sort_order: 0 },
+    );
+    // 0005: likewise for saved formations.
+    expect(db.prepare('select name, sort_order from formations').get()).toEqual({
+      name: '4-4-2',
+      sort_order: 0,
     });
     // 0003: existing matches count as home games, with no formation name.
     expect(db.prepare('select opponent_name, is_home, formation_name from matches').get()).toEqual({

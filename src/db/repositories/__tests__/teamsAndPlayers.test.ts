@@ -1,10 +1,12 @@
 /**
  * @jest-environment node
  */
+import { teams } from '@/db/schema';
 import { createTestDb, type TestDb } from '@/db/testing/createTestDb';
 
 import { ValidationError } from '../errors';
 import { recordEventGroup } from '../events';
+import { kickoff } from '../liveMatch';
 import { createMatch } from '../matches';
 import {
   addPlayer,
@@ -18,6 +20,7 @@ import {
   createTeam,
   deleteTeam,
   getTeam,
+  setTeamOrder,
   teamSummariesQuery,
   teamsQuery,
   updateTeam,
@@ -41,14 +44,38 @@ describe('teams repository', () => {
     expect(team).toMatchObject({ name: 'Blue Lions', fieldSize: 11 });
   });
 
-  it('lists teams alphabetically', () => {
+  const names = () =>
+    teamsQuery()
+      .all()
+      .map((t) => t.name);
+
+  it('lists teams in the order they were added', () => {
     createTeam({ name: 'Zebras' });
     createTeam({ name: 'Ants', fieldSize: 5 });
-    expect(
-      teamsQuery()
-        .all()
-        .map((t) => t.name),
-    ).toEqual(['Ants', 'Zebras']);
+    expect(names()).toEqual(['Zebras', 'Ants']);
+  });
+
+  it('falls back to alphabetical for teams that were never ordered', () => {
+    createTeam({ name: 'Zebras' });
+    createTeam({ name: 'Ants' });
+    mockTest.db.update(teams).set({ sortOrder: 0 }).run();
+    expect(names()).toEqual(['Ants', 'Zebras']);
+  });
+
+  it('saves a new order and puts later teams at the end', () => {
+    const [a, b, c] = ['A', 'B', 'C'].map((name) => createTeam({ name }));
+    setTeamOrder([c.id, a.id, b.id]);
+    expect(names()).toEqual(['C', 'A', 'B']);
+    createTeam({ name: 'D' });
+    expect(names()).toEqual(['C', 'A', 'B', 'D']);
+  });
+
+  it('rejects an order that is not exactly every team', () => {
+    const [a, b] = ['A', 'B'].map((name) => createTeam({ name }));
+    expect(() => setTeamOrder([a.id])).toThrow(ValidationError);
+    expect(() => setTeamOrder([a.id, a.id])).toThrow(ValidationError);
+    expect(() => setTeamOrder([a.id, b.id, 999])).toThrow(ValidationError);
+    expect(names()).toEqual(['A', 'B']);
   });
 
   it('summarizes teams with active player counts, including empty teams', () => {
@@ -63,8 +90,8 @@ describe('teams repository', () => {
         .all()
         .map((t) => [t.name, t.activePlayerCount]),
     ).toEqual([
-      ['Bears', 0],
       ['Lions', 2],
+      ['Bears', 0],
     ]);
   });
 
@@ -189,5 +216,27 @@ describe('players repository', () => {
 
     expect(playerHasMatchHistory(bea.id)).toBe(true);
     expect(() => deletePlayer(bea.id)).toThrow('Mark them inactive');
+  });
+
+  it('blocks deleting a player who was in a kicked-off lineup, even with no events', () => {
+    const [cam, dee, eve] = ['Cam', 'Dee', 'Eve'].map((name) => addPlayer(teamId, { name }));
+    const lineup = (playerId: number) => ({
+      slots: [{ slotId: 'gk', role: 'GK' as const, label: 'GK', x: 0.5, y: 0.9, playerId }],
+      bench: [],
+    });
+    const setup = {
+      opponentName: 'Rivals',
+      periodCount: 2,
+      periodLengthMinutes: 25,
+      maxSubs: null,
+    };
+    kickoff(createMatch(teamId, setup, { ...lineup(cam.id), bench: [dee.id] }).id);
+    // A draft that never kicked off isn't history.
+    createMatch(teamId, setup, lineup(eve.id));
+
+    expect(playerHasMatchHistory(cam.id)).toBe(true);
+    expect(playerHasMatchHistory(dee.id)).toBe(true);
+    expect(() => deletePlayer(cam.id)).toThrow('Mark them inactive');
+    expect(playerHasMatchHistory(eve.id)).toBe(false);
   });
 });

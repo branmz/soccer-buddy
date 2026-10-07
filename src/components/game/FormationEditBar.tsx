@@ -34,7 +34,7 @@ export function FormationBar({ formationName, onSwitch, onEdit }: FormationBarPr
         className="min-h-11 flex-row items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 active:bg-green-100"
       >
         <Ionicons name="move" size={18} color="#1b5e20" />
-        <Text className="text-base font-semibold text-pitch-dark">Edit formation</Text>
+        <Text className="text-base font-semibold text-pitch-dark">Edit Formation</Text>
       </Pressable>
     </View>
   );

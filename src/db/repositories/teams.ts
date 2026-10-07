@@ -1,8 +1,9 @@
-import { and, asc, count, eq, getTableColumns } from 'drizzle-orm';
+import { and, asc, count, eq, getTableColumns, max } from 'drizzle-orm';
 
 import { db } from '@/db/client';
 import { players, teams, type Team } from '@/db/schema';
 import { cleanKitColor } from '@/domain/colors';
+import { isSameSet } from '@/domain/ordering';
 import type { FieldSize } from '@/domain/types';
 import { cleanName, isFieldSize } from '@/domain/validation';
 
@@ -13,21 +14,27 @@ function checkFieldSize(fieldSize: number): FieldSize {
   return fieldSize;
 }
 
-/** All teams, alphabetical. Call `.all()`, or read through useLiveData. */
+/** The coach's order; teams never reordered (all 0) fall back to alphabetical. */
+const teamOrder = [asc(teams.sortOrder), asc(teams.name), asc(teams.id)];
+
+/** All teams, in the coach's order. Call `.all()`, or read through useLiveData. */
 export function teamsQuery() {
-  return db.select().from(teams).orderBy(asc(teams.name));
+  return db
+    .select()
+    .from(teams)
+    .orderBy(...teamOrder);
 }
 
 export type TeamSummary = Team & { activePlayerCount: number };
 
-/** All teams, alphabetical, with how many active players each has. Depends on `players` too. */
+/** All teams, in the coach's order, with their active player counts. Depends on `players` too. */
 export function teamSummariesQuery() {
   return db
     .select({ ...getTableColumns(teams), activePlayerCount: count(players.id) })
     .from(teams)
     .leftJoin(players, and(eq(players.teamId, teams.id), eq(players.isActive, true)))
     .groupBy(teams.id)
-    .orderBy(asc(teams.name));
+    .orderBy(...teamOrder);
 }
 
 export function getTeam(id: number): Team | undefined {
@@ -42,10 +49,16 @@ export type TeamInput = {
   awayColor?: string | null;
 };
 
+/** New teams go to the end of the list. */
 export function createTeam(input: TeamInput): Team {
+  const last = db
+    .select({ value: max(teams.sortOrder) })
+    .from(teams)
+    .get();
   return db
     .insert(teams)
     .values({
+      sortOrder: (last?.value ?? -1) + 1,
       name: unwrap(cleanName(input.name, 'Team name')),
       fieldSize: checkFieldSize(input.fieldSize ?? 11),
       homeColor: unwrap(cleanKitColor(input.homeColor)),
@@ -73,6 +86,24 @@ export function updateTeam(id: number, patch: Partial<TeamInput>): Team {
       : db.update(teams).set(values).where(eq(teams.id, id)).returning().get();
   if (!updated) throw new NotFoundError('Team', id);
   return updated;
+}
+
+/**
+ * Saves the Teams list order: `ids` must be every team, once, in the order to show. Throws a
+ * ValidationError otherwise (e.g. a team was added or deleted meanwhile).
+ */
+export function setTeamOrder(ids: readonly number[]): void {
+  db.transaction((tx) => {
+    const existing = tx
+      .select({ id: teams.id })
+      .from(teams)
+      .all()
+      .map((t) => t.id);
+    if (!isSameSet(ids, existing)) throw new ValidationError('The team list changed. Try again.');
+    ids.forEach((teamId, index) => {
+      tx.update(teams).set({ sortOrder: index }).where(eq(teams.id, teamId)).run();
+    });
+  });
 }
 
 /** Deletes the team and, via cascades, its players, formations, matches and presets. */

@@ -330,3 +330,25 @@ export function changeSlotPosition(
     s.slotId === slotId ? { ...s, label: position, role: POSITION_LINE[position] } : s,
   );
 }
+
+/**
+ * For read-only previews: squeezes the slots vertically (keeping their spacing in proportion)
+ * so every y lies within [top, 1 − bottom]. Margins are normalized to the pitch height and
+ * make room for labels that hang above and below tokens. Slots already inside are unchanged.
+ */
+export function fitSlotsVertically<T extends Pick<FormationSlot, 'y'>>(
+  slots: readonly T[],
+  top: number,
+  bottom: number,
+): T[] {
+  if (slots.length === 0) return [...slots];
+  const ys = slots.map((s) => s.y);
+  const lo = Math.min(...ys);
+  const hi = Math.max(...ys);
+  const clamp = (y: number) => Math.min(Math.max(y, top), 1 - bottom);
+  const min = clamp(lo);
+  const max = Math.max(min, clamp(hi));
+  if (min === lo && max === hi) return [...slots];
+  const scale = hi === lo ? 0 : (max - min) / (hi - lo);
+  return slots.map((s) => ({ ...s, y: min + (s.y - lo) * scale }));
+}

@@ -32,7 +32,7 @@ export function UnsavedChangesSheet({
           {error}
         </Text>
       )}
-      <Button label="Save" icon="checkmark" onPress={onSave} />
+      <Button label="Save" icon="save-outline" onPress={onSave} />
       <Button label="Discard changes" variant="danger" onPress={onDiscard} />
       <Button label="Keep editing" variant="secondary" onPress={onClose} />
     </Sheet>

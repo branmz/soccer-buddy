@@ -94,3 +94,10 @@ export function timelineEntries(
     }))
     .reverse();
 }
+
+const KEY_KINDS: ReadonlySet<TimelineKind> = new Set(['goal', 'opponentGoal', 'red']);
+
+/** Goals (both sides) and sendings-off, in the order they happened. */
+export function keyMoments(entries: readonly TimelineEntry[]): TimelineEntry[] {
+  return entries.filter((e) => KEY_KINDS.has(e.kind)).reverse();
+}

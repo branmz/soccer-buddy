@@ -165,6 +165,7 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
       )}
       <Button
         label={player ? 'Save changes' : 'Add player'}
+        icon={player ? 'save-outline' : 'person-add-outline'}
         disabled={jerseyError !== null}
         onPress={() => save()}
       />

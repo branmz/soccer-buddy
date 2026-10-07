@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { liveMatchQuery, matchesQuery } from '@/db/repositories/matches';
 import { getTeam } from '@/db/repositories/teams';
 import { matches, teams, type Match } from '@/db/schema';
+import { matchKitColor } from '@/domain/matchSetup';
 import { useActiveTeam } from '@/hooks/useActiveTeam';
 import { useLiveData } from '@/hooks/useLiveData';
 
@@ -90,6 +91,7 @@ export default function GameDayScreen() {
               <LiveMatchCard
                 match={live}
                 teamName={liveTeam?.name ?? 'Us'}
+                kitColor={liveTeam ? matchKitColor(liveTeam, live.isHome) : null}
                 onPress={() => openLive(live)}
               />
             )}

@@ -3,19 +3,19 @@
 The living plan for this app. Read it with `CLAUDE.md`, which has the stack, commands,
 architecture rules and git conventions. Update the **Status** section when a milestone merges.
 
-## Status (as of 2026-10-05)
+## Status (as of 2026-10-06)
 
-| #   | Milestone                                                   | State             | PR     |
-| --- | ----------------------------------------------------------- | ----------------- | ------ |
-| 1   | Scaffold, tooling, lint hook                                | ✅ merged         | #1     |
-| 2   | DB layer: schema, migrations, repositories                  | ✅ merged         | #2     |
-| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged         | #3, #4 |
-| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged         | #5     |
-| 4   | Pitch & Tactics board                                       | ✅ merged         | #7     |
-| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged         | #9     |
-| 6   | Game Day: setup, quick-sub presets, live match              | ✅ done (PR open) | #10    |
-| 7   | **History & stats**                                         | ⏭ next            |        |
-| 8   | Polish & EAS preview APK                                    | todo              |        |
+| #   | Milestone                                                   | State          | PR     |
+| --- | ----------------------------------------------------------- | -------------- | ------ |
+| 1   | Scaffold, tooling, lint hook                                | ✅ merged      | #1     |
+| 2   | DB layer: schema, migrations, repositories                  | ✅ merged      | #2     |
+| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged      | #3, #4 |
+| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged      | #5     |
+| 4   | Pitch & Tactics board                                       | ✅ merged      | #7     |
+| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged      | #9     |
+| 6   | Game Day: setup, quick-sub presets, live match              | ✅ merged      | #10    |
+| 7   | **History & stats**                                         | 🚧 in progress |        |
+| 8   | Polish & EAS preview APK                                    | todo           |        |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -33,10 +33,16 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Teams:** optional **home/away kit colors** (14-color palette). Roster badges use the home
   color; a match uses the away kit when it's an away game (falling back to home).
 - **Roster sort:** number / name / position (ST → GK by primary position), persisted.
+- **Team and formation order:** the coach's order (`teams.sort_order`,
+  `formations.sort_order`). The Teams list and the Tactics saved formations are always
+  draggable (no Reorder button): tapping a card opens it; its handle drags, or tap the handle
+  then tap a card to move it there. New items go last; never-reordered lists are alphabetical.
+  Tactics presets stay fixed below. The top saved formation is the default for a team's first
+  match. Both lists use `ReorderList` (`src/components/ui`).
 
 - **Tactics board** (decided while testing milestone 4 on the phone):
   - Spots are **locked by default**. Dragging moves players: bench → spot assigns, spot →
-    spot swaps, spot → bench benches. A **Move spots** mode (bottom toolbar) is the only way
+    spot swaps, spot → bench benches. An **Edit spots** mode (bottom toolbar; was "Move spots") is the only way
     to move spots or change a spot's position (e.g. CDM → CM).
   - **Exactly one GK:** the GK spot can't change position and no other spot can become GK.
   - **Undo** (bottom toolbar) steps back any spot or player change; renames aren't undone.
@@ -63,7 +69,8 @@ architecture rules and git conventions. Update the **Status** section when a mil
     no button. Toasts are solid (white/red), never translucent, and stop at the bench.
   - **Player pickers show position**: current spot on the pitch, else preferred positions.
   - **Cards** use a drawn referee card (`RefereeCardIcon`), never a credit-card icon. A second
-    yellow asks "Yellow + red" or "Yellow only".
+    yellow asks "Yellow + red" or "Yellow only". In the card picker, the Yellow / Red options
+    show their card and fill with that color when selected.
   - Tokens show minutes played, a yellow card mark, and **goal (ball) / assist (boot)
     markers** with a count bubble.
   - Picking up a bench player highlights spots for their main (solid ring) and second
@@ -78,11 +85,12 @@ architecture rules and git conventions. Update the **Status** section when a mil
 ## What exists now (milestones 1–6)
 
 - **Schema** (`src/db/schema.ts`, migrations `0000_init`, `0001_player_positions`,
-  `0002_team_kit_colors`, `0003_match_venue_and_formation`):
-  - `teams`: id, name, field_size, home_color, away_color, created_at
+  `0002_team_kit_colors`, `0003_match_venue_and_formation`, `0004_team_sort_order`,
+  `0005_formation_sort_order`):
+  - `teams`: id, name, field_size, home_color, away_color, sort_order, created_at
   - `players`: id, team_id, name, jersey_number, primary_position, secondary_position,
     is_active, created_at
-  - `formations`: id, team_id, name, field_size, layout_json, created_at, updated_at
+  - `formations`: id, team_id, name, field_size, layout_json, sort_order, created_at, updated_at
   - `matches`: id, team_id, formation_id, formation_name, opponent_name, is_home,
     period_count, period_length_minutes, game_length_minutes, max_subs (null = unlimited),
     status (setup/live/finished), starting_lineup_json (draft during setup, frozen at
@@ -133,7 +141,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
   (`game/index`: live card with score + clock, New match, drafts), **match setup** (`game/[matchId]`),
   **lineup editor** (`game/lineup/[matchId]`), **live match** (`live/[matchId]`, full screen
   above the tabs; reopens on launch if a match is live; leave guard; keep-awake; full-time
-  summary). History is still a placeholder.
+  summary). **History** (milestone 7, below).
 - **Tests:** 388 (domain, presets, boardStore, repositories over real SQLite via
   `createTestDb`, migrations incl. an upgrade test run inside a transaction like the device
   migrator).
@@ -152,7 +160,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Drops hop to JS with `scheduleOnRN`** (react-native-worklets): Reanimated 4 deprecates
   `runOnJS`. Drop points are measured on the UI thread with `measure()`, relative to the
   board root, and hit-tested in JS by `findDropTarget`. There is no `useDropTargets` hook.
-- Spots are locked unless **Move spots** is on (the plan had token → grass always moving a
+- Spots are locked unless **Edit spots** is on (the plan had token → grass always moving a
   spot); accidental moves were a problem on the phone.
 - Bench drags start on a sideways swipe as well as after the 150 ms hold.
 - The editor ghost is hidden only after the drop has rendered, so there is no gap where the
@@ -178,13 +186,22 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Validation:** every live action goes through `buildLiveEvents` (lineup replayed from
   SQLite, sub limit, bench membership, slot availability) before `recordEventGroup`.
 
-## Next: Milestone 7 — History & stats
+## Milestone 7 — History & stats (built, awaiting phone test)
 
-Branch `feature/history-stats` off `main`. The spec is item 7 under **Later milestones**.
-Build on `stats.ts` (`seasonStats` takes finished matches only; merge in the roster for the
-table), `playingTime`, `timeline`, `matchLineup` and `FinishedSummary` (reusable for match
-detail). Ignore `late_arrival` in stats (it isn't a stat) but count minutes from replay as
-today.
+Branch `feature/history-stats`. The spec is item 7 under **Later milestones**.
+
+- **Domain** `src/domain/history.ts`: `finalGameMs` (active time of every period),
+  `minutesPlayed`, `seasonTable` (roster merged with `seasonStats` totals; inactive players
+  only if they have a season), `nextSeasonSort` / `sortSeasonTable` (tap a column to sort,
+  again to flip; numbers start high-to-low, names A–Z). Also `ordering.ts` and `text.ts`.
+- **Repository** `src/db/repositories/history.ts`: `finishedMatches` (newest first, with score
+  and result; watch matches + match_events) and `seasonMatches` (watch matches, match_events,
+  match_periods).
+- **Screens:** `history/index` (Matches | Season segments; `MatchResultRow`, `SeasonRecordCard`,
+  `SeasonTable`) and `history/[matchId]` (reuses `FinishedSummary`: key moments, match log,
+  minutes played; delete match from the header). `late_arrival` isn't a stat.
+- Also on this branch: draggable team and formation order (`ReorderList`, migrations
+  `0004`/`0005`), `TeamCard`, and UI tweaks from phone testing. `PlaceholderScreen` is gone.
 
 ## Later milestones (from the original plan)
 

@@ -32,6 +32,7 @@ import { presetsForMatch } from '@/db/repositories/presets';
 import { getTeam } from '@/db/repositories/teams';
 import { matches, players, quickSubPresets, teams } from '@/db/schema';
 import { lineupPlayerIds, matchKitColor } from '@/domain/matchSetup';
+import { capitalizeWords } from '@/domain/text';
 import { MAX_PERIODS } from '@/domain/validation';
 import { useLiveData } from '@/hooks/useLiveData';
 
@@ -281,7 +282,7 @@ export default function MatchSetupScreen() {
                 slots={lineup.slots}
                 playerById={(id) => byId.get(id)}
                 kitColor={kitColor}
-                height={300}
+                maxHeight={520}
               />
               <Text className="text-center text-sm text-gray-600">
                 {placed} of {lineup.slots.length} spots filled · {lineup.bench.length} on the bench
@@ -417,7 +418,7 @@ function Card({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View className="gap-4 rounded-2xl border border-gray-200 bg-white p-4">
       <Text accessibilityRole="header" className="text-lg font-bold text-gray-900">
-        {title}
+        {capitalizeWords(title)}
       </Text>
       {children}
     </View>

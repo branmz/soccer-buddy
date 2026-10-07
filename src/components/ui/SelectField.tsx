@@ -2,6 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
 import { Keyboard, Pressable, Text, View } from 'react-native';
 
+import { capitalizeWords } from '@/domain/text';
+
 type SelectFieldProps = {
   label: string;
   /** Text shown in the field; null shows the placeholder. */
@@ -29,7 +31,7 @@ export function SelectField({
 }: SelectFieldProps) {
   return (
     <View className={`flex-1 gap-1 ${disabled ? 'opacity-40' : ''}`}>
-      <Text className="text-sm font-medium text-gray-700">{label}</Text>
+      <Text className="text-sm font-medium text-gray-700">{capitalizeWords(label)}</Text>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${label}: ${valueDescription ?? valueText ?? 'none'}`}
