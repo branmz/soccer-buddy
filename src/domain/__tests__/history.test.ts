@@ -2,6 +2,7 @@ import type { ClockPeriod } from '../clock';
 import {
   finalGameMs,
   minutesPlayed,
+  minutesWithPlayers,
   nextSeasonSort,
   seasonTable,
   sortSeasonTable,
@@ -36,6 +37,28 @@ describe('finalGameMs', () => {
 
   it('is zero with no periods', () => {
     expect(finalGameMs([])).toBe(0);
+  });
+});
+
+describe('minutesWithPlayers', () => {
+  it('pairs minutes with players, in order, and leaves out unknown ids', () => {
+    const byId = new Map([
+      [1, 'Ana'],
+      [3, 'Cam'],
+    ]);
+    expect(
+      minutesWithPlayers(
+        [
+          { playerId: 3, minutes: 40 },
+          { playerId: 2, minutes: 30 },
+          { playerId: 1, minutes: 12 },
+        ],
+        byId,
+      ),
+    ).toEqual([
+      { player: 'Cam', minutes: 40 },
+      { player: 'Ana', minutes: 12 },
+    ]);
   });
 });
 

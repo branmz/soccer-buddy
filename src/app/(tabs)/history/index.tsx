@@ -7,7 +7,7 @@ import { SeasonRecordCard, SeasonTable } from '@/components/history/SeasonTable'
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { finishedMatches, seasonMatches } from '@/db/repositories/history';
+import { teamHistory, type TeamHistory } from '@/db/repositories/history';
 import { playersQuery } from '@/db/repositories/players';
 import { matchEvents, matches, matchPeriods, players } from '@/db/schema';
 import {
@@ -25,6 +25,8 @@ import { useLiveData } from '@/hooks/useLiveData';
 
 type Tab = 'matches' | 'season';
 
+const NO_HISTORY: TeamHistory = { results: [], season: [] };
+
 const TABS = [
   { label: 'Matches', value: 'matches' },
   { label: 'Season', value: 'season' },
@@ -39,13 +41,8 @@ export default function HistoryScreen() {
     direction: 'desc',
   });
 
-  const results = useLiveData(
-    () => (teamId === null ? [] : finishedMatches(teamId)),
-    [teamId],
-    [matches, matchEvents],
-  );
-  const season = useLiveData(
-    () => (teamId === null ? [] : seasonMatches(teamId)),
+  const { results, season } = useLiveData(
+    () => (teamId === null ? NO_HISTORY : teamHistory(teamId)),
     [teamId],
     [matches, matchEvents, matchPeriods],
   );

@@ -23,7 +23,7 @@ import {
 import { playersQuery } from '@/db/repositories/players';
 import { getTeam } from '@/db/repositories/teams';
 import { matchEvents, matches, matchPeriods, players, teams } from '@/db/schema';
-import { finalGameMs, minutesPlayed } from '@/domain/history';
+import { finalGameMs, minutesPlayed, minutesWithPlayers } from '@/domain/history';
 import { deriveLineup } from '@/domain/lineup';
 import { applyLiveLayout } from '@/domain/liveLayout';
 import { matchKitColor } from '@/domain/matchSetup';
@@ -72,12 +72,7 @@ export default function MatchDetailScreen() {
   const minutes = useMemo(
     () =>
       starting
-        ? minutesPlayed(starting, events, finalGameMs(periods)).flatMap(
-            ({ playerId, minutes: played }) => {
-              const player = playersById.get(playerId);
-              return player ? [{ player, minutes: played }] : [];
-            },
-          )
+        ? minutesWithPlayers(minutesPlayed(starting, events, finalGameMs(periods)), playersById)
         : [],
     [starting, events, periods, playersById],
   );

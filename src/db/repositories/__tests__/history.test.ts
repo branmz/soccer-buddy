@@ -5,7 +5,7 @@ import type { StartingLineup } from '@/domain/types';
 import { seasonStats } from '@/domain/stats';
 import { createTestDb, type TestDb } from '@/db/testing/createTestDb';
 
-import { finishedMatches, seasonMatches } from '../history';
+import { teamHistory } from '../history';
 import { applyClockAction, kickoff, recordLiveAction } from '../liveMatch';
 import { createMatch } from '../matches';
 import { addPlayer } from '../players';
@@ -54,14 +54,16 @@ function playMatch(opponentName: string, start: number, us: number, them: number
   return match.id;
 }
 
-describe('finishedMatches', () => {
+describe('teamHistory results', () => {
   it('lists finished matches newest first with score and result', () => {
     playMatch('Old', T0, 2, 1);
     playMatch('New', T0 + 7 * 24 * 60 * MIN, 0, 0);
     playMatch('Now', T0 + 14 * 24 * 60 * MIN, 1, 0, true);
     createMatch(teamId, { ...setup, opponentName: 'Draft' });
 
-    expect(finishedMatches(teamId).map((m) => [m.match.opponentName, m.score, m.result])).toEqual([
+    expect(
+      teamHistory(teamId).results.map((m) => [m.match.opponentName, m.score, m.result]),
+    ).toEqual([
       ['New', { us: 0, them: 0 }, 'draw'],
       ['Old', { us: 2, them: 1 }, 'win'],
     ]);
@@ -69,16 +71,16 @@ describe('finishedMatches', () => {
 
   it("leaves out other teams' matches", () => {
     playMatch('Old', T0, 2, 1);
-    expect(finishedMatches(createTeam({ name: 'U14' }).id)).toEqual([]);
+    expect(teamHistory(createTeam({ name: 'U14' }).id).results).toEqual([]);
   });
 });
 
-describe('seasonMatches', () => {
+describe('teamHistory season', () => {
   it('feeds season stats with each match lineup, events and final game time', () => {
     playMatch('A', T0, 2, 1);
     playMatch('B', T0 + 7 * 24 * 60 * MIN, 0, 3);
 
-    const season = seasonStats(seasonMatches(teamId));
+    const season = seasonStats(teamHistory(teamId).season);
     expect(season.record).toEqual({
       played: 2,
       wins: 1,
@@ -103,11 +105,11 @@ describe('seasonMatches', () => {
       .prepare('UPDATE matches SET starting_lineup_json = ? WHERE id = ?')
       .run('{"slots":"oops"}', broken);
 
-    expect(seasonMatches(teamId)).toHaveLength(1);
+    expect(teamHistory(teamId).season).toHaveLength(1);
   });
 
   it('is empty with no finished matches', () => {
     playMatch('Now', T0, 1, 0, true);
-    expect(seasonMatches(teamId)).toEqual([]);
+    expect(teamHistory(teamId).season).toEqual([]);
   });
 });

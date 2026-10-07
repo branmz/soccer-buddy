@@ -32,6 +32,17 @@ export function minutesPlayed(
     .sort((a, b) => b.minutes - a.minutes);
 }
 
+/** `minutesPlayed` with each player looked up; ids missing from `playersById` are left out. */
+export function minutesWithPlayers<P>(
+  minutes: readonly MinutesPlayed[],
+  playersById: ReadonlyMap<number, P>,
+): { player: P; minutes: number }[] {
+  return minutes.flatMap(({ playerId, minutes: played }) => {
+    const player = playersById.get(playerId);
+    return player === undefined ? [] : [{ player, minutes: played }];
+  });
+}
+
 type TablePlayer = { id: number; name: string; isActive: boolean };
 
 export type SeasonRow<P extends TablePlayer> = SeasonPlayerTotals & { player: P };

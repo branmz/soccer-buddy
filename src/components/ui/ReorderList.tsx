@@ -7,6 +7,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Gesture, GestureDetector, ScrollView } from 'react-native-gesture-handler';
@@ -89,7 +90,9 @@ export function ReorderList<T extends { id: number }>({
   const byId = useMemo(() => [...items].sort((a, b) => a.id - b.id), [items]);
   // A selection whose item has gone (deleted, or the list switched team) counts as none.
   const selected = items.find((item) => item.id === selectedId) ?? null;
-  const activeSelectedId = selected?.id ?? null;
+  const activeSelectedId = dragging ? null : (selected?.id ?? null);
+  // A handle's drag wins over scrolling the list.
+  const scrollRef = useRef<ScrollView>(null);
 
   function measured(height: number) {
     const next = height + GAP;
@@ -114,12 +117,12 @@ export function ReorderList<T extends { id: number }>({
     const order = moveToIndex(current, id, current.indexOf(id) + delta);
     if (order.join(',') !== current.join(',') && save(order)) confirmHaptic();
   }, []);
-  const dragStarted = useCallback(() => {
-    setSelectedId(null);
-    setDragging(true);
-  }, []);
+  // A selection is kept (but not shown) until the drop, so its banner doesn't vanish and
+  // shift every card up under the finger.
+  const dragStarted = useCallback(() => setDragging(true), []);
   const dropped = useCallback((order: number[]) => {
     setDragging(false);
+    setSelectedId(null);
     if (order.join(',') !== latest.current.orderKey) {
       if (latest.current.onReorder(order)) confirmHaptic();
       // Not saved: slide the cards back to the saved order.
@@ -138,6 +141,7 @@ export function ReorderList<T extends { id: number }>({
 
   return (
     <ScrollView
+      ref={scrollRef}
       className="flex-1 bg-gray-50"
       contentContainerClassName="gap-3 p-4 pb-8"
       scrollEnabled={!dragging}
@@ -145,7 +149,9 @@ export function ReorderList<T extends { id: number }>({
       {header}
       {selected && (
         <Text accessibilityLiveRegion="polite" className="text-base font-medium text-gray-900">
-          Tap where {name(selected)} should go, or tap it again to cancel.
+          {dragging
+            ? 'Drop it where it should go.'
+            : `Tap where ${name(selected)} should go, or tap it again to cancel.`}
         </Text>
       )}
       <View style={{ height: Math.max(0, items.length * slotHeight - GAP) }}>
@@ -161,6 +167,7 @@ export function ReorderList<T extends { id: number }>({
             initialTop={ids.indexOf(item.id) * slotHeight}
             positions={positions}
             slot={slot}
+            scrollRef={scrollRef}
             onMeasure={measured}
             opensOnPress={activeSelectedId === null}
             onPress={() => tapped(item)}
@@ -189,6 +196,8 @@ type ReorderRowProps = {
   initialTop: number;
   positions: SharedValue<Positions>;
   slot: SharedValue<number>;
+  /** The list's scroll view: it waits while the handle decides whether this is a drag. */
+  scrollRef: RefObject<ScrollView | null>;
   onMeasure: (height: number) => void;
   /** Tapping the card opens it (nothing is selected to move). */
   opensOnPress: boolean;
@@ -212,6 +221,7 @@ function ReorderRow({
   initialTop,
   positions,
   slot,
+  scrollRef,
   onMeasure,
   opensOnPress,
   onPress,
@@ -243,6 +253,7 @@ function ReorderRow({
 
   const gesture = useMemo(() => {
     const pan = Gesture.Pan()
+      .blocksExternalGesture(scrollRef)
       .onStart(() => {
         dragging.set(true);
         startTop.set(top.get());
@@ -271,7 +282,19 @@ function ReorderRow({
         if (success) onHandleTap(id);
       });
     return Gesture.Race(pan, tap);
-  }, [id, count, positions, slot, top, startTop, dragging, onHandleTap, onDragStart, onDrop]);
+  }, [
+    id,
+    count,
+    positions,
+    slot,
+    scrollRef,
+    top,
+    startTop,
+    dragging,
+    onHandleTap,
+    onDragStart,
+    onDrop,
+  ]);
 
   const style = useAnimatedStyle(() => ({
     top: top.get(),

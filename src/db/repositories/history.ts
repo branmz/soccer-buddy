@@ -48,29 +48,27 @@ function periodsByMatch(matchIds: number[]) {
   );
 }
 
-/**
- * The team's finished matches, newest first, with their scores. Reads matches and
- * match_events: watch both.
- */
-export function finishedMatches(teamId: number): FinishedMatch[] {
-  const finished = matchesQuery(teamId, 'finished').all();
-  const events = eventsByMatch(finished.map((m) => m.id));
-  return finished.map((match) => {
-    const score = matchScore(events.get(match.id) ?? []);
-    return { match, score, result: matchResult(score) };
-  });
-}
+export type TeamHistory = {
+  /** Finished matches, newest first, with their scores. */
+  results: FinishedMatch[];
+  /** What season stats need from each finished match. */
+  season: SeasonMatch[];
+};
 
 /**
- * What season stats need from each finished match. Reads matches, match_events and
- * match_periods: watch all three.
+ * The team's finished matches, read once for both the results list and season stats.
+ * Reads matches, match_events and match_periods: watch all three.
  */
-export function seasonMatches(teamId: number): SeasonMatch[] {
+export function teamHistory(teamId: number): TeamHistory {
   const finished = matchesQuery(teamId, 'finished').all();
   const ids = finished.map((m) => m.id);
   const events = eventsByMatch(ids);
   const periods = periodsByMatch(ids);
-  return finished.flatMap((match) => {
+  const results = finished.map((match) => {
+    const score = matchScore(events.get(match.id) ?? []);
+    return { match, score, result: matchResult(score) };
+  });
+  const season = finished.flatMap((match) => {
     // A snapshot that can't be read leaves that match out instead of breaking the tab.
     if (match.startingLineupJson === null) return [];
     const startingLineup = parseStartingLineup(match.startingLineupJson);
@@ -83,4 +81,5 @@ export function seasonMatches(teamId: number): SeasonMatch[] {
       },
     ];
   });
+  return { results, season };
 }

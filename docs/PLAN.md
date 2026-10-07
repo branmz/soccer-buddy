@@ -3,19 +3,19 @@
 The living plan for this app. Read it with `CLAUDE.md`, which has the stack, commands,
 architecture rules and git conventions. Update the **Status** section when a milestone merges.
 
-## Status (as of 2026-10-06)
+## Status (as of 2026-10-07)
 
-| #   | Milestone                                                   | State          | PR     |
-| --- | ----------------------------------------------------------- | -------------- | ------ |
-| 1   | Scaffold, tooling, lint hook                                | ✅ merged      | #1     |
-| 2   | DB layer: schema, migrations, repositories                  | ✅ merged      | #2     |
-| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged      | #3, #4 |
-| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged      | #5     |
-| 4   | Pitch & Tactics board                                       | ✅ merged      | #7     |
-| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged      | #9     |
-| 6   | Game Day: setup, quick-sub presets, live match              | ✅ merged      | #10    |
-| 7   | **History & stats**                                         | 🚧 in progress |        |
-| 8   | Polish & EAS preview APK                                    | todo           |        |
+| #   | Milestone                                                   | State             | PR     |
+| --- | ----------------------------------------------------------- | ----------------- | ------ |
+| 1   | Scaffold, tooling, lint hook                                | ✅ merged         | #1     |
+| 2   | DB layer: schema, migrations, repositories                  | ✅ merged         | #2     |
+| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged         | #3, #4 |
+| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged         | #5     |
+| 4   | Pitch & Tactics board                                       | ✅ merged         | #7     |
+| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged         | #9     |
+| 6   | Game Day: setup, quick-sub presets, live match              | ✅ merged         | #10    |
+| 7   | **History & stats**                                         | ✅ done (PR open) | #11    |
+| 8   | Polish & EAS preview APK                                    | todo              |        |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -186,17 +186,22 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Validation:** every live action goes through `buildLiveEvents` (lineup replayed from
   SQLite, sub limit, bench membership, slot availability) before `recordEventGroup`.
 
-## Milestone 7 — History & stats (built, awaiting phone test)
+## Milestone 7 — History & stats (done, PR #11)
 
 Branch `feature/history-stats`. The spec is item 7 under **Later milestones**.
 
 - **Domain** `src/domain/history.ts`: `finalGameMs` (active time of every period),
-  `minutesPlayed`, `seasonTable` (roster merged with `seasonStats` totals; inactive players
-  only if they have a season), `nextSeasonSort` / `sortSeasonTable` (tap a column to sort,
-  again to flip; numbers start high-to-low, names A–Z). Also `ordering.ts` and `text.ts`.
-- **Repository** `src/db/repositories/history.ts`: `finishedMatches` (newest first, with score
-  and result; watch matches + match_events) and `seasonMatches` (watch matches, match_events,
-  match_periods).
+  `minutesPlayed` + `minutesWithPlayers`, `seasonTable` (roster merged with `seasonStats`
+  totals; inactive players only if they have a season), `nextSeasonSort` / `sortSeasonTable`
+  (tap a column to sort, again to flip; numbers start high-to-low, names A–Z). Also
+  `ordering.ts` and `text.ts`.
+- **Repository** `src/db/repositories/history.ts`: `teamHistory` reads finished matches once
+  for `results` (newest first, with score and result) and `season` (stats input; a match
+  whose lineup can't be parsed is left out). Watch matches, match_events, match_periods.
+- **Match history** (blocks a hard delete) = any event referencing the player, or being in a
+  kicked-off match's starting lineup.
+- **ReorderList:** a handle's pan blocks the list's scroll (`blocksExternalGesture`), and a
+  tap selection stays until the drop so its banner doesn't shift the cards.
 - **Screens:** `history/index` (Matches | Season segments; `MatchResultRow`, `SeasonRecordCard`,
   `SeasonTable`) and `history/[matchId]` (reuses `FinishedSummary`: key moments, match log,
   minutes played; delete match from the header). `late_arrival` isn't a stat.

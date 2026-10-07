@@ -70,7 +70,7 @@ import {
   onPitchPlayerIds,
   type LiveLineup,
 } from '@/domain/lineup';
-import { minutesPlayed } from '@/domain/history';
+import { minutesPlayed, minutesWithPlayers } from '@/domain/history';
 import { applyLiveTap, liveDropAction } from '@/domain/liveBoard';
 import { applyLiveLayout, type LiveFormation } from '@/domain/liveLayout';
 import { yellowCardCount, type LiveAction } from '@/domain/matchEvents';
@@ -399,11 +399,9 @@ export default function LiveMatchScreen() {
   }
 
   if (match.status === 'finished') {
-    const played = minutesPlayed(starting, events, clock.totalGameMs).flatMap(
-      ({ playerId, minutes }) => {
-        const player = playersById.get(playerId);
-        return player ? [{ player, minutes }] : [];
-      },
+    const played = minutesWithPlayers(
+      minutesPlayed(starting, events, clock.totalGameMs),
+      playersById,
     );
     return (
       <FinishedSummary
