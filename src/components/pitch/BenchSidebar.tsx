@@ -72,7 +72,7 @@ export function BenchSidebar({
               className="mx-1 mb-1 min-h-12 items-center justify-center rounded-xl bg-brand px-1 active:bg-pitch-dark"
             >
               <Ionicons name="arrow-down" size={16} color="#ffffff" />
-              <Text className="text-center text-xs font-semibold text-white">Move to bench</Text>
+              <Text className="text-center text-xs font-semibold text-white">Move To Bench</Text>
             </Pressable>
           )}
           <ScrollView>

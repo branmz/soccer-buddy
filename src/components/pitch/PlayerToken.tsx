@@ -31,6 +31,10 @@ type PlayerTokenProps = {
   locked?: boolean;
 };
 
+/** Room a filled token's labels need beyond the badge: position chip above, name below. */
+export const TOKEN_LABEL_ABOVE = 14;
+export const TOKEN_LABEL_BELOW = 20;
+
 // Every variant sets border style, border color and background, so switching between them
 // only swaps values (removing a class leaves a one-frame ghost on Android).
 const EMPTY_SLOT_CLASS = {

@@ -1,4 +1,4 @@
-import { timelineEntries, type TimelineEvent } from '../timeline';
+import { keyMoments, timelineEntries, type TimelineEvent } from '../timeline';
 
 const HALF = 45 * 60_000;
 const NAMES: Record<number, string> = { 1: 'Ana', 2: 'Bea', 3: 'Cam', 4: 'Dee', 5: 'Eve' };
@@ -70,5 +70,29 @@ describe('timelineEntries', () => {
   it('keeps ungrouped events apart', () => {
     const events = [ev('opponent_goal', null), ev('opponent_goal', null)];
     expect(timelineEntries(events, HALF, names)).toHaveLength(2);
+  });
+});
+
+describe('keyMoments', () => {
+  it('keeps goals and sendings-off, oldest first', () => {
+    const entries = timelineEntries(
+      [
+        ev('goal', 'g1', { playerId: 1, matchMinute: 5 }),
+        ev('yellow_card', 'y1', { playerId: 2, matchMinute: 12 }),
+        ev('substitution', 's1', { playerId: 3, relatedPlayerId: 1, matchMinute: 20 }),
+        ev('opponent_goal', 'o1', { matchMinute: 30 }),
+        ev('yellow_card', 'y2', { playerId: 2, matchMinute: 40 }),
+        ev('red_card', 'y2', { playerId: 2, matchMinute: 40 }),
+        ev('red_card', 'r1', { playerId: 4, matchMinute: 44 }),
+      ],
+      HALF,
+      names,
+    );
+    expect(keyMoments(entries).map((e) => `${e.minute} ${e.text}`)).toEqual([
+      "5' Goal: Ana",
+      "30' Opponent goal",
+      "40' Second yellow: Bea (sent off)",
+      "44' Red card: Dee",
+    ]);
   });
 });

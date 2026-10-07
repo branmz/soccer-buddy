@@ -35,6 +35,9 @@ type PitchProps = {
  */
 export function Pitch({ size, slots, renderToken, onGrassPress, pitchRef }: PitchProps) {
   const tokenSize = tokenSizeFor(size.width);
+  // Drawn from the top of the pitch down, so a token's position chip sits above the name
+  // hanging from the token in front of it (e.g. the GK's chip over a CB's name).
+  const drawOrder = [...slots].sort((a, b) => a.y - b.y);
   return (
     // Sizes and token positions are measured values, so they're inline styles.
     <Animated.View ref={pitchRef} style={size}>
@@ -53,7 +56,7 @@ export function Pitch({ size, slots, renderToken, onGrassPress, pitchRef }: Pitc
         }
         className="absolute inset-0"
       />
-      {slots.map((slot) => (
+      {drawOrder.map((slot) => (
         <View
           key={slot.slotId}
           className="absolute"

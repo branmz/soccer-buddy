@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { usePreventRemove } from 'expo-router/react-navigation';
 import { useKeepAwake } from 'expo-keep-awake';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -10,11 +9,16 @@ import { FormationBar, FormationEditBar } from '@/components/game/FormationEditB
 import { FormationPickerSheet, type FormationChoice } from '@/components/game/FormationPickerSheet';
 import { EventActionBar } from '@/components/game/EventActionBar';
 import { EventTimeline } from '@/components/game/EventTimeline';
-import { FinishedSummary } from '@/components/game/FinishedSummary';
+import {
+  FinishedSummary,
+  MinutesPlayedCard,
+  TimelineCard,
+} from '@/components/game/FinishedSummary';
 import { LiveBoard, LiveHint, liveHint } from '@/components/game/LiveBoard';
 import { LiveToast, type Toast } from '@/components/game/LiveToast';
 import { PlayerPickSheet } from '@/components/game/PlayerPickSheet';
 import { QuickSubBar } from '@/components/game/QuickSubBar';
+import { RefereeCardIcon } from '@/components/game/RefereeCardIcon';
 import { SlotPositionSheet } from '@/components/pitch/SlotPositionSheet';
 import { Button } from '@/components/ui/Button';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
@@ -65,6 +69,7 @@ import {
   onPitchPlayerIds,
   type LiveLineup,
 } from '@/domain/lineup';
+import { minutesPlayed, minutesWithPlayers } from '@/domain/history';
 import { applyLiveTap, liveDropAction } from '@/domain/liveBoard';
 import { applyLiveLayout, type LiveFormation } from '@/domain/liveLayout';
 import { yellowCardCount, type LiveAction } from '@/domain/matchEvents';
@@ -73,7 +78,7 @@ import { playingTime } from '@/domain/playingTime';
 import { formatPositions } from '@/domain/positions';
 import { matchScore, playerMatchStats } from '@/domain/stats';
 import { canSubstitute } from '@/domain/subRules';
-import { timelineEntries } from '@/domain/timeline';
+import { keyMoments, timelineEntries } from '@/domain/timeline';
 import type { FormationSlot } from '@/domain/types';
 import { useLiveData } from '@/hooks/useLiveData';
 import { useMatchClock } from '@/hooks/useMatchClock';
@@ -161,22 +166,12 @@ export default function LiveMatchScreen() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [pendingLeave, setPendingLeave] = useState<
-    Parameters<typeof navigation.dispatch>[0] | null
-  >(null);
 
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(null), TOAST_MS);
     return () => clearTimeout(timer);
   }, [toast]);
-
-  const isLive = match?.status === 'live';
-  usePreventRemove(isLive, ({ data }) => {
-    // Read fresh: deleting or finishing the match navigates away before this re-renders.
-    if (getMatch(matchId)?.status === 'live') setPendingLeave(data.action);
-    else navigation.dispatch(data.action);
-  });
 
   // Derived from SQLite on every change: the lineup is replayed from the events.
   const startingJson = match?.startingLineupJson ?? null;
@@ -393,26 +388,26 @@ export default function LiveMatchScreen() {
   }
 
   if (match.status === 'finished') {
-    const { msByPlayer, appeared } = playingTime(starting, events, clock.totalGameMs);
-    const played = [...appeared]
-      .flatMap((id) => {
-        const player = playersById.get(id);
-        const minutes = Math.floor((msByPlayer.get(id) ?? 0) / MS_PER_MINUTE);
-        return player ? [{ player, minutes }] : [];
-      })
-      .sort((a, b) => b.minutes - a.minutes);
+    const played = minutesWithPlayers(
+      minutesPlayed(starting, events, clock.totalGameMs),
+      playersById,
+    );
     return (
       <FinishedSummary
         teamName={team.name}
         opponentName={match.opponentName}
         score={score}
-        entries={entries}
-        minutes={played}
-        kitColor={kitColor}
         insetTop={insets.top}
-        insetBottom={insets.bottom}
-        onDone={leaveScreen}
-      />
+        done={{ onPress: leaveScreen, insetBottom: insets.bottom }}
+      >
+        <TimelineCard
+          title="Key moments"
+          entries={keyMoments(entries)}
+          emptyText="No goals or red cards."
+        />
+        <TimelineCard title="Match log" entries={entries} />
+        <MinutesPlayedCard minutes={played} stats={contributions} kitColor={kitColor} />
+      </FinishedSummary>
     );
   }
 
@@ -499,8 +494,20 @@ export default function LiveMatchScreen() {
             <SegmentedControl
               label="Card"
               options={[
-                { label: 'Yellow', value: 'yellow' },
-                { label: 'Red', value: 'red' },
+                {
+                  label: 'Yellow',
+                  value: 'yellow',
+                  icon: <RefereeCardIcon color="yellow" size={20} />,
+                  selectedClassName: 'border-yellow-500 bg-yellow-300',
+                  selectedTextClassName: 'text-gray-900',
+                },
+                {
+                  label: 'Red',
+                  value: 'red',
+                  icon: <RefereeCardIcon color="red" size={20} />,
+                  selectedClassName: 'border-red-700 bg-red-600',
+                  selectedTextClassName: 'text-white',
+                },
               ]}
               value={step.color}
               onChange={(color) => setPick({ open: true, step: { kind: 'card', color } })}
@@ -790,34 +797,11 @@ export default function LiveMatchScreen() {
         onConfirm={() => {
           setDeleteOpen(false);
           deleteMatch(matchId);
-          // The live screen always sits on the tabs; the leave guard sees the match is gone.
+          // The live screen always sits on the tabs.
           router.back();
         }}
         onClose={() => setDeleteOpen(false)}
       />
-      <Sheet
-        visible={pendingLeave !== null}
-        title="Leave the live match?"
-        onClose={() => setPendingLeave(null)}
-      >
-        <Text className="text-base text-gray-700">
-          The match keeps going and the clock keeps running. Come back any time from Game Day.
-        </Text>
-        <Button
-          label="Stay on the match"
-          onPress={() => setPendingLeave(null)}
-          className="min-h-14"
-        />
-        <Button
-          label="Leave"
-          variant="secondary"
-          onPress={() => {
-            const action = pendingLeave;
-            setPendingLeave(null);
-            if (action) navigation.dispatch(action);
-          }}
-        />
-      </Sheet>
     </View>
   );
 }

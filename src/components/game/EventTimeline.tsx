@@ -20,9 +20,15 @@ const KIND_ICON: Record<
 };
 
 /** The match log, newest first. */
-export function EventTimeline({ entries }: { entries: TimelineEntry[] }) {
+export function EventTimeline({
+  entries,
+  emptyText = 'Nothing recorded yet.',
+}: {
+  entries: TimelineEntry[];
+  emptyText?: string;
+}) {
   if (entries.length === 0) {
-    return <Text className="text-base text-gray-500">Nothing recorded yet.</Text>;
+    return <Text className="text-base text-gray-500">{emptyText}</Text>;
   }
   return (
     <View>

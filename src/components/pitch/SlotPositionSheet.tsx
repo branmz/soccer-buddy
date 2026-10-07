@@ -19,7 +19,7 @@ type SlotPositionSheetProps = {
   onClose: () => void;
 };
 
-/** Changes a spot's position (Move spots mode). GK isn't offered: one goalkeeper only. */
+/** Changes a spot's position (Edit spots mode). GK isn't offered: one goalkeeper only. */
 export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositionSheetProps) {
   const options = slot ? positionOptionsFor(slot) : [];
   return (

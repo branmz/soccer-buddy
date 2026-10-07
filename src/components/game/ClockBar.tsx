@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { breakName, periodName, type ClockAction, type ClockState } from '@/domain/clock';
 import type { Score } from '@/domain/stats';
+import { capitalizeWords } from '@/domain/text';
 
 type ClockBarProps = {
   teamName: string;
@@ -196,7 +197,7 @@ function ClockButton({ label, icon, tone, onPress }: ClockButtonProps) {
       className={`min-h-12 min-w-36 flex-row items-center justify-center gap-1.5 rounded-xl border px-3 ${style.box}`}
     >
       <Ionicons name={icon} size={20} color={style.icon} />
-      <Text className={`text-base font-bold ${style.text}`}>{label}</Text>
+      <Text className={`text-base font-bold ${style.text}`}>{capitalizeWords(label)}</Text>
     </Pressable>
   );
 }

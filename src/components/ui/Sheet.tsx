@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { capitalizeWords } from '@/domain/text';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 
 import { IconButton } from './IconButton';
@@ -71,7 +72,7 @@ export function Sheet({ visible, title, onClose, children }: SheetProps) {
         >
           <View className="flex-row items-center justify-between py-2 pr-2 pl-5">
             <Text accessibilityRole="header" className="text-lg font-bold text-gray-900">
-              {title}
+              {capitalizeWords(title)}
             </Text>
             <IconButton icon="close" label="Close" onPress={onClose} color="#6b7280" />
           </View>

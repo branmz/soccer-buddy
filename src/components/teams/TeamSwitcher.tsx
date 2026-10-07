@@ -55,7 +55,7 @@ export function TeamSwitcher() {
           className="shrink text-lg font-semibold"
           style={{ color: textColor }}
         >
-          {team?.name ?? 'Add a team'}
+          {team?.name ?? 'Add A Team'}
         </Text>
         <Ionicons name="chevron-down" size={20} color={textColor} />
       </Pressable>

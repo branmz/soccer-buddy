@@ -29,6 +29,8 @@ export const teams = sqliteTable(
     /** Optional kit colors as #rrggbb (validated by cleanKitColor). */
     homeColor: text('home_color'),
     awayColor: text('away_color'),
+    /** The coach's order on the Teams list (ascending; ties by name). */
+    sortOrder: integer('sort_order').notNull().default(0),
     createdAt: createdAt(),
   },
   (t) => [check('teams_field_size_check', fieldSizeCheck(t.fieldSize))],
@@ -64,6 +66,8 @@ export const formations = sqliteTable(
     fieldSize: integer('field_size').$type<FieldSize>().notNull(),
     /** FormationLayout JSON; parse with parseFormationLayout. */
     layoutJson: text('layout_json').notNull(),
+    /** The coach's order on the Tactics list, per team (ascending; ties by name). */
+    sortOrder: integer('sort_order').notNull().default(0),
     createdAt: createdAt(),
     updatedAt: integer('updated_at')
       .notNull()

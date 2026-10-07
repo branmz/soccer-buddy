@@ -6,6 +6,7 @@ import {
   changeSlotPosition,
   clearPlayers,
   findDropTarget,
+  fitSlotsVertically,
   keepAvailablePlayers,
   moveSlot,
   positionOptionsFor,
@@ -405,5 +406,27 @@ describe('positionOptionsFor', () => {
 
   it('offers nothing for the goalkeeper spot', () => {
     expect(positionOptionsFor(slots[0])).toEqual([]);
+  });
+});
+
+describe('fitSlotsVertically', () => {
+  const ys = (slots: { y: number }[]) => slots.map((s) => Number(s.y.toFixed(3)));
+
+  it('leaves slots that already fit alone', () => {
+    const slots = [{ y: 0.2 }, { y: 0.8 }];
+    expect(fitSlotsVertically(slots, 0.1, 0.1)).toEqual(slots);
+  });
+
+  it('squeezes the formation evenly to keep labels on the pitch', () => {
+    // GK at 0.92 with 0.12 needed below: the shape shrinks towards the top, spacing kept.
+    expect(ys(fitSlotsVertically([{ y: 0.2 }, { y: 0.5 }, { y: 0.92 }], 0.1, 0.12))).toEqual([
+      0.2, 0.483, 0.88,
+    ]);
+    expect(ys(fitSlotsVertically([{ y: 0.05 }, { y: 0.5 }], 0.1, 0.1))).toEqual([0.1, 0.5]);
+  });
+
+  it('handles a single row and an empty list', () => {
+    expect(ys(fitSlotsVertically([{ y: 0.95 }, { y: 0.95 }], 0.1, 0.1))).toEqual([0.9, 0.9]);
+    expect(fitSlotsVertically([], 0.1, 0.1)).toEqual([]);
   });
 });

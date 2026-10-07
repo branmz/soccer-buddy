@@ -1,6 +1,8 @@
 import type { Ref } from 'react';
 import { Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { capitalizeWords } from '@/domain/text';
+
 type TextFieldProps = Omit<TextInputProps, 'className'> & {
   /** Forwarded to the TextInput, e.g. to move focus to it from the previous field. */
   ref?: Ref<TextInput>;
@@ -15,7 +17,7 @@ export function TextField({ label, error, warning, ...inputProps }: TextFieldPro
   const borderClass = error ? 'border-red-500' : warning ? 'border-amber-500' : 'border-gray-300';
   return (
     <View className="gap-1">
-      <Text className="text-sm font-medium text-gray-700">{label}</Text>
+      <Text className="text-sm font-medium text-gray-700">{capitalizeWords(label)}</Text>
       <TextInput
         accessibilityLabel={label}
         placeholderTextColor="#9ca3af"

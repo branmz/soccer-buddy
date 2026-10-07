@@ -199,7 +199,7 @@ function PresetForm({
           {error}
         </Text>
       )}
-      <Button label="Save quick sub" icon="checkmark" onPress={save} />
+      <Button label="Save quick sub" icon="save-outline" onPress={save} />
       {preset && <Button label="Delete quick sub" variant="dangerOutline" onPress={remove} />}
     </>
   );

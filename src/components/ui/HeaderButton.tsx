@@ -2,6 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Pressable, Text } from 'react-native';
 
+import { capitalizeWords } from '@/domain/text';
+
 type HeaderButtonProps = {
   label: string;
   icon: ComponentProps<typeof Ionicons>['name'];
@@ -38,7 +40,7 @@ export function HeaderButton({
     >
       <Ionicons name={icon} size={20} color={primary ? '#ffffff' : '#1b5e20'} />
       <Text className={`text-lg font-semibold ${primary ? 'text-white' : 'text-pitch-dark'}`}>
-        {label}
+        {capitalizeWords(label)}
       </Text>
     </Pressable>
   );

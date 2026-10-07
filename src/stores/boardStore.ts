@@ -29,7 +29,7 @@ type BoardState = {
   dirty: boolean;
   /** The item picked up by a first tap (tap-to-select fallback for dragging). */
   selection: BoardItem | null;
-  /** Spots are locked unless the coach turns on "Move spots" (positions mode). */
+  /** Spots are locked unless the coach turns on "Edit spots" (positions mode). */
   mode: BoardMode;
   /** Earlier slot lists, most recent last. Covers players and spot positions, not the name. */
   undoStack: FormationSlot[][];
@@ -44,7 +44,7 @@ type BoardState = {
   clearSelection: () => void;
   setMode: (mode: BoardMode) => void;
   clearPlayers: () => void;
-  /** Relabels a spot (Move spots mode). Never adds or removes the goalkeeper. */
+  /** Relabels a spot (Edit spots mode). Never adds or removes the goalkeeper. */
   changePosition: (slotId: string, position: PlayerPosition) => void;
   /** Steps back one slot change. */
   undo: () => void;

@@ -106,7 +106,10 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           movingSpots ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200 bg-white'
         }`}
       >
-        <Text accessibilityLiveRegion="polite" className="flex-1 text-sm text-gray-700">
+        <Text
+          accessibilityLiveRegion="polite"
+          className="flex-1 text-base font-medium text-gray-900"
+        >
           {hintText(mode, selection, selectedSlot, selectedPlayer?.name)}
         </Text>
         {movingSpots && selectedSlot && positionOptionsFor(selectedSlot).length > 0 && (
@@ -116,6 +119,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
             onPress={() => setPositionSheet({ open: true, slot: selectedSlot })}
             className="min-h-11 flex-row items-center gap-1 rounded-full border border-brand bg-white px-3 active:bg-green-50"
           >
+            <Text className="text-base text-pitch-dark">Position</Text>
             <Text className="text-lg font-bold text-pitch-dark">{selectedSlot.label}</Text>
             <Ionicons name="chevron-down" size={18} color="#1b5e20" />
           </Pressable>
@@ -203,9 +207,9 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
         </Pressable>
         <Pressable
           accessibilityRole="switch"
-          accessibilityLabel="Move spots"
+          accessibilityLabel="Edit spots"
           accessibilityState={{ checked: movingSpots }}
-          accessibilityHint="When on, dragging moves spots on the pitch instead of players"
+          accessibilityHint="When on, you can move spots and change their positions, like ST to CAM"
           onPress={() => setMode(movingSpots ? 'players' : 'positions')}
           className={`min-h-12 flex-row items-center gap-1.5 rounded-full border px-4 ${
             movingSpots
@@ -214,14 +218,14 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           }`}
         >
           <Ionicons
-            name={movingSpots ? 'checkmark' : 'move'}
+            name={movingSpots ? 'checkmark' : 'create-outline'}
             size={20}
             color={movingSpots ? '#ffffff' : '#1b5e20'}
           />
           <Text
             className={`text-lg font-semibold ${movingSpots ? 'text-white' : 'text-pitch-dark'}`}
           >
-            {movingSpots ? 'Done moving' : 'Move spots'}
+            {movingSpots ? 'Done Editing' : 'Edit Spots'}
           </Text>
         </Pressable>
       </View>
@@ -239,8 +243,8 @@ function hintText(
     if (slot?.role === 'GK') {
       return "Tap the grass to move the goalkeeper. The GK spot can't change position.";
     }
-    if (slot) return `Tap the grass to move ${slot.label}, or change its position.`;
-    return 'Drag spots to move them, or tap a spot then the grass. Tap Done moving to lock them.';
+    if (slot) return `Tap the grass to move ${slot.label}, or tap its chip to change position.`;
+    return 'Drag spots to move them. Tap a spot to change its position (e.g. ST to CAM).';
   }
   if (selection === null) return 'Drag players onto the pitch, or tap a player then a spot.';
   if (selection.kind === 'bench') {

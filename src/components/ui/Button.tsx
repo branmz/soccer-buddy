@@ -2,6 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Pressable, Text } from 'react-native';
 
+import { capitalizeWords } from '@/domain/text';
+
 /** `danger` is for the final confirm; `dangerOutline` for the entry point to a destructive flow. */
 type Variant = 'primary' | 'secondary' | 'danger' | 'dangerOutline' | 'ghost';
 
@@ -55,7 +57,9 @@ export function Button({
       className={`min-h-12 flex-row items-center justify-center gap-2 rounded-xl px-4 ${containerClass[variant]} ${disabled ? 'opacity-40' : ''} ${className}`}
     >
       {icon && <Ionicons name={icon} size={18} color={iconColor[variant]} />}
-      <Text className={`text-base font-semibold ${textClass[variant]}`}>{label}</Text>
+      <Text className={`text-base font-semibold ${textClass[variant]}`}>
+        {capitalizeWords(label)}
+      </Text>
     </Pressable>
   );
 }

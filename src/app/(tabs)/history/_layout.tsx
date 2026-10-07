@@ -9,6 +9,7 @@ export default function HistoryLayout() {
         name="index"
         options={{ title: 'History', headerRight: () => <TeamSwitcher /> }}
       />
+      <Stack.Screen name="[matchId]" options={{ title: 'Match' }} />
     </Stack>
   );
 }

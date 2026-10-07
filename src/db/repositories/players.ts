@@ -1,7 +1,9 @@
-import { and, asc, count, eq, or, sql } from 'drizzle-orm';
+import { and, asc, count, eq, ne, or, sql } from 'drizzle-orm';
 
 import { db } from '@/db/client';
-import { matchEvents, players, type Player } from '@/db/schema';
+import { matchEvents, matches, players, type Player } from '@/db/schema';
+import { parseStartingLineup } from '@/domain/formations';
+import { lineupPlayerIds } from '@/domain/matchSetup';
 import { cleanPositions } from '@/domain/positions';
 import { cleanJerseyNumber, cleanName } from '@/domain/validation';
 
@@ -82,14 +84,30 @@ export function setPlayerActive(id: number, isActive: boolean): Player {
   return updatePlayer(id, { isActive });
 }
 
-/** True if any match event references the player, which blocks a hard delete. */
+/**
+ * True if any match event references the player, or they were in a kicked-off match's
+ * starting lineup (a starter with no events still has minutes). Either blocks a hard delete.
+ */
 export function playerHasMatchHistory(id: number): boolean {
   const row = db
     .select({ n: count() })
     .from(matchEvents)
     .where(or(eq(matchEvents.playerId, id), eq(matchEvents.relatedPlayerId, id)))
     .get();
-  return (row?.n ?? 0) > 0;
+  if ((row?.n ?? 0) > 0) return true;
+
+  const player = getPlayer(id);
+  if (!player) return false;
+  return db
+    .select({ startingLineupJson: matches.startingLineupJson })
+    .from(matches)
+    .where(and(eq(matches.teamId, player.teamId), ne(matches.status, 'setup')))
+    .all()
+    .some(({ startingLineupJson }) => {
+      if (startingLineupJson === null) return false;
+      const lineup = parseStartingLineup(startingLineupJson);
+      return lineup.ok && lineupPlayerIds(lineup.value).includes(id);
+    });
 }
 
 /**
