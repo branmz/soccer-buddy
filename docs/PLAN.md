@@ -81,6 +81,8 @@ architecture rules and git conventions. Update the **Status** section when a mil
   - A **red-card spot** stays empty, but a pitch player can move into it (e.g. into goal):
     the lock moves to the spot they left, so the team stays a player down.
   - Half-time subs are stamped with the minute the half ended.
+  - **No leave confirmation** on the live screen: back just leaves. The match and clock keep
+    going, and the coach returns from Game Day (decided while testing milestone 7).
 
 ## What exists now (milestones 1–6)
 
@@ -140,7 +142,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Screens:** Teams, Roster, Tactics list, formation editor; **Game Day** list
   (`game/index`: live card with score + clock, New match, drafts), **match setup** (`game/[matchId]`),
   **lineup editor** (`game/lineup/[matchId]`), **live match** (`live/[matchId]`, full screen
-  above the tabs; reopens on launch if a match is live; leave guard; keep-awake; full-time
+  above the tabs; reopens on launch if a match is live; no leave confirmation; keep-awake; full-time
   summary). **History** (milestone 7, below).
 - **Tests:** 388 (domain, presets, boardStore, repositories over real SQLite via
   `createTestDb`, migrations incl. an upgrade test run inside a transaction like the device

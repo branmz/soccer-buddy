@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
-import { usePreventRemove } from 'expo-router/react-navigation';
 import { useKeepAwake } from 'expo-keep-awake';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
@@ -167,22 +166,12 @@ export default function LiveMatchScreen() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [logOpen, setLogOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [pendingLeave, setPendingLeave] = useState<
-    Parameters<typeof navigation.dispatch>[0] | null
-  >(null);
 
   useEffect(() => {
     if (!toast) return;
     const timer = setTimeout(() => setToast(null), TOAST_MS);
     return () => clearTimeout(timer);
   }, [toast]);
-
-  const isLive = match?.status === 'live';
-  usePreventRemove(isLive, ({ data }) => {
-    // Read fresh: deleting or finishing the match navigates away before this re-renders.
-    if (getMatch(matchId)?.status === 'live') setPendingLeave(data.action);
-    else navigation.dispatch(data.action);
-  });
 
   // Derived from SQLite on every change: the lineup is replayed from the events.
   const startingJson = match?.startingLineupJson ?? null;
@@ -808,34 +797,11 @@ export default function LiveMatchScreen() {
         onConfirm={() => {
           setDeleteOpen(false);
           deleteMatch(matchId);
-          // The live screen always sits on the tabs; the leave guard sees the match is gone.
+          // The live screen always sits on the tabs.
           router.back();
         }}
         onClose={() => setDeleteOpen(false)}
       />
-      <Sheet
-        visible={pendingLeave !== null}
-        title="Leave the live match?"
-        onClose={() => setPendingLeave(null)}
-      >
-        <Text className="text-base text-gray-700">
-          The match keeps going and the clock keeps running. Come back any time from Game Day.
-        </Text>
-        <Button
-          label="Stay on the match"
-          onPress={() => setPendingLeave(null)}
-          className="min-h-14"
-        />
-        <Button
-          label="Leave"
-          variant="secondary"
-          onPress={() => {
-            const action = pendingLeave;
-            setPendingLeave(null);
-            if (action) navigation.dispatch(action);
-          }}
-        />
-      </Sheet>
     </View>
   );
 }
