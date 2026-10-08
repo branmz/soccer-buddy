@@ -227,8 +227,8 @@ Branch `feature/polish-eas-preview`.
   Build: `npx eas-cli@latest login`, then `npx eas-cli@latest build -p android --profile preview`
   (first run links the EAS project and writes `extra.eas.projectId` to `app.json`).
 - **Icon:** coach + ball art on `#0754BE`. Adaptive foreground and splash use the art at ~59%
-  on a transparent canvas, so circle masks never clip it. No `monochromeImage` (themed icons)
-  yet: it needs a one-color transparent version of the art.
+  on a transparent canvas, so circle masks never clip it. The themed-icon `monochromeImage` is
+  a cutout of the art (coach + ball panels + trail), padded the same way.
 
 ## Later milestones (from the original plan)
 

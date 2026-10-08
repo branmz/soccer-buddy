@@ -11,7 +11,8 @@
       "package": "com.branmz.coachbuddy",
       "adaptiveIcon": {
         "backgroundColor": "#0754BE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png"
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false
     },
