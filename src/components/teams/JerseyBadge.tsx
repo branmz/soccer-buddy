@@ -12,17 +12,38 @@ type JerseyBadgeProps = {
   kitColor: string | null;
   inactive?: boolean;
   size?: number;
+  /**
+   * Drawn on the pitch: always gets a white ring. Most kit colors (red, blue, the default green)
+   * have about the same brightness as grass, so without it tokens melt into the pitch.
+   */
+  onPitch?: boolean;
 };
 
+function outlineClass(background: string, inactive: boolean, onPitch: boolean): string {
+  if (onPitch) return 'border-2 border-white';
+  return needsOutline(background) && !inactive ? 'border border-gray-300' : '';
+}
+
 /** Circular jersey-number badge in the team's kit color, with a readable number. */
-export function JerseyBadge({ number, kitColor, inactive = false, size = 40 }: JerseyBadgeProps) {
+export function JerseyBadge({
+  number,
+  kitColor,
+  inactive = false,
+  size = 40,
+  onPitch = false,
+}: JerseyBadgeProps) {
   const background = inactive ? INACTIVE_KIT : (kitColor ?? DEFAULT_KIT);
   return (
     <View
       accessible={false}
-      className={`items-center justify-center rounded-full ${needsOutline(background) && !inactive ? 'border border-gray-300' : ''}`}
+      className={`items-center justify-center rounded-full ${outlineClass(background, inactive, onPitch)}`}
       // Kit colors are user data, so they can't be Tailwind classes.
-      style={{ width: size, height: size, backgroundColor: background }}
+      style={{
+        width: size,
+        height: size,
+        backgroundColor: background,
+        elevation: onPitch ? 3 : 0,
+      }}
     >
       <Text
         className="font-bold"

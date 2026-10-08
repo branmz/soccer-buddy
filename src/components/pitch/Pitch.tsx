@@ -14,9 +14,12 @@ export function fitPitch(area: Size): Size {
   return { width: Math.floor(width), height: Math.floor(width / PITCH_ASPECT) };
 }
 
-/** Token diameter for a pitch width: big enough to grab, small enough for 11 players. */
+/**
+ * Token diameter for a pitch width: as big as 11 players allow, to grab and read at arm's
+ * length on the sideline (48dp is the touch-target goal).
+ */
 export function tokenSizeFor(pitchWidth: number): number {
-  return Math.round(Math.min(44, Math.max(30, pitchWidth * 0.12)));
+  return Math.round(Math.min(48, Math.max(32, pitchWidth * 0.13)));
 }
 
 type PitchProps = {

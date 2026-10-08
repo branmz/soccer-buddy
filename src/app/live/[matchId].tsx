@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useKeepAwake } from 'expo-keep-awake';
+import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -393,21 +394,24 @@ export default function LiveMatchScreen() {
       playersById,
     );
     return (
-      <FinishedSummary
-        teamName={team.name}
-        opponentName={match.opponentName}
-        score={score}
-        insetTop={insets.top}
-        done={{ onPress: leaveScreen, insetBottom: insets.bottom }}
-      >
-        <TimelineCard
-          title="Key moments"
-          entries={keyMoments(entries)}
-          emptyText="No goals or red cards."
-        />
-        <TimelineCard title="Match log" entries={entries} />
-        <MinutesPlayedCard minutes={played} stats={contributions} kitColor={kitColor} />
-      </FinishedSummary>
+      <>
+        <StatusBar style="light" />
+        <FinishedSummary
+          teamName={team.name}
+          opponentName={match.opponentName}
+          score={score}
+          insetTop={insets.top}
+          done={{ onPress: leaveScreen, insetBottom: insets.bottom }}
+        >
+          <TimelineCard
+            title="Key moments"
+            entries={keyMoments(entries)}
+            emptyText="No goals or red cards."
+          />
+          <TimelineCard title="Match log" entries={entries} />
+          <MinutesPlayedCard minutes={played} stats={contributions} kitColor={kitColor} />
+        </FinishedSummary>
+      </>
     );
   }
 
@@ -553,6 +557,8 @@ export default function LiveMatchScreen() {
 
   return (
     <View className="flex-1 bg-gray-100">
+      {/* The clock bar is dark green and runs under the status bar. */}
+      <StatusBar style="light" />
       <KeepScreenAwake />
       <ClockBar
         teamName={team.name}

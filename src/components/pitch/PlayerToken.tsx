@@ -20,8 +20,8 @@ type PlayerTokenProps = {
    * filled ones (a live-match sub target) get a yellow ring: solid for main, dashed for second.
    */
   highlight?: SlotFit;
-  /** Live match: minutes played, shown as a small pill on the badge. */
-  badge?: string | null;
+  /** Live match: minutes played, shown in the position chip (e.g. "CM 23'"). */
+  minutes?: string | null;
   /** Live match: the player has a yellow card. */
   booked?: boolean;
   /** Live match: goals and assists, shown as small marks on the badge. */
@@ -32,8 +32,8 @@ type PlayerTokenProps = {
 };
 
 /** Room a filled token's labels need beyond the badge: position chip above, name below. */
-export const TOKEN_LABEL_ABOVE = 14;
-export const TOKEN_LABEL_BELOW = 20;
+export const TOKEN_LABEL_ABOVE = 17;
+export const TOKEN_LABEL_BELOW = 22;
 
 // Every variant sets border style, border color and background, so switching between them
 // only swaps values (removing a class leaves a one-frame ghost on Android).
@@ -63,7 +63,7 @@ export function PlayerToken({
   selected = false,
   dimmed = false,
   highlight = null,
-  badge = null,
+  minutes = null,
   booked = false,
   goals = 0,
   assists = 0,
@@ -76,7 +76,7 @@ export function PlayerToken({
       style={{ width: size, height: size }}
     >
       {player ? (
-        <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={size} />
+        <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={size} onPitch />
       ) : (
         <View
           className={`flex-1 items-center justify-center rounded-full border-2 ${EMPTY_SLOT_CLASS[locked ? 'locked' : (highlight ?? 'none')]}`}
@@ -97,14 +97,21 @@ export function PlayerToken({
       <View
         className={`absolute -inset-1 rounded-full border-[3px] ${ringClass(selected, player !== null ? highlight : null)}`}
       />
-      {/* A filled spot still shows its position, as a chip above the badge. */}
-      {player && label !== '' && (
+      {/* A filled spot still shows its position, as a chip above the badge. Minutes played ride
+          along: the position is short, so they fit without truncating the name below. */}
+      {player && (label !== '' || minutes !== null) && (
         <View
           className="absolute items-center"
-          style={{ bottom: size - 1, left: -size / 2, width: size * 2 }}
+          style={{ bottom: size - 1, left: -size, width: size * 3 }}
         >
-          <Text className="rounded bg-white/90 px-1 text-[10px] font-bold text-gray-900">
+          <Text className="rounded bg-white/95 px-1 text-xs font-bold text-gray-900">
             {label}
+            {minutes !== null && (
+              <Text className="text-pitch-dark">
+                {label === '' ? '' : ' '}
+                {minutes}
+              </Text>
+            )}
           </Text>
         </View>
       )}
@@ -115,13 +122,6 @@ export function PlayerToken({
           style={{ top: -2, left: -4, width: size * 0.22, height: size * 0.3 }}
         />
       )}
-      {player && badge !== null && (
-        <View className="absolute -top-1 -right-2.5">
-          <Text className="rounded-full bg-gray-900/80 px-1 text-[10px] font-bold text-white">
-            {badge}
-          </Text>
-        </View>
-      )}
       {player && (
         <View
           className="absolute items-center"
@@ -129,7 +129,7 @@ export function PlayerToken({
         >
           <Text
             numberOfLines={1}
-            className="rounded bg-black/55 px-1 text-[11px] font-semibold text-white"
+            className="rounded bg-black/70 px-1 text-[13px] font-semibold text-white"
           >
             {player.name}
           </Text>

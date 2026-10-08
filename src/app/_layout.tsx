@@ -11,7 +11,8 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar style="auto" />
+        {/* The app is light-only: "auto" draws white icons on white when the phone is dark. */}
+        <StatusBar style="dark" />
         <DatabaseGate>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
