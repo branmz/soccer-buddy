@@ -35,7 +35,7 @@ export function PlayerFormSheet({
   onClose,
 }: PlayerFormSheetProps) {
   const openCount = useOpenCount(visible);
-  // Bumped after "Add another" so the form remounts empty.
+  // Bumped after "Add player, then another" so the form remounts empty.
   const [formKey, setFormKey] = useState(0);
   return (
     <Sheet visible={visible} title={player ? 'Edit player' : 'Add player'} onClose={onClose}>
@@ -178,7 +178,8 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
       />
       {!player && (
         <Button
-          label="Add and add another"
+          label="Add player, then another"
+          icon="people-outline"
           variant="secondary"
           disabled={jerseyError !== null}
           onPress={() => save(true)}

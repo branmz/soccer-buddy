@@ -124,9 +124,15 @@ export function Sheet({ visible, title, onClose, children }: SheetProps) {
               <Text accessibilityLiveRegion="polite" className="text-base text-gray-700">
                 Close without saving? Your changes will be lost.
               </Text>
-              <Button label="Discard changes" variant="danger" onPress={onClose} />
+              <Button
+                label="Discard changes"
+                icon="trash-outline"
+                variant="danger"
+                onPress={onClose}
+              />
               <Button
                 label="Keep editing"
+                icon="create-outline"
                 variant="secondary"
                 onPress={() => setConfirming(false)}
               />
