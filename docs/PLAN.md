@@ -5,17 +5,17 @@ architecture rules and git conventions. Update the **Status** section when a mil
 
 ## Status (as of 2026-10-07)
 
-| #   | Milestone                                                   | State             | PR     |
-| --- | ----------------------------------------------------------- | ----------------- | ------ |
-| 1   | Scaffold, tooling, lint hook                                | ✅ merged         | #1     |
-| 2   | DB layer: schema, migrations, repositories                  | ✅ merged         | #2     |
-| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged         | #3, #4 |
-| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged         | #5     |
-| 4   | Pitch & Tactics board                                       | ✅ merged         | #7     |
-| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged         | #9     |
-| 6   | Game Day: setup, quick-sub presets, live match              | ✅ merged         | #10    |
-| 7   | **History & stats**                                         | ✅ done (PR open) | #11    |
-| 8   | Polish & EAS preview APK                                    | todo              |        |
+| #   | Milestone                                                   | State     | PR     |
+| --- | ----------------------------------------------------------- | --------- | ------ |
+| 1   | Scaffold, tooling, lint hook                                | ✅ merged | #1     |
+| 2   | DB layer: schema, migrations, repositories                  | ✅ merged | #2     |
+| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged | #3, #4 |
+| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged | #5     |
+| 4   | Pitch & Tactics board                                       | ✅ merged | #7     |
+| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged | #9     |
+| 6   | Game Day: setup, quick-sub presets, live match              | ✅ merged | #10    |
+| 7   | History & stats                                             | ✅ merged | #11    |
+| 8   | **Polish & EAS preview APK**                                | next      |        |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -84,7 +84,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
   - **No leave confirmation** on the live screen: back just leaves. The match and clock keep
     going, and the coach returns from Game Day (decided while testing milestone 7).
 
-## What exists now (milestones 1–6)
+## What exists now (milestones 1–7)
 
 - **Schema** (`src/db/schema.ts`, migrations `0000_init`, `0001_player_positions`,
   `0002_team_kit_colors`, `0003_match_venue_and_formation`, `0004_team_sort_order`,
@@ -188,9 +188,9 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Validation:** every live action goes through `buildLiveEvents` (lineup replayed from
   SQLite, sub limit, bench membership, slot availability) before `recordEventGroup`.
 
-## Milestone 7 — History & stats (done, PR #11)
+## Milestone 7 — History & stats (merged, #11)
 
-Branch `feature/history-stats`. The spec is item 7 under **Later milestones**.
+Was branch `feature/history-stats`. The spec is item 7 under **Later milestones**.
 
 - **Domain** `src/domain/history.ts`: `finalGameMs` (active time of every period),
   `minutesPlayed` + `minutesWithPlayers`, `seasonTable` (roster merged with `seasonStats`
@@ -209,6 +209,26 @@ Branch `feature/history-stats`. The spec is item 7 under **Later milestones**.
   minutes played; delete match from the header). `late_arrival` isn't a stat.
 - Also on this branch: draggable team and formation order (`ReorderList`, migrations
   `0004`/`0005`), `TeamCard`, and UI tweaks from phone testing. `PlaceholderScreen` is gone.
+
+## Milestone 8 — Polish & EAS preview APK (in progress)
+
+Branch `feature/polish-eas-preview`.
+
+- **Back guard = unsaved edits only** (the live screen stays unguarded). The formation editor
+  already asks Save / Discard / Keep editing via `usePreventRemove` (covers Android back); the
+  lineup editor saves every change. Form sheets now guard too: a form calls
+  `useDiscardGuard(edited)` and `Sheet` then turns back / backdrop / Close into
+  "Discard changes / Keep editing" (team, player, new match, rename formation, quick sub).
+- **Haptics:** the Tactics/lineup board confirms each drop or tap that changed it.
+- **Empty states:** audited, every list already has one.
+- **EAS:** `eas.json` (`preview` = internal APK, `production` auto-increments, remote app
+  version). `app.json` name "Coach Buddy", slug `coach-buddy`, scheme `coachbuddy`, `android.package`
+  `com.branmz.coachbuddy`.
+  Build: `npx eas-cli@latest login`, then `npx eas-cli@latest build -p android --profile preview`
+  (first run links the EAS project and writes `extra.eas.projectId` to `app.json`).
+- **Icon:** coach + ball art on `#0754BE`. Adaptive foreground and splash use the art at ~59%
+  on a transparent canvas, so circle masks never clip it. The themed-icon `monochromeImage` is
+  a cutout of the art (coach + ball panels + trail), padded the same way.
 
 ## Later milestones (from the original plan)
 

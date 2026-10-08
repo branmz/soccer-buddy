@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
-import { Sheet } from '@/components/ui/Sheet';
+import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { cleanName } from '@/domain/validation';
 import { useOpenCount } from '@/hooks/useOpenCount';
@@ -30,6 +30,7 @@ function RenameForm({
 }: Omit<RenameFormationSheetProps, 'visible'>) {
   const [name, setName] = useState(initialName);
   const [error, setError] = useState<string | null>(null);
+  useDiscardGuard(name !== initialName);
 
   function done() {
     const cleaned = cleanName(name, 'Formation name');

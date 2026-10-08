@@ -5,7 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { Button } from '@/components/ui/Button';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { Sheet } from '@/components/ui/Sheet';
+import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { userMessage } from '@/db/repositories/errors';
 import { createPreset, deletePreset, updatePreset } from '@/db/repositories/presets';
@@ -54,10 +54,16 @@ function PresetForm({
 }: QuickSubPresetSheetProps) {
   const [name, setName] = useState(preset?.name ?? '');
   const [scope, setScope] = useState<'match' | 'team'>('match');
-  const [pairs, setPairs] = useState<Draft[]>(
+  const [initialPairs] = useState<Draft[]>(() =>
     preset
       ? preset.pairs.map((p) => ({ out: p.outPlayerId, in: p.inPlayerId }))
       : [{ out: null, in: null }],
+  );
+  const [pairs, setPairs] = useState(initialPairs);
+  useDiscardGuard(
+    name !== (preset?.name ?? '') ||
+      scope !== 'match' ||
+      JSON.stringify(pairs) !== JSON.stringify(initialPairs),
   );
   const [picking, setPicking] = useState<{ index: number; side: Side } | null>(null);
   const [error, setError] = useState<string | null>(null);

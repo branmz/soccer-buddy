@@ -17,8 +17,10 @@ import {
   type BoardItem,
   type BoardMode,
   type DropPoint,
+  type TapTarget,
 } from '@/domain/board';
 import type { FormationSlot } from '@/domain/types';
+import { confirmHaptic } from '@/lib/haptics';
 import { useBoardStore } from '@/stores/boardStore';
 
 import { BenchSidebar } from './BenchSidebar';
@@ -29,6 +31,18 @@ import { PlayerToken } from './PlayerToken';
 
 /** A release this close to another token's centre (in token diameters) lands on it. */
 const HIT_RADIUS_RATIO = 0.8;
+
+/** Runs a board change, with a light confirm haptic when it actually changed the board. */
+function withHaptic(change: () => void) {
+  const before = useBoardStore.getState().slots;
+  change();
+  if (useBoardStore.getState().slots !== before) confirmHaptic();
+}
+
+/** The store's `tap` plus haptics. Module-level so the board's gestures see a stable function. */
+function tapWithHaptic(target: TapTarget) {
+  withHaptic(() => useBoardStore.getState().tap(target));
+}
 
 type FormationBoardProps = {
   /** Active players who can be placed. */
@@ -41,7 +55,6 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
   const slots = useBoardStore((s) => s.slots);
   const selection = useBoardStore((s) => s.selection);
   const drop = useBoardStore((s) => s.drop);
-  const tap = useBoardStore((s) => s.tap);
   const clearSelection = useBoardStore((s) => s.clearSelection);
   const mode = useBoardStore((s) => s.mode);
   const setMode = useBoardStore((s) => s.setMode);
@@ -79,7 +92,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
       draggedSlotId: item.kind === 'slot' ? item.slotId : undefined,
       mode: useBoardStore.getState().mode,
     });
-    drop(item, target);
+    withHaptic(() => drop(item, target));
   }
 
   function renderGhost(item: BoardItem) {
@@ -139,7 +152,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
         renderGhost={renderGhost}
         ghostSize={tokenSize}
         onDrop={handleDrop}
-        onTap={tap}
+        onTap={tapWithHaptic}
       >
         <View className="flex-1 p-3">
           <View
@@ -158,8 +171,8 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
                 kitColor={kitColor}
                 playerFor={playerFor}
                 playerById={(playerId) => playersById.get(playerId)}
-                onSlotPress={(slotId) => tap({ kind: 'slot', slotId })}
-                onGrassPress={(x, y) => tap({ kind: 'grass', x, y })}
+                onSlotPress={(slotId) => tapWithHaptic({ kind: 'slot', slotId })}
+                onGrassPress={(x, y) => tapWithHaptic({ kind: 'grass', x, y })}
               />
             )}
           </View>
@@ -176,8 +189,8 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           slotHasPlayer={(slotId) =>
             slots.some((s) => s.slotId === slotId && s.playerId !== undefined)
           }
-          onPlayerPress={(playerId) => tap({ kind: 'bench', playerId })}
-          onBenchZonePress={() => tap({ kind: 'benchZone' })}
+          onPlayerPress={(playerId) => tapWithHaptic({ kind: 'bench', playerId })}
+          onBenchZonePress={() => tapWithHaptic({ kind: 'benchZone' })}
         />
       </BoardDragProvider>
       <SlotPositionSheet

@@ -33,8 +33,8 @@ export function UnsavedChangesSheet({
         </Text>
       )}
       <Button label="Save" icon="save-outline" onPress={onSave} />
-      <Button label="Discard changes" variant="danger" onPress={onDiscard} />
-      <Button label="Keep editing" variant="secondary" onPress={onClose} />
+      <Button label="Discard changes" icon="trash-outline" variant="danger" onPress={onDiscard} />
+      <Button label="Keep editing" icon="create-outline" variant="secondary" onPress={onClose} />
     </Sheet>
   );
 }

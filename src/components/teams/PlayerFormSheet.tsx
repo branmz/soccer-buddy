@@ -3,7 +3,7 @@ import { Alert, Keyboard, Switch, Text, TextInput, View } from 'react-native';
 
 import { PositionFields } from '@/components/teams/PositionFields';
 import { Button } from '@/components/ui/Button';
-import { Sheet } from '@/components/ui/Sheet';
+import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { userMessage } from '@/db/repositories/errors';
 import {
@@ -35,7 +35,7 @@ export function PlayerFormSheet({
   onClose,
 }: PlayerFormSheetProps) {
   const openCount = useOpenCount(visible);
-  // Bumped after "Add another" so the form remounts empty.
+  // Bumped after "Add player, then another" so the form remounts empty.
   const [formKey, setFormKey] = useState(0);
   return (
     <Sheet visible={visible} title={player ? 'Edit player' : 'Add player'} onClose={onClose}>
@@ -61,6 +61,13 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
   const [secondaryPosition, setSecondaryPosition] = useState(player?.secondaryPosition ?? null);
   const [error, setError] = useState<string | null>(null);
   const jerseyRef = useRef<TextInput>(null);
+  useDiscardGuard(
+    name !== (player?.name ?? '') ||
+      jerseyText !== (player?.jerseyNumber?.toString() ?? '') ||
+      isActive !== (player?.isActive ?? true) ||
+      primaryPosition !== (player?.primaryPosition ?? null) ||
+      secondaryPosition !== (player?.secondaryPosition ?? null),
+  );
 
   const jersey = parseJerseyInput(jerseyText);
   const jerseyError = jersey === undefined ? 'Use digits only, or leave blank' : null;
@@ -171,7 +178,8 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
       />
       {!player && (
         <Button
-          label="Add and add another"
+          label="Add player, then another"
+          icon="people-outline"
           variant="secondary"
           disabled={jerseyError !== null}
           onPress={() => save(true)}

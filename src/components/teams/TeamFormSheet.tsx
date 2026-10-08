@@ -4,7 +4,7 @@ import { Text } from 'react-native';
 import { Button } from '@/components/ui/Button';
 import { KitColorFields } from '@/components/teams/KitColorFields';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { Sheet } from '@/components/ui/Sheet';
+import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { userMessage } from '@/db/repositories/errors';
 import { createTeam, updateTeam } from '@/db/repositories/teams';
@@ -52,6 +52,12 @@ function TeamForm({ team, onClose, onSaved, onDeletePress }: Omit<TeamFormSheetP
   const [error, setError] = useState<string | null>(null);
 
   const sizeChanged = team !== undefined && fieldSize !== team.fieldSize;
+  useDiscardGuard(
+    name !== (team?.name ?? '') ||
+      fieldSize !== (team?.fieldSize ?? 11) ||
+      homeColor !== (team?.homeColor ?? null) ||
+      awayColor !== (team?.awayColor ?? null),
+  );
 
   function save() {
     try {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/Button';
-import { Sheet } from '@/components/ui/Sheet';
+import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { userMessage } from '@/db/repositories/errors';
 import { createMatchDraft } from '@/db/repositories/matches';
@@ -28,6 +28,7 @@ export function NewMatchSheet({ visible, teamId, onClose, onCreated }: NewMatchS
 function NewMatchForm({ teamId, onCreated }: Pick<NewMatchSheetProps, 'teamId' | 'onCreated'>) {
   const [opponent, setOpponent] = useState('');
   const [error, setError] = useState<string | null>(null);
+  useDiscardGuard(opponent.trim() !== '');
 
   function create() {
     try {
