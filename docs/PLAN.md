@@ -15,7 +15,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
 | 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged | #9     |
 | 6   | Game Day: setup, quick-sub presets, live match              | ✅ merged | #10    |
 | 7   | History & stats                                             | ✅ merged | #11    |
-| 8   | **Polish & EAS preview APK**                                | next      |        |
+| 8   | Polish & EAS preview APK                                    | ✅ merged | #12    |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -84,7 +84,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
   - **No leave confirmation** on the live screen: back just leaves. The match and clock keep
     going, and the coach returns from Game Day (decided while testing milestone 7).
 
-## What exists now (milestones 1–7)
+## What exists now (milestones 1–8)
 
 - **Schema** (`src/db/schema.ts`, migrations `0000_init`, `0001_player_positions`,
   `0002_team_kit_colors`, `0003_match_venue_and_formation`, `0004_team_sort_order`,
@@ -210,9 +210,9 @@ Was branch `feature/history-stats`. The spec is item 7 under **Later milestones*
 - Also on this branch: draggable team and formation order (`ReorderList`, migrations
   `0004`/`0005`), `TeamCard`, and UI tweaks from phone testing. `PlaceholderScreen` is gone.
 
-## Milestone 8 — Polish & EAS preview APK (in progress)
+## Milestone 8 — Polish & EAS preview APK (merged, #12)
 
-Branch `feature/polish-eas-preview`.
+Was branch `feature/polish-eas-preview`. EAS project `@buranapple/coach-buddy` (keystore on EAS).
 
 - **Back guard = unsaved edits only** (the live screen stays unguarded). The formation editor
   already asks Save / Discard / Keep editing via `usePreventRemove` (covers Android back); the

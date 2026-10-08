@@ -35,6 +35,13 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "0b367ee2-2fc8-4078-a980-7d21ea73305a"
+      }
+    },
+    "owner": "buranapple"
   }
 }
