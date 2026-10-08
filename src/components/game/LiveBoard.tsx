@@ -288,7 +288,7 @@ function LiveSlotToken({
           size={size}
           selected={selected}
           dimmed={sameItem(dragging, item)}
-          badge={minutes}
+          minutes={minutes}
           highlight={highlight}
           booked={booked}
           goals={stats?.goals ?? 0}

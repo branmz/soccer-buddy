@@ -51,8 +51,9 @@ export function BenchSidebar({
   const isDropTarget =
     showBenchZone || (dragging?.kind === 'slot' && slotHasPlayer(dragging.slotId));
 
+  // A fixed narrow column: every dp it gives up goes to the pitch and its tokens.
   return (
-    <View className="w-1/4 border-l border-gray-200 bg-white">
+    <View className="w-[88px] border-l border-gray-200 bg-white">
       {/* Measured on drop to tell whether a token was released over the bench. */}
       <Animated.View ref={benchRef} style={{ flex: 1 }}>
         <View
