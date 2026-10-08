@@ -1,4 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { GestureDetector, ScrollView } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
@@ -47,6 +48,10 @@ export function BenchSidebar({
   statsFor,
 }: BenchSidebarProps) {
   const { benchRef, dragging } = useBoardDrag();
+  // When every player fits, nothing needs scrolling, so swipes in any direction drag.
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [contentHeight, setContentHeight] = useState(0);
+  const scrolls = contentHeight > viewportHeight + 1;
   // While a pitch token is dragged, the whole bench is a drop target.
   const isDropTarget =
     showBenchZone || (dragging?.kind === 'slot' && slotHasPlayer(dragging.slotId));
@@ -76,7 +81,11 @@ export function BenchSidebar({
               <Text className="text-center text-xs font-semibold text-white">Move To Bench</Text>
             </Pressable>
           )}
-          <ScrollView>
+          <ScrollView
+            scrollEnabled={scrolls}
+            onLayout={(e) => setViewportHeight(e.nativeEvent.layout.height)}
+            onContentSizeChange={(_width, height) => setContentHeight(height)}
+          >
             <View className="gap-1 px-1 pb-4">
               {players.map((player) => (
                 <BenchPlayer
@@ -84,6 +93,7 @@ export function BenchSidebar({
                   player={player}
                   kitColor={kitColor}
                   disabled={disabled}
+                  scrolls={scrolls}
                   fit={fitFor(player)}
                   note={noteFor?.(player) ?? null}
                   stats={statsFor?.(player)}
@@ -112,6 +122,8 @@ type BenchPlayerProps = {
   fit: SlotFit;
   selected: boolean;
   disabled: boolean;
+  /** Whether the bench scrolls: then only sideways swipes drag. */
+  scrolls: boolean;
   onPress: () => void;
 };
 
@@ -123,11 +135,12 @@ function BenchPlayer({
   fit,
   selected,
   disabled,
+  scrolls,
   onPress,
 }: BenchPlayerProps) {
   const { dragging } = useBoardDrag();
   const item: BoardItem = { kind: 'bench', playerId: player.id };
-  const { ref, gesture } = useDragGesture(item, { enabled: !disabled });
+  const { ref, gesture } = useDragGesture(item, { enabled: !disabled, benchScrolls: scrolls });
   const positions = formatPositions(player);
   const isDragged = sameItem(dragging, item);
 

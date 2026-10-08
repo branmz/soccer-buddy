@@ -24,7 +24,7 @@ import { DragLayer } from './DragLayer';
 
 /** How long a bench player must be held before dragging starts (shorter = scroll conflicts). */
 const BENCH_LONG_PRESS_MS = 150;
-/** A bench player dragged this far sideways (before moving vertically) starts dragging. */
+/** A bench player swiped this far starts dragging (only sideways while the bench scrolls). */
 const SWIPE_OFFSET = 12;
 const NO_DRAG = 0;
 /** Pitch tokens start dragging after this many pixels of movement; less counts as a tap. */
@@ -138,12 +138,16 @@ export function BoardDragProvider({
  * Animated.View wrapped in a GestureDetector.
  *
  * Pitch tokens keep their grab point (the ghost moves with the token's centre); bench players
- * drag on a sideways swipe or after a short hold, so the bench can still scroll; their ghost
- * centres on the finger.
+ * drag on a swipe or after a short hold, and their ghost centres on the finger. While the bench
+ * scrolls (`benchScrolls`), only a sideways swipe drags, so vertical swipes stay scrolls.
  * The gesture is rebuilt only when the item changes, so board updates stay cheap.
  */
-export function useDragGesture(item: BoardItem, options: { enabled?: boolean } = {}) {
+export function useDragGesture(
+  item: BoardItem,
+  options: { enabled?: boolean; benchScrolls?: boolean } = {},
+) {
   const enabled = options.enabled ?? true;
+  const benchScrolls = options.benchScrolls ?? true;
   const {
     rootRef,
     pitchRef,
@@ -239,15 +243,15 @@ export function useDragGesture(item: BoardItem, options: { enabled?: boolean } =
             pitchHeight: pitch.height,
           });
         });
-    // Bench: a sideways swipe toward the pitch drags at once (vertical moves scroll the
+    // Bench: a swipe drags at once (only a sideways one while vertical moves scroll the
     // bench), and a short hold drags in any direction.
+    const swipe = benchScrolls
+      ? makePan(1)
+          .activeOffsetX([-SWIPE_OFFSET, SWIPE_OFFSET])
+          .failOffsetY([-SWIPE_OFFSET, SWIPE_OFFSET])
+      : makePan(1).minDistance(SWIPE_OFFSET);
     const drag = fromBench
-      ? Gesture.Race(
-          makePan(1)
-            .activeOffsetX([-SWIPE_OFFSET, SWIPE_OFFSET])
-            .failOffsetY([-SWIPE_OFFSET, SWIPE_OFFSET]),
-          makePan(2).activateAfterLongPress(BENCH_LONG_PRESS_MS),
-        )
+      ? Gesture.Race(swipe, makePan(2).activateAfterLongPress(BENCH_LONG_PRESS_MS))
       : makePan(3).minDistance(PITCH_MIN_DISTANCE);
 
     const tapGesture = Gesture.Tap()
@@ -266,6 +270,7 @@ export function useDragGesture(item: BoardItem, options: { enabled?: boolean } =
     itemId,
     fromBench,
     enabled,
+    benchScrolls,
     rootRef,
     pitchRef,
     benchRef,
