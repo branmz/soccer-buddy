@@ -1,12 +1,13 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import type { ReactNode } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 
-import { ColorSwatch } from '@/components/teams/ColorSwatch';
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
+import { KitShirt } from '@/components/teams/KitShirt';
 import { Button } from '@/components/ui/Button';
 import type { Player } from '@/db/schema';
+import { formatMinutesPlayed } from '@/domain/history';
 import { matchResult, type MatchResult, type PlayerMatchStats, type Score } from '@/domain/stats';
 import { capitalizeWords } from '@/domain/text';
 import type { TimelineEntry } from '@/domain/timeline';
@@ -64,12 +65,7 @@ export function FinishedSummary({
         {subtitle && (
           <View className="flex-row items-center gap-1.5">
             <Text className="text-sm text-green-100">{subtitle}</Text>
-            {subtitleKitColor && (
-              // A white ring keeps dark kits visible on the green header.
-              <View className="rounded-full bg-white p-0.5">
-                <ColorSwatch color={subtitleKitColor} size={14} />
-              </View>
-            )}
+            {subtitleKitColor && <KitShirt color={subtitleKitColor} size={14} />}
           </View>
         )}
       </View>
@@ -100,20 +96,53 @@ export function SummaryCard({ title, children }: { title: string; children: Reac
   );
 }
 
-/** A section of the match log (the whole log, or only the key moments). */
+/**
+ * A section of the match log (the whole log, or only the key moments). `collapsible` starts it
+ * closed behind a "Show all" toggle: the full log repeats the key moments above it.
+ */
 export function TimelineCard({
   title,
   entries,
   emptyText,
+  collapsible = false,
 }: {
   title: string;
   entries: TimelineEntry[];
   emptyText?: string;
+  collapsible?: boolean;
 }) {
+  const [open, setOpen] = useState(!collapsible);
+  if (!collapsible || entries.length === 0) {
+    return (
+      <SummaryCard title={title}>
+        <EventTimeline entries={entries} emptyText={emptyText} />
+      </SummaryCard>
+    );
+  }
   return (
-    <SummaryCard title={title}>
-      <EventTimeline entries={entries} emptyText={emptyText} />
-    </SummaryCard>
+    <View className="gap-1 rounded-2xl border border-gray-200 bg-white px-4 pt-2 pb-2">
+      {/* The title stays a heading (for screen-reader navigation) beside a separate toggle. */}
+      <View className="min-h-12 flex-row items-center gap-2">
+        <Text accessibilityRole="header" className="flex-1 text-lg font-bold text-gray-900">
+          {capitalizeWords(title)}
+        </Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: open }}
+          accessibilityLabel={`${open ? 'Hide' : 'Show'} all ${entries.length} ${
+            entries.length === 1 ? 'event' : 'events'
+          }`}
+          onPress={() => setOpen((o) => !o)}
+          className="min-h-12 flex-row items-center gap-1 rounded-full px-2 active:bg-green-50"
+        >
+          <Text className="text-base font-semibold text-pitch-dark">
+            {open ? 'Hide' : `Show All ${entries.length}`}
+          </Text>
+          <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#1b5e20" />
+        </Pressable>
+      </View>
+      {open && <EventTimeline entries={entries} emptyText={emptyText} />}
+    </View>
   );
 }
 
@@ -143,7 +172,7 @@ export function MinutesPlayedCard({ minutes, stats, kitColor }: MinutesPlayedCar
             className="w-10 text-right text-base font-bold text-gray-900"
             style={{ fontVariant: ['tabular-nums'] }}
           >
-            {played}&apos;
+            {formatMinutesPlayed(played)}
           </Text>
         </View>
       ))}

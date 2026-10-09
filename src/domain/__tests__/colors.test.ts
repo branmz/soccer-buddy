@@ -1,12 +1,11 @@
 import {
   cleanKitColor,
   KIT_COLORS,
+  isLightKit,
   kitColorName,
-  kitTextColor,
   needsOutline,
   readableTextColor,
   relativeLuminance,
-  withAlpha,
 } from '../colors';
 
 describe('cleanKitColor', () => {
@@ -67,23 +66,17 @@ describe('needsOutline', () => {
   });
 });
 
-describe('kitTextColor', () => {
-  it('keeps colors that read well on white', () => {
-    expect(kitTextColor('#1e3a8a')).toBe('#1e3a8a'); // navy
-    expect(kitTextColor('#dc2626')).toBe('#dc2626'); // red
+describe('isLightKit', () => {
+  it('flags kits too faint to draw on white (under 3:1)', () => {
+    expect(isLightKit('#ffffff')).toBe(true);
+    expect(isLightKit('#facc15')).toBe(true); // yellow
+    expect(isLightKit('#38bdf8')).toBe(true); // sky blue
+    expect(isLightKit('#9ca3af')).toBe(true); // grey
   });
 
-  it('falls back to near-black for light colors', () => {
-    expect(kitTextColor('#facc15')).toBe('#111827'); // yellow
-    expect(kitTextColor('#ffffff')).toBe('#111827');
-    expect(kitTextColor('#38bdf8')).toBe('#111827'); // sky blue
-  });
-});
-
-describe('withAlpha', () => {
-  it('appends a two-digit alpha byte', () => {
-    expect(withAlpha('#1e3a8a', 0.15)).toBe('#1e3a8a26');
-    expect(withAlpha('#ffffff', 0)).toBe('#ffffff00');
-    expect(withAlpha('#000000', 2)).toBe('#000000ff');
+  it('leaves kits that read on white alone', () => {
+    expect(isLightKit('#dc2626')).toBe(false); // red
+    expect(isLightKit('#1e3a8a')).toBe(false); // navy
+    expect(isLightKit('#111827')).toBe(false); // black
   });
 });

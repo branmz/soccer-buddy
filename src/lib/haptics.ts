@@ -13,6 +13,15 @@ export function confirmHaptic(): void {
   result.catch(() => undefined);
 }
 
+/** A button that opens something (a picker, a confirm) was pressed: a light tick. */
+export function tapHaptic(): void {
+  const result =
+    Platform.OS === 'android'
+      ? Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Virtual_Key)
+      : Haptics.selectionAsync();
+  result.catch(() => undefined);
+}
+
 /** An action was refused. */
 export function rejectHaptic(): void {
   const result =

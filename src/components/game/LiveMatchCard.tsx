@@ -1,20 +1,41 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
+import { KitShirt } from '@/components/teams/KitShirt';
 import { eventsQuery } from '@/db/repositories/events';
 import { matchPeriodsQuery } from '@/db/repositories/matches';
 import { matchEvents, matchPeriods, type Match } from '@/db/schema';
 import { breakName, periodName } from '@/domain/clock';
-import { needsOutline, readableTextColor, withAlpha } from '@/domain/colors';
+import { kitColorName } from '@/domain/colors';
 import { matchScore } from '@/domain/stats';
 import { useLiveData } from '@/hooks/useLiveData';
 import { useMatchClock } from '@/hooks/useMatchClock';
 
 const MS_PER_MINUTE = 60_000;
-/** Used when the team has no kit colors (the app's dark pitch green). */
-const DEFAULT_CARD = '#1b5e20';
-/** amber-400: paused, the card turns amber like the live clock bar. */
-const PAUSED_CARD = '#fbbf24';
+
+/**
+ * The card's colors, like the live clock bar: dark green, amber while paused. Not the kit
+ * color (a red kit made the card read as an error banner): the kit is a shirt by the team
+ * name. Both states set every value (removing a class leaves a ghost on Android).
+ */
+const CARD = {
+  running: {
+    box: 'bg-pitch-dark',
+    soft: 'text-green-100',
+    strong: 'text-white',
+    pill: 'bg-white',
+    pillText: 'text-pitch-dark',
+    pillIcon: '#1b5e20',
+  },
+  paused: {
+    box: 'bg-amber-400',
+    soft: 'text-gray-800',
+    strong: 'text-gray-950',
+    pill: 'bg-gray-950',
+    pillText: 'text-amber-300',
+    pillIcon: '#fcd34d',
+  },
+} as const;
 
 type LiveMatchCardProps = {
   match: Match;
@@ -25,8 +46,8 @@ type LiveMatchCardProps = {
 };
 
 /**
- * The live match on the Game Day list, in the team's kit color: score, clock and period (or
- * the break), so the coach can see the game from here. Only this card ticks, not the whole list.
+ * The live match on the Game Day list: score, clock and period (or the break), so the coach can
+ * see the game from here. Only this card ticks, not the whole list.
  */
 export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchCardProps) {
   const periods = useLiveData(() => matchPeriodsQuery(match.id).all(), [match.id], [matchPeriods]);
@@ -38,39 +59,29 @@ export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchC
   const status = onBreak
     ? breakName(clock.currentPeriod, match.periodCount)
     : periodName(clock.currentPeriod, match.periodCount);
-
-  // Kit colors are user data, so the card's colors are inline styles.
-  const background = clock.isPaused ? PAUSED_CARD : (kitColor ?? DEFAULT_CARD);
-  const text = readableTextColor(background);
-  const softText = withAlpha(text, 0.8);
+  const card = clock.isPaused ? CARD.paused : CARD.running;
+  const kit = kitColor ? `, wearing the ${kitColorName(kitColor)} kit` : '';
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={`Live match against ${match.opponentName}: ${teamName} ${score.us}, ${
         match.opponentName
-      } ${score.them}. ${onBreak ? status : `${status}, ${clock.display}`}${
+      } ${score.them}${kit}. ${onBreak ? status : `${status}, ${clock.display}`}${
         clock.isPaused ? ', clock paused' : ''
       }. Open match`}
       onPress={onPress}
-      className={`gap-3 rounded-2xl p-4 opacity-100 active:opacity-85 ${
-        needsOutline(background) ? 'border border-gray-300' : 'border border-transparent'
-      }`}
-      style={{ backgroundColor: background }}
+      className={`gap-3 rounded-2xl p-4 opacity-100 active:opacity-85 ${card.box}`}
     >
       <View className="flex-row items-center gap-2">
-        {/* A white ring keeps the red dot visible on a red kit. */}
+        {/* A white ring keeps the red "live" dot crisp on the dark green and the amber card. */}
         <View className="h-3.5 w-3.5 rounded-full border-2 border-white bg-red-500" />
-        <Text className="flex-1 text-sm font-semibold uppercase" style={{ color: softText }}>
-          Live now
-        </Text>
-        <Text className="text-base font-semibold" style={{ color: softText }}>
-          {status}
-        </Text>
+        <Text className={`flex-1 text-sm font-semibold uppercase ${card.soft}`}>Live now</Text>
+        <Text className={`text-base font-semibold ${card.soft}`}>{status}</Text>
         {!onBreak && (
           <Text
-            className="text-xl font-black"
-            style={{ color: text, fontVariant: ['tabular-nums'] }}
+            className={`text-xl font-black ${card.strong}`}
+            style={{ fontVariant: ['tabular-nums'] }}
           >
             {clock.display}
           </Text>
@@ -83,33 +94,21 @@ export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchC
       </View>
       <View className="flex-row items-center gap-3">
         <View className="flex-1 flex-row items-center gap-3">
-          <Text
-            numberOfLines={1}
-            className="shrink text-lg font-semibold"
-            style={{ color: softText }}
-          >
+          {kitColor && <KitShirt color={kitColor} size={16} />}
+          <Text numberOfLines={1} className={`shrink text-lg font-semibold ${card.soft}`}>
             {teamName}
           </Text>
-          <Text className="text-3xl font-black" style={{ color: text }}>
+          <Text className={`text-3xl font-black ${card.strong}`}>
             {score.us} – {score.them}
           </Text>
-          <Text
-            numberOfLines={1}
-            className="shrink text-lg font-semibold"
-            style={{ color: softText }}
-          >
+          <Text numberOfLines={1} className={`shrink text-lg font-semibold ${card.soft}`}>
             {match.opponentName}
           </Text>
         </View>
-        {/* The opposite of the card's color, so it stands out on any kit. */}
-        <View
-          className="min-h-11 flex-row items-center gap-1.5 rounded-full px-4"
-          style={{ backgroundColor: text }}
-        >
-          <Text className="text-lg font-semibold" style={{ color: background }}>
-            Open Match
-          </Text>
-          <Ionicons name="arrow-forward" size={18} color={background} />
+        {/* Inverted against the card, so it stands out in both states. */}
+        <View className={`min-h-11 flex-row items-center gap-1.5 rounded-full px-4 ${card.pill}`}>
+          <Text className={`text-lg font-semibold ${card.pillText}`}>Open Match</Text>
+          <Ionicons name="arrow-forward" size={18} color={card.pillIcon} />
         </View>
       </View>
     </Pressable>

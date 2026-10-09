@@ -123,7 +123,12 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           accessibilityLiveRegion="polite"
           className="flex-1 text-base font-medium text-gray-900"
         >
-          {hintText(mode, selection, selectedSlot, selectedPlayer?.name)}
+          {hintText(mode, selection, selectedSlot, selectedPlayer?.name, {
+            // Shown players only: a deactivated player's spot is drawn empty.
+            filled: slots.filter((s) => playerFor(s) !== null).length,
+            spots: slots.length,
+            bench: bench.length,
+          })}
         </Text>
         {movingSpots && selectedSlot && positionOptionsFor(selectedSlot).length > 0 && (
           <Pressable
@@ -256,6 +261,7 @@ function hintText(
   selection: BoardItem | null,
   slot: FormationSlot | undefined,
   playerName: string | undefined,
+  counts: { filled: number; spots: number; bench: number },
 ): string {
   if (mode === 'positions') {
     if (slot?.role === 'GK') {
@@ -264,7 +270,15 @@ function hintText(
     if (slot) return `Tap the grass to move ${slot.label}, or tap its chip to change position.`;
     return 'Drag spots to move them. Tap a spot to change its position (e.g. ST to CAM).';
   }
-  if (selection === null) return 'Drag players onto the pitch, or tap a player then a spot.';
+  if (selection === null) {
+    // Idle: a status line, with how-to only while there's a spot to fill. (A permanent
+    // tutorial sentence was noise once the lineup was set.)
+    const { filled, spots, bench } = counts;
+    if (filled < spots && bench > 0) {
+      return `${filled} of ${spots} spots filled. Drag a player onto a spot, or tap one then a spot.`;
+    }
+    return `${filled === spots ? `All ${spots}` : `${filled} of ${spots}`} spots filled · ${bench} on the bench`;
+  }
   if (selection.kind === 'bench') {
     return `Tap a spot for ${playerName ?? 'them'}. Yellow spots suit their positions.`;
   }

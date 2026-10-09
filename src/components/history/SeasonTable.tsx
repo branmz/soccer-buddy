@@ -167,12 +167,17 @@ export function SeasonRecordCard({ record }: { record: SeasonRecord }) {
     { label: 'Won', value: String(record.wins) },
     { label: 'Drawn', value: String(record.draws) },
     { label: 'Lost', value: String(record.losses) },
-    { label: 'Goals', value: `${record.goalsFor}–${record.goalsAgainst}` },
+    // "GF–GA": a bare "Goals 3–4" read like a range.
+    {
+      label: 'GF–GA',
+      value: `${record.goalsFor}–${record.goalsAgainst}`,
+      spoken: `Goals for ${record.goalsFor}, against ${record.goalsAgainst}`,
+    },
   ];
   return (
     <View
       accessible
-      accessibilityLabel={tiles.map((t) => `${t.label} ${t.value}`).join(', ')}
+      accessibilityLabel={tiles.map((t) => t.spoken ?? `${t.label} ${t.value}`).join(', ')}
       className="flex-row rounded-2xl bg-pitch-dark px-2 py-3"
     >
       {tiles.map((tile) => (

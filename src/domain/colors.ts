@@ -61,19 +61,10 @@ export function needsOutline(background: string): boolean {
   return relativeLuminance(background) > 0.8;
 }
 
-/** Below this contrast against white, a kit color is too light to use as text. */
-const MIN_TEXT_CONTRAST = 3;
-
 /**
- * A kit color used as text or an icon on a light background: the color itself when it
- * reads well on white (e.g. navy, red), otherwise near-black (e.g. yellow, white).
+ * A kit too faint to draw on white (under 3:1, WCAG's minimum for graphics): white, yellow,
+ * sky blue, grey. Small kit marks outline these so the color still shows.
  */
-export function kitTextColor(kit: string): string {
-  return contrastRatio(relativeLuminance(kit), 1) >= MIN_TEXT_CONTRAST ? kit : '#111827';
-}
-
-/** `#rrggbb` plus an alpha (0–1) as `#rrggbbaa`, e.g. for a light tint of a kit color. */
-export function withAlpha(hex: string, alpha: number): string {
-  const byte = Math.round(Math.min(1, Math.max(0, alpha)) * 255);
-  return `${hex.slice(0, 7)}${byte.toString(16).padStart(2, '0')}`;
+export function isLightKit(kit: string): boolean {
+  return contrastRatio(relativeLuminance(kit), 1) < 3;
 }

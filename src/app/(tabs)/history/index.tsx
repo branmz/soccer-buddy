@@ -104,14 +104,15 @@ export default function HistoryScreen() {
       <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="gap-3 p-4 pb-8">
         {tabs}
         <SeasonRecordCard record={stats.record} />
+        {/* Above the table, where the abbreviations are read (it was below the fold). */}
+        <Text className="px-1 text-sm text-gray-500">
+          Apps: matches played in. St: starts. Min: minutes on the pitch. Tap a column to sort.
+        </Text>
         <SeasonTable
           rows={rows}
           sort={sort}
           onSort={(key) => setSort((current) => nextSeasonSort(current, key))}
         />
-        <Text className="px-1 text-sm text-gray-500">
-          Apps: matches played in. St: starts. Min: minutes on the pitch. Tap a column to sort.
-        </Text>
       </ScrollView>
     );
   }
