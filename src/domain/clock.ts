@@ -221,6 +221,34 @@ export function clockTransition(
   }
 }
 
+/** The clock control in the live screen's bottom bar (never "end the period"). */
+export type MainClockAction = Exclude<ClockAction, 'endPeriod'>;
+/** The clock control up top: ending the period, or the match in the last period. */
+export type EndClockAction = Extract<ClockAction, 'endPeriod' | 'finish'>;
+
+/**
+ * Where the live screen puts the clock's controls. `main` (pause, resume, start the next
+ * period, or end the match at full time) goes in the bottom bar, in thumb reach: it's pressed
+ * all match. `end` (end the period, or the match in the last period) stays up top, where a
+ * rare, confirmed action is hard to hit by accident.
+ */
+export function clockControls(
+  state: ClockState,
+  periodCount: number,
+): { main: MainClockAction | null; end: EndClockAction | null } {
+  const actions = availableClockActions(state, periodCount);
+  const main =
+    actions.find(
+      (a): a is MainClockAction => a === 'pause' || a === 'resume' || a === 'startNextPeriod',
+    ) ?? (state.phase === 'periodEnded' && actions.includes('finish') ? 'finish' : null);
+  const lastPeriod = state.currentPeriod >= periodCount;
+  const end =
+    actions.find(
+      (a): a is EndClockAction => a === 'endPeriod' || (a === 'finish' && lastPeriod && a !== main),
+    ) ?? null;
+  return { main, end };
+}
+
 /** `1st half` / `2nd half` for two periods, `Q1`–`Q4` for four, otherwise `Period n`. */
 export function periodName(periodNumber: number, periodCount: number): string {
   if (periodCount === 2) return periodNumber === 1 ? '1st half' : '2nd half';

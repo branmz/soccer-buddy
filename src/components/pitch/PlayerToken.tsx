@@ -1,4 +1,14 @@
+import { useEffect } from 'react';
 import { Text, View } from 'react-native';
+import Animated, {
+  cancelAnimation,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import type { SlotFit } from '@/domain/board';
@@ -17,7 +27,8 @@ type PlayerTokenProps = {
   dimmed?: boolean;
   /**
    * A spot that suits the picked-up player's main or second position. Empty spots fill yellow;
-   * filled ones (a live-match sub target) get a yellow ring: solid for main, dashed for second.
+   * filled ones (a sub or swap target) get a yellow ring with a dark edge: thick and pulsing
+   * for main, thin for second.
    */
   highlight?: SlotFit;
   /** Live match: minutes played, shown in the position chip (e.g. "CM 23'"). */
@@ -44,12 +55,68 @@ const EMPTY_SLOT_CLASS = {
   locked: 'border-solid border-red-300 bg-red-900/60',
 } as const;
 
-/** Selected is cyan: on the pitch, yellow means a card or a spot that suits a player. */
-function ringClass(selected: boolean, highlight: SlotFit): string {
-  if (selected) return 'border-solid border-select';
-  if (highlight === 'primary') return 'border-solid border-yellow-300';
-  if (highlight === 'secondary') return 'border-dashed border-yellow-300';
-  return 'border-solid border-transparent';
+type Ring = 'none' | 'selected' | 'primary' | 'secondary';
+
+/**
+ * The ring around a filled token: a colored band with a near-black outer edge, 2px clear of the
+ * badge. A light band alone merged with the badge's white border into one outline; the dark
+ * edge makes it read as a ring on any grass. Selected is cyan; yellow means a spot that suits
+ * the picked-up player: a thick band for their main position, a thin one for their second
+ * (dashed circles this small came out as faint dots on Android). Every state sets width, style
+ * and color (removing a class leaves a one-frame ghost on Android).
+ */
+const RING: Record<Ring, { band: string; edge: string }> = {
+  none: {
+    band: 'border-4 border-solid border-transparent',
+    edge: 'border-2 border-solid border-transparent',
+  },
+  selected: {
+    band: 'border-4 border-solid border-select',
+    edge: 'border-2 border-solid border-gray-950',
+  },
+  primary: {
+    band: 'border-4 border-solid border-yellow-300',
+    edge: 'border-2 border-solid border-gray-950',
+  },
+  secondary: {
+    band: 'border-2 border-solid border-yellow-300',
+    edge: 'border-2 border-solid border-gray-950',
+  },
+};
+
+function ringFor(selected: boolean, highlight: SlotFit): Ring {
+  if (selected) return 'selected';
+  return highlight ?? 'none';
+}
+
+const PULSE_SCALE = 1.12;
+const PULSE_HALF_MS = 500;
+
+/**
+ * A slow grow-and-shrink while `active`: in sunlight, motion catches the eye where a color
+ * alone doesn't. Off when the phone asks for reduced motion.
+ */
+function usePulse(active: boolean) {
+  const reduceMotion = useReducedMotion();
+  const scale = useSharedValue(1);
+  useEffect(() => {
+    if (active && !reduceMotion) {
+      scale.set(
+        withRepeat(
+          withSequence(
+            withTiming(PULSE_SCALE, { duration: PULSE_HALF_MS }),
+            withTiming(1, { duration: PULSE_HALF_MS }),
+          ),
+          -1,
+        ),
+      );
+    } else {
+      cancelAnimation(scale);
+      scale.set(1);
+    }
+    return () => cancelAnimation(scale);
+  }, [active, reduceMotion, scale]);
+  return useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
 }
 
 /**
@@ -71,6 +138,10 @@ export function PlayerToken({
   assists = 0,
   locked = false,
 }: PlayerTokenProps) {
+  // Empty spots show a highlight as a fill (below); the ring is for filled ones, or selection.
+  const ring = ringFor(selected, player !== null ? highlight : null);
+  // Only the spots for a player's main position pulse: the best place to put them.
+  const pulse = usePulse(ring === 'primary');
   return (
     <View
       accessible={false}
@@ -95,10 +166,11 @@ export function PlayerToken({
           )}
         </View>
       )}
-      {/* Every state sets border style and color so Android doesn't leave a ghost ring. */}
-      <View
-        className={`absolute -inset-1 rounded-full border-[3px] ${ringClass(selected, player !== null ? highlight : null)}`}
-      />
+      {/* 8px out: dark edge (8–6px), then the band (6–2px, or 6–4px when thin), then grass. */}
+      <Animated.View className="absolute -inset-2" style={pulse}>
+        <View className={`absolute inset-0 rounded-full ${RING[ring].edge}`} />
+        <View className={`absolute inset-0.5 rounded-full ${RING[ring].band}`} />
+      </Animated.View>
       {/* A filled spot still shows its position, as a chip above the badge. Minutes played ride
           along: the position is short, so they fit without truncating the name below. Sibling
           Texts in a row, not nested ones: on the phone, nested minutes showed up off the chip. */}

@@ -22,6 +22,23 @@ export function tapHaptic(): void {
   result.catch(() => undefined);
 }
 
+/**
+ * Regulation time is up in this period: three strong pulses, unlike any tap or confirm, so a
+ * coach watching play (not the clock) notices. The haptics engine has no long buzz (that needs
+ * the VIBRATE permission), so the strongest effect repeats.
+ */
+export function periodEndHaptic(): void {
+  for (const delay of [0, 450, 900]) {
+    setTimeout(() => {
+      const result =
+        Platform.OS === 'android'
+          ? Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Reject)
+          : Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+      result.catch(() => undefined);
+    }, delay);
+  }
+}
+
 /** An action was refused. */
 export function rejectHaptic(): void {
   const result =

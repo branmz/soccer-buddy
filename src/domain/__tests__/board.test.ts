@@ -345,14 +345,28 @@ describe('suggestedSlots', () => {
     expect(fits('CB', 'ST')).toEqual({ cb: 'primary', st: 'secondary' });
   });
 
-  it('never suggests a spot that already has a player', () => {
-    const full = layout.map((s) => (s.slotId === 'cb' ? { ...s, playerId: 3 } : s));
-    // Both CB spots taken: falls back to the open defensive spot.
+  it('prefers an open spot on the line over a taken one with the exact label', () => {
+    const cbsTaken = layout.map((s) => (s.slotId === 'cb' ? { ...s, playerId: 3 } : s));
+    // Both CB spots taken: the open defensive spot fills the lineup.
     expect(
-      Object.fromEntries(suggestedSlots(full, { primaryPosition: 'CB', secondaryPosition: null })),
-    ).toEqual({
-      lb: 'primary',
-    });
+      Object.fromEntries(
+        suggestedSlots(cbsTaken, { primaryPosition: 'CB', secondaryPosition: null }),
+      ),
+    ).toEqual({ lb: 'primary' });
+  });
+
+  it('suggests taken spots when no open one suits them (a full lineup: they would swap in)', () => {
+    const full = layout.map((s, i) => ({ ...s, playerId: s.playerId ?? 10 + i }));
+    expect(
+      Object.fromEntries(suggestedSlots(full, { primaryPosition: 'CB', secondaryPosition: 'ST' })),
+    ).toEqual({ cb: 'primary', 'cb-taken': 'primary', st: 'secondary' });
+    // An open spot that doesn't suit them doesn't count: the GK spot is free here.
+    const gkOpen = full.map((s) => (s.slotId === 'gk' ? { ...s, playerId: undefined } : s));
+    expect(
+      Object.fromEntries(
+        suggestedSlots(gkOpen, { primaryPosition: 'CDM', secondaryPosition: null }),
+      ),
+    ).toEqual({ cdm: 'primary' });
   });
 
   it('falls back to open spots on the same lines when no label matches', () => {

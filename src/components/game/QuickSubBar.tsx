@@ -10,7 +10,10 @@ type QuickSubBarProps = {
   onPress: (preset: PresetWithPairs) => void;
 };
 
-/** One tap makes every sub in a preset (one event group, so one undo). */
+/**
+ * A tap shows the preset's pairs, and one confirm makes every sub in it (one event group, so
+ * one undo). The screen's preview gives the haptic.
+ */
 export function QuickSubBar({ presets, onPress }: QuickSubBarProps) {
   if (presets.length === 0) return null;
   return (
@@ -28,7 +31,6 @@ export function QuickSubBar({ presets, onPress }: QuickSubBarProps) {
   );
 }
 
-/** No tap haptic: the sub is recorded at once, and recording has its own. */
 function QuickSubChip({ preset, onPress }: { preset: PresetWithPairs; onPress: () => void }) {
   const press = usePressScale();
   return (
