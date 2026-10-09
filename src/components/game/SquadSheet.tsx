@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { Sheet } from '@/components/ui/Sheet';
+import { BRAND } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 
 type SquadSheetProps = {
@@ -50,17 +51,17 @@ export function SquadSheet({
               />
               <Text
                 numberOfLines={1}
-                className={`flex-1 text-base font-semibold ${isHere ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`flex-1 text-base font-semibold ${isHere ? 'text-gray-900' : 'text-gray-500'}`}
               >
                 {player.name}
               </Text>
-              <Text className={`text-sm ${isHere ? 'text-brand' : 'text-gray-400'}`}>
+              <Text className={`text-sm ${isHere ? 'text-brand' : 'text-gray-500'}`}>
                 {isHere ? 'Here' : 'Absent'}
               </Text>
               <Ionicons
                 name={isHere ? 'checkbox' : 'square-outline'}
                 size={26}
-                color={isHere ? '#16a34a' : '#9ca3af'}
+                color={isHere ? BRAND : '#6b7280'}
               />
             </Pressable>
           );

@@ -77,6 +77,7 @@ import { yellowCardCount, type LiveAction } from '@/domain/matchEvents';
 import { matchKitColor } from '@/domain/matchSetup';
 import { playingTime } from '@/domain/playingTime';
 import { formatPositions } from '@/domain/positions';
+import { distinctNames } from '@/domain/roster';
 import { matchScore, playerMatchStats } from '@/domain/stats';
 import { canSubstitute } from '@/domain/subRules';
 import { keyMoments, timelineEntries } from '@/domain/timeline';
@@ -88,7 +89,8 @@ import { confirmHaptic, rejectHaptic } from '@/lib/haptics';
 const MS_PER_MINUTE = 60_000;
 /** Minute badges only need to move every few seconds; the board re-renders on these steps. */
 const MINUTES_STEP_MS = 5_000;
-const TOAST_MS = 4_000;
+/** Long enough to look up at play and back before the toast's Undo goes away. */
+const TOAST_MS = 7_000;
 
 /** Which player sheet is open: one sheet whose content follows the step. */
 type PickStep =
@@ -140,6 +142,11 @@ export default function LiveMatchScreen() {
     step: { kind: 'scorer' },
   });
   const [secondYellow, setSecondYellow] = useState<{ open: boolean; playerId: number | null }>({
+    open: false,
+    playerId: null,
+  });
+  // A straight red changes the game (a player down), so it's confirmed like a second yellow.
+  const [redConfirm, setRedConfirm] = useState<{ open: boolean; playerId: number | null }>({
     open: false,
     playerId: null,
   });
@@ -218,9 +225,11 @@ export default function LiveMatchScreen() {
     [events],
   );
   const contributions = useMemo(() => playerMatchStats(events), [events]);
+  // For plain text (log, toasts, hints): "Michael #3" / "Michael #6" when names clash.
+  const namesById = useMemo(() => distinctNames(roster), [roster]);
   const nameOf = useCallback(
-    (playerId: number) => playersById.get(playerId)?.name ?? 'Unknown',
-    [playersById],
+    (playerId: number) => namesById.get(playerId) ?? 'Unknown',
+    [namesById],
   );
   // Position names as they are now (after any mid-match switch or relabel).
   const slotLabel = useCallback(
@@ -444,7 +453,7 @@ export default function LiveMatchScreen() {
       case 'card':
         if (playerId === null) return;
         setPick((p) => ({ ...p, open: false }));
-        if (step.color === 'red') record({ kind: 'redCard', playerId });
+        if (step.color === 'red') setRedConfirm({ open: true, playerId });
         else if (yellowCardCount(events, playerId) > 0) setSecondYellow({ open: true, playerId });
         else record({ kind: 'yellowCard', playerId });
         return;
@@ -557,8 +566,8 @@ export default function LiveMatchScreen() {
 
   return (
     <View className="flex-1 bg-gray-100">
-      {/* The clock bar is dark green and runs under the status bar. */}
-      <StatusBar style="light" />
+      {/* The clock bar runs under the status bar: dark green, or amber while paused. */}
+      <StatusBar style={clock.isPaused ? 'dark' : 'light'} />
       <KeepScreenAwake />
       <ClockBar
         teamName={team.name}
@@ -686,6 +695,23 @@ export default function LiveMatchScreen() {
           }}
         />
       </Sheet>
+      <ConfirmSheet
+        visible={redConfirm.open}
+        title={`Red card for ${redConfirm.playerId === null ? '' : nameOf(redConfirm.playerId)}?`}
+        message={
+          redConfirm.playerId !== null && lineup.bench.includes(redConfirm.playerId)
+            ? "They're sent off from the bench and can't come on."
+            : "They leave the pitch and can't be replaced: your team plays a player down."
+        }
+        confirmLabel="Red card"
+        onConfirm={() => {
+          setRedConfirm((r) => ({ ...r, open: false }));
+          if (redConfirm.playerId !== null) {
+            record({ kind: 'redCard', playerId: redConfirm.playerId });
+          }
+        }}
+        onClose={() => setRedConfirm((r) => ({ ...r, open: false }))}
+      />
       <Sheet
         visible={quickSub.open}
         title={quickSub.preset?.presetName ?? 'Quick sub'}
@@ -747,6 +773,7 @@ export default function LiveMatchScreen() {
         title="Undo?"
         message={entries[0] ? `Remove ${entries[0].minute} ${entries[0].text}` : 'Nothing to undo'}
         confirmLabel="Undo"
+        tone="primary"
         onConfirm={undo}
         onClose={() => setUndoOpen(false)}
       />
@@ -755,6 +782,7 @@ export default function LiveMatchScreen() {
         title={clockConfirmText.title}
         message={clockConfirmText.message}
         confirmLabel={clockConfirmText.confirm}
+        tone="primary"
         onConfirm={() => {
           setClockConfirm((c) => ({ ...c, open: false }));
           runClock(clockConfirm.action);

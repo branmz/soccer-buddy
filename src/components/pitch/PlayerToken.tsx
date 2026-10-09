@@ -44,8 +44,10 @@ const EMPTY_SLOT_CLASS = {
   locked: 'border-solid border-red-300 bg-red-900/60',
 } as const;
 
+/** Selected is cyan: on the pitch, yellow means a card or a spot that suits a player. */
 function ringClass(selected: boolean, highlight: SlotFit): string {
-  if (selected || highlight === 'primary') return 'border-solid border-yellow-300';
+  if (selected) return 'border-solid border-select';
+  if (highlight === 'primary') return 'border-solid border-yellow-300';
   if (highlight === 'secondary') return 'border-dashed border-yellow-300';
   return 'border-solid border-transparent';
 }
@@ -98,21 +100,23 @@ export function PlayerToken({
         className={`absolute -inset-1 rounded-full border-[3px] ${ringClass(selected, player !== null ? highlight : null)}`}
       />
       {/* A filled spot still shows its position, as a chip above the badge. Minutes played ride
-          along: the position is short, so they fit without truncating the name below. */}
+          along: the position is short, so they fit without truncating the name below. Sibling
+          Texts in a row, not nested ones: on the phone, nested minutes showed up off the chip. */}
       {player && (label !== '' || minutes !== null) && (
         <View
           className="absolute items-center"
           style={{ bottom: size - 1, left: -size, width: size * 3 }}
         >
-          <Text className="rounded bg-white/95 px-1 text-xs font-bold text-gray-900">
-            {label}
+          <View className="flex-row items-center rounded bg-white px-1">
+            {label !== '' && <Text className="text-xs font-bold text-gray-900">{label}</Text>}
             {minutes !== null && (
-              <Text className="text-pitch-dark">
-                {label === '' ? '' : ' '}
+              <Text
+                className={`text-xs font-bold text-pitch-dark ${label === '' ? 'ml-0' : 'ml-1'}`}
+              >
                 {minutes}
               </Text>
             )}
-          </Text>
+          </View>
         </View>
       )}
       {player && <ContributionMarks goals={goals} assists={assists} size={size} />}
@@ -129,7 +133,7 @@ export function PlayerToken({
         >
           <Text
             numberOfLines={1}
-            className="rounded bg-black/70 px-1 text-[13px] font-semibold text-white"
+            className="rounded bg-gray-950 px-1 text-[13px] font-semibold text-white"
           >
             {player.name}
           </Text>

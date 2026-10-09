@@ -32,7 +32,7 @@ export function HeaderButton({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={`min-h-11 flex-row items-center gap-1.5 rounded-full border px-3 ${
+      className={`min-h-12 flex-row items-center gap-1.5 rounded-full border px-3 ${
         primary
           ? 'border-brand bg-brand active:bg-pitch-dark'
           : 'border-green-200 bg-green-50 active:bg-green-100'

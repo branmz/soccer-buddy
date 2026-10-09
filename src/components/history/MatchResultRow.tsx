@@ -7,7 +7,7 @@ import type { MatchResult } from '@/domain/stats';
 import { formatMatchDate } from './formatMatchDate';
 
 const RESULT_STYLE: Record<MatchResult, { letter: string; label: string; className: string }> = {
-  win: { letter: 'W', label: 'Win', className: 'bg-green-600' },
+  win: { letter: 'W', label: 'Win', className: 'bg-brand' },
   draw: { letter: 'D', label: 'Draw', className: 'bg-gray-400' },
   loss: { letter: 'L', label: 'Loss', className: 'bg-red-600' },
 };

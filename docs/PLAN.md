@@ -32,7 +32,12 @@ architecture rules and git conventions. Update the **Status** section when a mil
   deleted, only made inactive.
 - **Teams:** optional **home/away kit colors** (14-color palette). Roster badges use the home
   color; a match uses the away kit when it's an away game (falling back to home).
-- **Roster sort:** number / name / position (ST → GK by primary position), persisted.
+- **Roster sort:** number / name / position (ST → GK by primary position), persisted. A
+  compact `⇅ Number` pill on the "Active" header steps through them (rarely changed, so it
+  doesn't get its own row). Roster rows have no chevron: the whole row opens the player.
+- **Duplicate names** warn like duplicate jerseys (never block): "Another Michael (#3) is on
+  the roster. Add a last initial…". **Deleting a player** (only possible without match history)
+  confirms in a bottom sheet, like every other destructive action, not a system dialog.
 - **Team and formation order:** the coach's order (`teams.sort_order`,
   `formations.sort_order`). The Teams list and the Tactics saved formations are always
   draggable (no Reorder button): tapping a card opens it; its handle drags, or tap the handle
@@ -62,15 +67,25 @@ architecture rules and git conventions. Update the **Status** section when a mil
     via **⋮ → Add late arrival** (a `late_arrival` event: onto the bench, undoable).
   - **Subs are made on the board**: drag (or tap, tap) a bench player onto a player, or onto
     an empty spot (filling one is free, not counted against max subs). There is no Sub
-    button; the bottom bar is **Goal · Opp. goal · Card · Log · Undo**. Quick subs are one tap.
+    button; the bottom bar is **Goal · Their goal · Card · Log · Undo** (Their goal is dark, so
+    it can't pass for the green Goal). Quick subs are one tap.
     A sub's incoming player must be on the bench (quick subs naming absent players fail
     per pair).
   - Recording is immediate with a toast + Undo; undoing shows a distinct "Undone" toast with
-    no button. Toasts are solid (white/red), never translucent, and stop at the bench.
+    no button. Toasts are solid (white/red), never translucent, and stop at the bench. They sit
+    at the **bottom** of the pitch (thumb reach) and last 7s.
   - **Player pickers show position**: current spot on the pitch, else preferred positions.
   - **Cards** use a drawn referee card (`RefereeCardIcon`), never a credit-card icon. A second
-    yellow asks "Yellow + red" or "Yellow only". In the card picker, the Yellow / Red options
-    show their card and fill with that color when selected.
+    yellow asks "Yellow + red" or "Yellow only", and a straight red asks to confirm. In the
+    card picker, the Yellow / Red options show their card and fill with that color when
+    selected.
+  - **Paused turns the whole clock bar amber** (dark text, dark Resume), so running vs paused
+    reads at a glance; the Game Day live card goes amber too.
+  - **Sideline legibility** (from a UX review, phase 1): brand green is `#15803d` (white text
+    5:1), readable text is never lighter than gray-500, and sideline touch targets are ≥48dp.
+    The **selected** player is cyan (`select` / `select-strong` tokens: no kit color is cyan);
+    on the pitch, yellow means a card or a spot that suits a player. In plain text (log, toasts) players who share a name show their number
+    ("Michael #3"), via `distinctNames` in `src/domain/roster.ts`.
   - Tokens show minutes played, a yellow card mark, and **goal (ball) / assist (boot)
     markers** with a count bubble.
   - Picking up a bench player highlights spots for their main (solid ring) and second

@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { FormationThumbnail } from '@/components/pitch/FormationThumbnail';
 import { Sheet } from '@/components/ui/Sheet';
+import { BRAND } from '@/constants/colors';
 import { PRESET_FORMATIONS } from '@/constants/presetFormations';
 import { formationsQuery } from '@/db/repositories/formations';
 import { formations } from '@/db/schema';
@@ -111,7 +112,7 @@ function ChoiceRow({ choice, detail, selected, onPress }: ChoiceRowProps) {
         </Text>
         <Text className="text-sm text-gray-500">{detail}</Text>
       </View>
-      {selected && <Ionicons name="checkmark-circle" size={24} color="#16a34a" />}
+      {selected && <Ionicons name="checkmark-circle" size={24} color={BRAND} />}
     </Pressable>
   );
 }

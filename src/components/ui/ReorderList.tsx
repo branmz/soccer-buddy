@@ -1,4 +1,4 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {
   useCallback,
   useEffect,
@@ -349,7 +349,8 @@ function ReorderRow({
               }}
               className="h-16 w-16 items-center justify-center"
             >
-              <Ionicons name="reorder-three" size={36} color="#6b7280" />
+              {/* A six-dot grip: three lines (reorder-three) read as a menu. */}
+              <MaterialCommunityIcons name="drag" size={32} color="#6b7280" />
             </View>
           </GestureDetector>
         )}

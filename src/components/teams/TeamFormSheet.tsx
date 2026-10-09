@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
 import { KitColorFields } from '@/components/teams/KitColorFields';
@@ -110,12 +110,15 @@ function TeamForm({ team, onClose, onSaved, onDeletePress }: Omit<TeamFormSheetP
         onPress={save}
       />
       {team && onDeletePress && (
-        <Button
-          label="Delete team"
-          variant="dangerOutline"
-          icon="trash-outline"
-          onPress={onDeletePress}
-        />
+        // Set apart from Save by a divider: destructive shouldn't look like the main action.
+        <View className="mt-2 border-t border-gray-200 pt-4">
+          <Button
+            label="Delete team"
+            variant="dangerOutline"
+            icon="trash-outline"
+            onPress={onDeletePress}
+          />
+        </View>
       )}
     </>
   );

@@ -6,6 +6,7 @@ import { Pressable, Text, View } from 'react-native';
 import { ColorSwatch } from '@/components/teams/ColorSwatch';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
+import { BRAND } from '@/constants/colors';
 import { kitTextColor, needsOutline, withAlpha } from '@/domain/colors';
 import { useActiveTeam } from '@/hooks/useActiveTeam';
 
@@ -36,7 +37,7 @@ export function TeamSwitcher() {
         accessibilityRole="button"
         accessibilityLabel={team ? `Active team: ${team.name}. Switch team` : 'Choose a team'}
         onPress={() => (teams.length === 0 ? manageTeams() : setOpen(true))}
-        className={`min-h-11 max-w-52 flex-row items-center gap-1.5 rounded-full border px-4 active:opacity-80 ${
+        className={`min-h-12 max-w-52 flex-row items-center gap-1.5 rounded-full border px-4 active:opacity-80 ${
           kit ? '' : 'border-green-200 bg-green-50'
         }`}
         // Kit colors are user data, so they can't be Tailwind classes. A light tint of the kit
@@ -86,7 +87,7 @@ export function TeamSwitcher() {
                     </Text>
                   </View>
                 </View>
-                {selected && <Ionicons name="checkmark-circle" size={24} color="#16a34a" />}
+                {selected && <Ionicons name="checkmark-circle" size={24} color={BRAND} />}
               </Pressable>
             );
           })}

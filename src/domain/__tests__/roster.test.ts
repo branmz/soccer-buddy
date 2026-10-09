@@ -1,5 +1,7 @@
 import {
+  distinctNames,
   findJerseyConflict,
+  findNameConflict,
   parseJerseyInput,
   playersWithDuplicateJersey,
   isRosterSort,
@@ -43,6 +45,32 @@ describe('findJerseyConflict', () => {
     expect(findJerseyConflict(roster, 7, 1)).toBeUndefined();
     expect(findJerseyConflict(roster, 10)).toBeUndefined();
     expect(findJerseyConflict(roster, null)).toBeUndefined();
+  });
+});
+
+describe('findNameConflict', () => {
+  const named = (id: number, name: string, isActive = true): RosterEntry => ({
+    id,
+    name,
+    jerseyNumber: id,
+    isActive,
+  });
+  const roster = [named(3, 'Michael'), named(6, 'Diego'), named(9, 'Sam', false)];
+
+  it('finds an active player with the same name, ignoring case and spaces', () => {
+    expect(findNameConflict(roster, 'michael')?.id).toBe(3);
+    expect(findNameConflict(roster, '  MICHAEL ')?.id).toBe(3);
+  });
+
+  it('ignores the player being edited and inactive players', () => {
+    expect(findNameConflict(roster, 'Michael', 3)).toBeUndefined();
+    expect(findNameConflict(roster, 'Sam')).toBeUndefined();
+  });
+
+  it('never matches a blank or different name', () => {
+    expect(findNameConflict(roster, '')).toBeUndefined();
+    expect(findNameConflict(roster, '   ')).toBeUndefined();
+    expect(findNameConflict(roster, 'Mike')).toBeUndefined();
   });
 });
 
@@ -114,6 +142,50 @@ describe('sortRoster', () => {
     expect(sorted).not.toBe(roster);
     expect(sorted).toHaveLength(roster.length);
     expect(roster[0].name).toBe('zoe');
+  });
+});
+
+describe('distinctNames', () => {
+  const named = (id: number, name: string, jerseyNumber: number | null) => ({
+    id,
+    name,
+    jerseyNumber,
+  });
+
+  it('keeps unique names as they are', () => {
+    const names = distinctNames([named(1, 'Diego', 12), named(2, 'Lea', 20)]);
+    expect([...names.entries()]).toEqual([
+      [1, 'Diego'],
+      [2, 'Lea'],
+    ]);
+  });
+
+  it('adds the number to players who share a name', () => {
+    const names = distinctNames([
+      named(1, 'Michael', 3),
+      named(2, 'Diego', 12),
+      named(3, 'Michael', 6),
+    ]);
+    expect(names.get(1)).toBe('Michael #3');
+    expect(names.get(2)).toBe('Diego');
+    expect(names.get(3)).toBe('Michael #6');
+  });
+
+  it('matches names ignoring case and surrounding spaces', () => {
+    const names = distinctNames([named(1, 'Michael', 3), named(2, ' michael ', 6)]);
+    expect(names.get(1)).toBe('Michael #3');
+    expect(names.get(2)).toBe('michael #6');
+  });
+
+  it('leaves a clashing player without a number as they are', () => {
+    const names = distinctNames([named(1, 'Michael', null), named(2, 'Michael', 6)]);
+    expect(names.get(1)).toBe('Michael');
+    expect(names.get(2)).toBe('Michael #6');
+  });
+
+  it('handles more than two players with the same name', () => {
+    const names = distinctNames([named(1, 'Sam', 4), named(2, 'Sam', 9), named(3, 'Sam', 0)]);
+    expect([...names.values()]).toEqual(['Sam #4', 'Sam #9', 'Sam #0']);
   });
 });
 

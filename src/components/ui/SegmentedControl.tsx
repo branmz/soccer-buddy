@@ -53,7 +53,7 @@ export function SegmentedControl<T extends string | number>({
               // Only colors change between states, and both states set them explicitly: an
               // elevation shadow, a font-weight change or a removed class each left a one-frame
               // "ghost" of the old selection on Android.
-              className={`min-h-10 flex-1 flex-row items-center justify-center gap-2 rounded-lg border ${
+              className={`min-h-12 flex-1 flex-row items-center justify-center gap-2 rounded-lg border ${
                 selected
                   ? (option.selectedClassName ?? 'border-gray-200 bg-white')
                   : 'border-transparent bg-transparent'

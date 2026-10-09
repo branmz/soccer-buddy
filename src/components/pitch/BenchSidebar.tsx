@@ -62,14 +62,20 @@ export function BenchSidebar({
       {/* Measured on drop to tell whether a token was released over the bench. */}
       <Animated.View ref={benchRef} style={{ flex: 1 }}>
         <View
-          className={`flex-1 border-2 ${isDropTarget ? 'border-dashed border-brand bg-green-50' : 'border-transparent bg-white'} ${disabled ? 'opacity-40' : 'opacity-100'}`}
+          className={`flex-1 border-2 ${isDropTarget ? 'border-dashed border-brand bg-green-50' : 'border-transparent bg-white'}`}
         >
-          <Text
-            accessibilityRole="header"
-            className="px-2 pt-2 pb-1 text-center text-xs font-semibold text-gray-500 uppercase"
-          >
-            Bench · {players.length}
-          </Text>
+          {/* Locked (while spots move): a lock and grey badges say so, but the text stays
+              readable. Fading the whole column to 40% made it illegible. */}
+          <View className="flex-row items-center justify-center gap-1 px-2 pt-2 pb-1">
+            {disabled && <Ionicons name="lock-closed" size={11} color="#6b7280" />}
+            <Text
+              accessibilityRole="header"
+              accessibilityLabel={`Bench, ${players.length}${disabled ? ', locked while editing spots' : ''}`}
+              className="text-center text-xs font-semibold text-gray-500 uppercase"
+            >
+              Bench · {players.length}
+            </Text>
+          </View>
           {showBenchZone && (
             <Pressable
               accessibilityRole="button"
@@ -102,7 +108,7 @@ export function BenchSidebar({
                 />
               ))}
               {players.length === 0 && (
-                <Text className="px-1 pt-2 text-center text-xs text-gray-400">
+                <Text className="px-1 pt-2 text-center text-xs text-gray-500">
                   Everyone is on the pitch
                 </Text>
               )}
@@ -165,27 +171,40 @@ function BenchPlayer({
       >
         <View
           className={`items-center gap-0.5 rounded-xl border-2 px-1 py-1.5 ${
-            selected ? 'border-brand bg-green-50' : 'border-transparent bg-transparent'
+            selected ? 'border-select-strong bg-cyan-50' : 'border-transparent bg-transparent'
           } ${isDragged ? 'opacity-30' : 'opacity-100'}`}
         >
           <View>
-            <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={36} />
+            <JerseyBadge
+              number={player.jerseyNumber}
+              kitColor={kitColor}
+              inactive={disabled}
+              size={36}
+            />
             {stats && <ContributionMarks goals={stats.goals} assists={stats.assists} size={36} />}
           </View>
-          <Text numberOfLines={1} className="text-xs font-semibold text-gray-900">
+          <Text
+            numberOfLines={1}
+            className={`text-xs font-semibold ${disabled ? 'text-gray-500' : 'text-gray-900'}`}
+          >
             {player.name}
           </Text>
           {positions !== '' && (
             <Text
               numberOfLines={1}
-              className={`text-[11px] font-semibold ${fit ? 'text-brand' : 'text-gray-400'}`}
+              className={`text-[11px] font-semibold ${
+                disabled ? 'text-gray-500' : fit ? 'text-brand' : 'text-gray-600'
+              }`}
             >
               {fit ? '★ ' : ''}
               {positions}
             </Text>
           )}
           {note !== null && (
-            <Text numberOfLines={1} className="text-[11px] font-semibold text-gray-600">
+            <Text
+              numberOfLines={1}
+              className={`text-[11px] font-semibold ${disabled ? 'text-gray-500' : 'text-gray-600'}`}
+            >
               {note}
             </Text>
           )}

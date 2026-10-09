@@ -5,3 +5,5 @@ src/db/migrations/
 expo-env.d.ts
 package-lock.json
 assets/
+# Personal Claude Code settings: git-ignored, rewritten by the tool, not ours to format.
+.claude/settings.local.json

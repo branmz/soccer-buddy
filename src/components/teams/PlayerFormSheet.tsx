@@ -1,20 +1,21 @@
 import { useRef, useState } from 'react';
-import { Alert, Keyboard, Switch, Text, TextInput, View } from 'react-native';
+import { Keyboard, Switch, Text, TextInput, View } from 'react-native';
 
 import { PositionFields } from '@/components/teams/PositionFields';
 import { Button } from '@/components/ui/Button';
 import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
+import { BRAND } from '@/constants/colors';
 import { userMessage } from '@/db/repositories/errors';
-import {
-  addPlayer,
-  deletePlayer,
-  playerHasMatchHistory,
-  updatePlayer,
-} from '@/db/repositories/players';
+import { addPlayer, playerHasMatchHistory, updatePlayer } from '@/db/repositories/players';
 import type { Player } from '@/db/schema';
 import type { PlayerPosition } from '@/domain/positions';
-import { findJerseyConflict, parseJerseyInput, type RosterEntry } from '@/domain/roster';
+import {
+  findJerseyConflict,
+  findNameConflict,
+  parseJerseyInput,
+  type RosterEntry,
+} from '@/domain/roster';
 import { useOpenCount } from '@/hooks/useOpenCount';
 
 type PlayerFormSheetProps = {
@@ -22,9 +23,11 @@ type PlayerFormSheetProps = {
   teamId: number;
   /** Edit this player; omit to add a new one. */
   player?: Player;
-  /** The current roster, for duplicate-jersey warnings. */
+  /** The current roster, for duplicate name and jersey warnings. */
   roster: readonly RosterEntry[];
   onClose: () => void;
+  /** Asks to delete the player: the screen closes this sheet and confirms in its own. */
+  onDeletePress?: (player: Player) => void;
 };
 
 export function PlayerFormSheet({
@@ -33,9 +36,10 @@ export function PlayerFormSheet({
   player,
   roster,
   onClose,
+  onDeletePress,
 }: PlayerFormSheetProps) {
   const openCount = useOpenCount(visible);
-  // Bumped after "Add player, then another" so the form remounts empty.
+  // Bumped after "Add & next" so the form remounts empty.
   const [formKey, setFormKey] = useState(0);
   return (
     <Sheet visible={visible} title={player ? 'Edit player' : 'Add player'} onClose={onClose}>
@@ -45,6 +49,7 @@ export function PlayerFormSheet({
         player={player}
         roster={roster}
         onClose={onClose}
+        onDeletePress={onDeletePress}
         onAddAnother={() => setFormKey((k) => k + 1)}
       />
     </Sheet>
@@ -53,7 +58,14 @@ export function PlayerFormSheet({
 
 type PlayerFormProps = Omit<PlayerFormSheetProps, 'visible'> & { onAddAnother: () => void };
 
-function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFormProps) {
+function PlayerForm({
+  teamId,
+  player,
+  roster,
+  onClose,
+  onDeletePress,
+  onAddAnother,
+}: PlayerFormProps) {
   const [name, setName] = useState(player?.name ?? '');
   const [jerseyText, setJerseyText] = useState(player?.jerseyNumber?.toString() ?? '');
   const [isActive, setIsActive] = useState(player?.isActive ?? true);
@@ -74,6 +86,13 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
   const conflict =
     jersey === undefined || !isActive ? undefined : findJerseyConflict(roster, jersey, player?.id);
   const jerseyWarning = conflict ? `${conflict.name} also wears #${jersey}` : null;
+  // Two "Michael"s look the same on the pitch and in pickers: nudge, but never block.
+  const namesake = isActive ? findNameConflict(roster, name, player?.id) : undefined;
+  const nameWarning = namesake
+    ? `Another ${namesake.name}${
+        namesake.jerseyNumber === null ? '' : ` (#${namesake.jerseyNumber})`
+      } is on the roster. Add a last initial to tell them apart.`
+    : null;
   // History can't change while the sheet is open, so query once rather than per keystroke.
   const [hasHistory] = useState(() => (player ? playerHasMatchHistory(player.id) : false));
 
@@ -96,25 +115,6 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
     }
   }
 
-  function confirmDelete() {
-    if (!player) return;
-    Alert.alert('Delete player?', `${player.name} will be removed from the roster.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: () => {
-          try {
-            deletePlayer(player.id);
-            onClose();
-          } catch (e) {
-            setError(userMessage(e));
-          }
-        },
-      },
-    ]);
-  }
-
   return (
     <>
       <TextField
@@ -132,14 +132,16 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
         submitBehavior="submit"
         onSubmitEditing={() => jerseyRef.current?.focus()}
         error={error}
+        warning={nameWarning}
       />
       <TextField
         ref={jerseyRef}
         returnKeyType="done"
-        label="Jersey number (optional)"
+        label="Jersey number"
         value={jerseyText}
         onChangeText={setJerseyText}
-        placeholder="e.g. 7"
+        // "Optional" like the position and kit fields.
+        placeholder="Optional"
         keyboardType="number-pad"
         maxLength={2}
         error={jerseyError}
@@ -166,7 +168,9 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
               Keyboard.dismiss();
               setIsActive(value);
             }}
-            trackColor={{ true: '#16a34a' }}
+            // Android's default thumb is blue: white on our green, light on grey when off.
+            thumbColor={isActive ? '#ffffff' : '#f3f4f6'}
+            trackColor={{ false: '#9ca3af', true: BRAND }}
           />
         </View>
       )}
@@ -178,7 +182,7 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
       />
       {!player && (
         <Button
-          label="Add player, then another"
+          label="Add & next"
           icon="people-outline"
           variant="secondary"
           disabled={jerseyError !== null}
@@ -192,12 +196,14 @@ function PlayerForm({ teamId, player, roster, onClose, onAddAnother }: PlayerFor
             instead.
           </Text>
         ) : (
-          <Button
-            label="Delete player"
-            variant="dangerOutline"
-            icon="trash-outline"
-            onPress={confirmDelete}
-          />
+          onDeletePress && (
+            <Button
+              label="Delete player"
+              variant="dangerOutline"
+              icon="trash-outline"
+              onPress={() => onDeletePress(player)}
+            />
+          )
         ))}
     </>
   );

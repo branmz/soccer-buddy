@@ -20,7 +20,8 @@ export function TextField({ label, error, warning, ...inputProps }: TextFieldPro
       <Text className="text-sm font-medium text-gray-700">{capitalizeWords(label)}</Text>
       <TextInput
         accessibilityLabel={label}
-        placeholderTextColor="#9ca3af"
+        // gray-500: gray-400 placeholders wash out in sunlight.
+        placeholderTextColor="#6b7280"
         className={`min-h-12 rounded-xl border bg-white px-3 text-base text-gray-900 ${borderClass}`}
         {...inputProps}
       />
