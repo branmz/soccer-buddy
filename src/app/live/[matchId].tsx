@@ -417,7 +417,7 @@ export default function LiveMatchScreen() {
             entries={keyMoments(entries)}
             emptyText="No goals or red cards."
           />
-          <TimelineCard title="Match log" entries={entries} />
+          <TimelineCard title="Match log" entries={entries} collapsible />
           <MinutesPlayedCard minutes={played} stats={contributions} kitColor={kitColor} />
         </FinishedSummary>
       </>

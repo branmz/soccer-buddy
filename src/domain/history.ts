@@ -32,6 +32,14 @@ export function minutesPlayed(
     .sort((a, b) => b.minutes - a.minutes);
 }
 
+/**
+ * A `minutesPlayed` value for display: "23'". Everyone listed got on the pitch, so 0 whole
+ * minutes means under a minute: "<1'", not a "0'" that reads as if they never played.
+ */
+export function formatMinutesPlayed(minutes: number): string {
+  return minutes === 0 ? "<1'" : `${minutes}'`;
+}
+
 /** `minutesPlayed` with each player looked up; ids missing from `playersById` are left out. */
 export function minutesWithPlayers<P>(
   minutes: readonly MinutesPlayed[],

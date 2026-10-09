@@ -1,6 +1,7 @@
 import type { ClockPeriod } from '../clock';
 import {
   finalGameMs,
+  formatMinutesPlayed,
   minutesPlayed,
   minutesWithPlayers,
   nextSeasonSort,
@@ -59,6 +60,17 @@ describe('minutesWithPlayers', () => {
       { player: 'Cam', minutes: 40 },
       { player: 'Ana', minutes: 12 },
     ]);
+  });
+});
+
+describe('formatMinutesPlayed', () => {
+  it('shows whole minutes', () => {
+    expect(formatMinutesPlayed(1)).toBe("1'");
+    expect(formatMinutesPlayed(45)).toBe("45'");
+  });
+
+  it("shows under a minute as <1' rather than a 0 that looks like they never played", () => {
+    expect(formatMinutesPlayed(0)).toBe("<1'");
   });
 });
 

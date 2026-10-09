@@ -7,15 +7,7 @@ import { ColorSwatch } from '@/components/teams/ColorSwatch';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { BRAND } from '@/constants/colors';
-import { kitTextColor, needsOutline, withAlpha } from '@/domain/colors';
 import { useActiveTeam } from '@/hooks/useActiveTeam';
-
-/** pitch-dark, for the default light-green pill. */
-const DEFAULT_TEXT = '#1b5e20';
-const TINT_ALPHA = 0.12;
-const BORDER_ALPHA = 0.45;
-/** gray-300, for kits too light to tint a visible border (e.g. white). */
-const OUTLINE = '#d1d5db';
 
 /** Header control showing the active team; tap to switch teams. */
 export function TeamSwitcher() {
@@ -27,9 +19,9 @@ export function TeamSwitcher() {
     router.navigate('/teams');
   }
 
-  // A light pill tinted with the team's home kit color; without one, the app's light green.
+  // A neutral pill with the home kit as a dot. A kit-tinted pill made a red-kit team's switcher
+  // look like a delete button: kit color stays on badges and swatches, never on controls.
   const kit = team?.homeColor ?? null;
-  const textColor = kit ? kitTextColor(kit) : DEFAULT_TEXT;
 
   return (
     <>
@@ -37,28 +29,13 @@ export function TeamSwitcher() {
         accessibilityRole="button"
         accessibilityLabel={team ? `Active team: ${team.name}. Switch team` : 'Choose a team'}
         onPress={() => (teams.length === 0 ? manageTeams() : setOpen(true))}
-        className={`min-h-12 max-w-52 flex-row items-center gap-1.5 rounded-full border px-4 active:opacity-80 ${
-          kit ? '' : 'border-green-200 bg-green-50'
-        }`}
-        // Kit colors are user data, so they can't be Tailwind classes. A light tint of the kit
-        // fills the pill, like the default light-green one.
-        style={
-          kit
-            ? {
-                backgroundColor: withAlpha(kit, TINT_ALPHA),
-                borderColor: needsOutline(kit) ? OUTLINE : withAlpha(kit, BORDER_ALPHA),
-              }
-            : undefined
-        }
+        className="min-h-12 max-w-52 flex-row items-center gap-2 rounded-full border border-gray-300 bg-white px-4 active:bg-gray-100"
       >
-        <Text
-          numberOfLines={1}
-          className="shrink text-lg font-semibold"
-          style={{ color: textColor }}
-        >
+        {kit && <ColorSwatch color={kit} size={16} />}
+        <Text numberOfLines={1} className="shrink text-lg font-semibold text-gray-900">
           {team?.name ?? 'Add A Team'}
         </Text>
-        <Ionicons name="chevron-down" size={20} color={textColor} />
+        <Ionicons name="chevron-down" size={20} color="#374151" />
       </Pressable>
 
       <Sheet visible={open} title="Switch team" onClose={() => setOpen(false)}>

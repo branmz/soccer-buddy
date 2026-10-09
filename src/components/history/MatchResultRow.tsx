@@ -1,14 +1,16 @@
 import { Pressable, Text, View } from 'react-native';
 
-import { ColorSwatch } from '@/components/teams/ColorSwatch';
+import { KitShirt } from '@/components/teams/KitShirt';
 import type { FinishedMatch } from '@/db/repositories/history';
+import { kitColorName } from '@/domain/colors';
 import type { MatchResult } from '@/domain/stats';
 
 import { formatMatchDate } from './formatMatchDate';
 
+// White letters need a dark enough badge: gray-500 for a draw (gray-400 was 2.5:1).
 const RESULT_STYLE: Record<MatchResult, { letter: string; label: string; className: string }> = {
   win: { letter: 'W', label: 'Win', className: 'bg-brand' },
-  draw: { letter: 'D', label: 'Draw', className: 'bg-gray-400' },
+  draw: { letter: 'D', label: 'Draw', className: 'bg-gray-500' },
   loss: { letter: 'L', label: 'Loss', className: 'bg-red-600' },
 };
 
@@ -25,10 +27,11 @@ export function MatchResultRow({ item, kitColor, onPress }: MatchResultRowProps)
   const style = RESULT_STYLE[result];
   const date = formatMatchDate(match.startedAt ?? match.createdAt);
   const venue = match.isHome ? 'Home' : 'Away';
+  const kit = kitColor ? `, ${kitColorName(kitColor)} kit` : '';
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${style.label} against ${match.opponentName}, ${score.us} to ${score.them}. ${date}, ${venue}`}
+      accessibilityLabel={`${style.label} against ${match.opponentName}, ${score.us} to ${score.them}. ${date}, ${venue}${kit}`}
       onPress={onPress}
       className="min-h-16 flex-row items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 active:bg-gray-50"
     >
@@ -43,7 +46,7 @@ export function MatchResultRow({ item, kitColor, onPress }: MatchResultRowProps)
           <Text numberOfLines={1} className="shrink text-sm text-gray-500">
             {date} · {venue}
           </Text>
-          {kitColor && <ColorSwatch color={kitColor} size={14} />}
+          {kitColor && <KitShirt color={kitColor} size={14} />}
         </View>
       </View>
       <Text className="text-2xl font-black text-gray-900" style={{ fontVariant: ['tabular-nums'] }}>

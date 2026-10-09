@@ -58,7 +58,9 @@ architecture rules and git conventions. Update the **Status** section when a mil
   - The name in the editor header has a pencil and opens a **rename-only** sheet; **More**
     holds Clear all players and Delete. Leaving with unsaved changes asks
     **Save / Discard / Keep editing**.
-  - The TeamSwitcher pill is large and **lightly tinted with the home kit color**.
+  - The TeamSwitcher pill is large and **neutral (white) with the home kit as a dot**. It used
+    to be tinted with the kit, but a red kit made it look like a delete button (UX review,
+    phase 2): kit color goes on badges, swatches and `KitShirt`, never on controls or cards.
 
 - **Game Day** (decided while testing milestone 6 on the phone):
   - **New match** asks only for the opponent; settings and formation copy the team's last
@@ -86,6 +88,18 @@ architecture rules and git conventions. Update the **Status** section when a mil
     The **selected** player is cyan (`select` / `select-strong` tokens: no kit color is cyan);
     on the pitch, yellow means a card or a spot that suits a player. In plain text (log, toasts) players who share a name show their number
     ("Michael #3"), via `distinctNames` in `src/domain/roster.ts`.
+  - **Feedback you can feel in sunlight** (phase 2): live buttons shrink while held
+    (`usePressScale`; a pressed color alone vanishes outdoors), buttons that open something
+    give a light tick (`tapHaptic`), the score bumps when it changes, and the subs count
+    becomes a white chip with one sub left and a red one at the limit.
+  - **The Game Day live card is dark green** like the clock bar (amber when paused), with the
+    kit as a shirt next to the team name, not filled with the kit color.
+  - **History** (phase 2): the full match log starts collapsed under Key Moments ("Show all
+    12"), so the two don't repeat each other; under a minute played shows `<1'`, not `0'`; the
+    season card says **GF–GA**; the column legend sits above the table; the kit worn is a
+    shirt icon, not a bare dot that read like a result light.
+  - **Tactics** idle hint is a status line ("All 11 spots filled · 2 on the bench"), with
+    how-to only while there's a spot to fill.
   - Tokens show minutes played, a yellow card mark, and **goal (ball) / assist (boot)
     markers** with a count bubble.
   - Picking up a bench player highlights spots for their main (solid ring) and second

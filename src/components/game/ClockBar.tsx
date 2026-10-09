@@ -1,11 +1,19 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import type { ComponentProps } from 'react';
+import { useEffect, useRef, type ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { BRAND } from '@/constants/colors';
 import { breakName, periodName, type ClockAction, type ClockState } from '@/domain/clock';
 import type { Score } from '@/domain/stats';
 import { capitalizeWords } from '@/domain/text';
+import { usePressScale } from '@/hooks/usePressScale';
+import { tapHaptic } from '@/lib/haptics';
 
 type ClockBarProps = {
   teamName: string;
@@ -102,6 +110,32 @@ export function ClockBar({
   const lastPeriod = clock.currentPeriod >= periodCount;
   const secondary = actions.find((a) => a === 'endPeriod' || (a === 'finish' && lastPeriod));
   const digitsColor = paused ? bar.strong : clock.isStoppage ? 'text-yellow-300' : 'text-white';
+  const subsLeft = maxSubs === null ? null : maxSubs - subsUsed;
+  // Near the limit the count becomes a chip that pops on the green and the amber bar alike.
+  // Every state sets the same classes (no Android ghosting); only the values change.
+  const subsClass =
+    subsLeft !== null && subsLeft <= 0
+      ? 'rounded bg-red-600 px-1.5 text-white'
+      : subsLeft === 1
+        ? 'rounded bg-white px-1.5 text-amber-800'
+        : `rounded bg-transparent px-0 ${bar.subs}`;
+  const subsSpoken =
+    subsLeft === null
+      ? `${subsUsed} subs used`
+      : `${subsUsed} of ${maxSubs} subs used${subsLeft <= 0 ? ', none left' : subsLeft === 1 ? ', one left' : ''}`;
+
+  // The score bumps when it changes: it's the confirmation the coach actually looks at.
+  const scoreScale = useSharedValue(1);
+  const scoreStyle = useAnimatedStyle(() => ({ transform: [{ scale: scoreScale.get() }] }));
+  const scoreKey = `${score.us}-${score.them}`;
+  const lastScoreKey = useRef(scoreKey);
+  useEffect(() => {
+    if (lastScoreKey.current === scoreKey) return;
+    lastScoreKey.current = scoreKey;
+    scoreScale.set(
+      withSequence(withTiming(1.3, { duration: 140 }), withTiming(1, { duration: 260 })),
+    );
+  }, [scoreKey, scoreScale]);
 
   return (
     <View className={`gap-2 px-2 pb-3 ${bar.box}`} style={{ paddingTop: insetTop + 4 }}>
@@ -127,9 +161,11 @@ export function ClockBar({
           >
             {teamName}
           </Text>
-          <Text className={`text-3xl font-black ${bar.strong}`}>
-            {score.us} – {score.them}
-          </Text>
+          <Animated.View style={scoreStyle}>
+            <Text className={`text-3xl font-black ${bar.strong}`}>
+              {score.us} – {score.them}
+            </Text>
+          </Animated.View>
           <Text numberOfLines={1} className={`shrink text-base font-semibold ${bar.soft}`}>
             {opponentName}
           </Text>
@@ -159,8 +195,12 @@ export function ClockBar({
             <Text className={`text-base font-semibold ${bar.soft}`}>
               {paused ? `PAUSED · ${period}` : period}
             </Text>
-            <Text className={`text-base ${bar.subs}`}>
-              · Subs {subsUsed}
+            <Text className={`text-base ${bar.subs}`}>·</Text>
+            <Text
+              accessibilityLabel={subsSpoken}
+              className={`text-base font-semibold ${subsClass}`}
+            >
+              Subs {subsUsed}
               {maxSubs === null ? '' : ` / ${maxSubs}`}
             </Text>
           </View>
@@ -179,6 +219,8 @@ export function ClockBar({
               label={actionLabel(secondary, clock, periodCount)}
               icon={ACTION_ICON[secondary]}
               tone={paused ? 'outlineDark' : 'outline'}
+              // Ending opens a confirm; pause/resume record at once (with their own haptic).
+              haptic
               onPress={() => onAction(secondary)}
             />
           )}
@@ -223,19 +265,29 @@ type ClockButtonProps = {
   label: string;
   icon: IconName;
   tone: keyof typeof TONE;
+  /** A light tick on press, for a button that opens something rather than records. */
+  haptic?: boolean;
   onPress: () => void;
 };
 
-function ClockButton({ label, icon, tone, onPress }: ClockButtonProps) {
+function ClockButton({ label, icon, tone, haptic = false, onPress }: ClockButtonProps) {
   const style = TONE[tone];
+  const press = usePressScale();
   return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      className={`min-h-12 min-w-36 flex-row items-center justify-center gap-1.5 rounded-xl border px-3 ${style.box}`}
-    >
-      <Ionicons name={icon} size={20} color={style.icon} />
-      <Text className={`text-base font-bold ${style.text}`}>{capitalizeWords(label)}</Text>
-    </Pressable>
+    <Animated.View style={press.style}>
+      <Pressable
+        accessibilityRole="button"
+        onPressIn={press.onPressIn}
+        onPressOut={press.onPressOut}
+        onPress={() => {
+          if (haptic) tapHaptic();
+          onPress();
+        }}
+        className={`min-h-12 min-w-36 flex-row items-center justify-center gap-1.5 rounded-xl border px-3 ${style.box}`}
+      >
+        <Ionicons name={icon} size={20} color={style.icon} />
+        <Text className={`text-base font-bold ${style.text}`}>{capitalizeWords(label)}</Text>
+      </Pressable>
+    </Animated.View>
   );
 }
