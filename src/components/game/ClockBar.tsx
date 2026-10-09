@@ -8,8 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
-import { BRAND } from '@/constants/colors';
-import { breakName, periodName, type ClockAction, type ClockState } from '@/domain/clock';
+import { breakName, periodName, type ClockState, type EndClockAction } from '@/domain/clock';
 import type { Score } from '@/domain/stats';
 import { capitalizeWords } from '@/domain/text';
 import { usePressScale } from '@/hooks/usePressScale';
@@ -23,8 +22,12 @@ type ClockBarProps = {
   periodCount: number;
   subsUsed: number;
   maxSubs: number | null;
-  actions: ClockAction[];
-  onAction: (action: ClockAction) => void;
+  /**
+   * End the period (or the match, in the last one), top right: rare and confirmed, so it's
+   * fine out of thumb reach. Pause / resume live in the bottom bar. Null hides it.
+   */
+  endAction: EndClockAction | null;
+  onEnd: (action: EndClockAction) => void;
   onBack: () => void;
   onMore: () => void;
   /** Opens the match log. */
@@ -35,28 +38,13 @@ type ClockBarProps = {
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
-function actionLabel(action: ClockAction, clock: ClockState, periodCount: number): string {
-  switch (action) {
-    case 'pause':
-      return 'Pause';
-    case 'resume':
-      return 'Resume';
-    case 'startNextPeriod':
-      return `Start ${periodName(clock.currentPeriod + 1, periodCount)}`;
-    case 'endPeriod':
-      return `End ${periodName(clock.currentPeriod, periodCount)}`;
-    case 'finish':
-      return 'End match';
-  }
+function endLabel(action: EndClockAction, clock: ClockState, periodCount: number): string {
+  return action === 'endPeriod'
+    ? `End ${periodName(clock.currentPeriod, periodCount)}`
+    : 'End match';
 }
 
-const ACTION_ICON: Record<ClockAction, IconName> = {
-  pause: 'pause',
-  resume: 'play',
-  startNextPeriod: 'play',
-  endPeriod: 'stop',
-  finish: 'flag',
-};
+const endIcon = (action: EndClockAction): IconName => (action === 'endPeriod' ? 'stop' : 'flag');
 
 /**
  * The bar's colors. Paused turns the whole bar amber, so a glance from the sideline tells a
@@ -82,7 +70,7 @@ const BAR = {
   },
 } as const;
 
-/** Score, clock, period and the clock controls, across the top of the live screen. */
+/** Score, clock, period, subs and the end-of-period control, across the top of the live screen. */
 export function ClockBar({
   teamName,
   opponentName,
@@ -91,8 +79,8 @@ export function ClockBar({
   periodCount,
   subsUsed,
   maxSubs,
-  actions,
-  onAction,
+  endAction,
+  onEnd,
   onBack,
   onMore,
   onScorePress,
@@ -104,11 +92,6 @@ export function ClockBar({
     clock.phase === 'periodEnded'
       ? breakName(clock.currentPeriod, periodCount)
       : periodName(clock.currentPeriod, periodCount);
-  // Pause/resume/next period is the big button; ending is secondary. The final "End match" is
-  // only shown here once it's the natural next step (last period, or full time).
-  const primary = actions.find((a) => a !== 'endPeriod' && a !== 'finish');
-  const lastPeriod = clock.currentPeriod >= periodCount;
-  const secondary = actions.find((a) => a === 'endPeriod' || (a === 'finish' && lastPeriod));
   const digitsColor = paused ? bar.strong : clock.isStoppage ? 'text-yellow-300' : 'text-white';
   const subsLeft = maxSubs === null ? null : maxSubs - subsUsed;
   // Near the limit the count becomes a chip that pops on the green and the amber bar alike.
@@ -169,6 +152,8 @@ export function ClockBar({
           <Text numberOfLines={1} className={`shrink text-base font-semibold ${bar.soft}`}>
             {opponentName}
           </Text>
+          {/* Says the score opens the log (Log left the bottom bar for pause / resume). */}
+          <Ionicons name="list" size={18} color={bar.icon} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -205,50 +190,21 @@ export function ClockBar({
             </Text>
           </View>
         </View>
-        <View className="gap-2">
-          {primary && (
-            <ClockButton
-              label={actionLabel(primary, clock, periodCount)}
-              icon={ACTION_ICON[primary]}
-              tone={primary === 'pause' ? 'amber' : paused ? 'dark' : 'light'}
-              onPress={() => onAction(primary)}
-            />
-          )}
-          {secondary && (
-            <ClockButton
-              label={actionLabel(secondary, clock, periodCount)}
-              icon={ACTION_ICON[secondary]}
-              tone={paused ? 'outlineDark' : 'outline'}
-              // Ending opens a confirm; pause/resume record at once (with their own haptic).
-              haptic
-              onPress={() => onAction(secondary)}
-            />
-          )}
-        </View>
+        {endAction && (
+          <EndButton
+            label={endLabel(endAction, clock, periodCount)}
+            icon={endIcon(endAction)}
+            tone={paused ? 'outlineDark' : 'outline'}
+            onPress={() => onEnd(endAction)}
+          />
+        )}
       </View>
     </View>
   );
 }
 
-/** Solid fills with dark-on-light or light-on-dark text: green on green washed out in sun. */
+/** An outline on the green bar, or a dark one on the amber (paused) bar. */
 const TONE = {
-  /** Start the next period, on the green bar. */
-  light: {
-    box: 'border-white bg-white active:bg-gray-200',
-    text: 'text-gray-950',
-    icon: BRAND,
-  },
-  /** Resume, on the amber (paused) bar. */
-  dark: {
-    box: 'border-gray-950 bg-gray-950 active:bg-gray-800',
-    text: 'text-white',
-    icon: '#ffffff',
-  },
-  amber: {
-    box: 'border-amber-300 bg-amber-400 active:bg-amber-500',
-    text: 'text-gray-900',
-    icon: '#111827',
-  },
   outline: {
     box: 'border-white/60 bg-transparent active:bg-white/10',
     text: 'text-white',
@@ -261,16 +217,15 @@ const TONE = {
   },
 } as const;
 
-type ClockButtonProps = {
+type EndButtonProps = {
   label: string;
   icon: IconName;
   tone: keyof typeof TONE;
-  /** A light tick on press, for a button that opens something rather than records. */
-  haptic?: boolean;
   onPress: () => void;
 };
 
-function ClockButton({ label, icon, tone, haptic = false, onPress }: ClockButtonProps) {
+/** Ending always opens a confirm, so it ticks like any button that opens something. */
+function EndButton({ label, icon, tone, onPress }: EndButtonProps) {
   const style = TONE[tone];
   const press = usePressScale();
   return (
@@ -280,7 +235,7 @@ function ClockButton({ label, icon, tone, haptic = false, onPress }: ClockButton
         onPressIn={press.onPressIn}
         onPressOut={press.onPressOut}
         onPress={() => {
-          if (haptic) tapHaptic();
+          tapHaptic();
           onPress();
         }}
         className={`min-h-12 min-w-36 flex-row items-center justify-center gap-1.5 rounded-xl border px-3 ${style.box}`}

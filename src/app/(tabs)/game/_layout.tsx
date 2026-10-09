@@ -1,10 +1,11 @@
 import { Stack } from 'expo-router';
 
 import { TeamSwitcher } from '@/components/teams/TeamSwitcher';
+import { STACK_OPTIONS } from '@/constants/navigation';
 
 export default function GameDayLayout() {
   return (
-    <Stack screenOptions={{ headerTintColor: '#1b5e20' }}>
+    <Stack screenOptions={STACK_OPTIONS}>
       <Stack.Screen
         name="index"
         options={{ title: 'Game Day', headerRight: () => <TeamSwitcher /> }}
