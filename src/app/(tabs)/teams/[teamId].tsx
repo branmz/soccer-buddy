@@ -8,25 +8,37 @@ import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { PlayerFormSheet } from '@/components/teams/PlayerFormSheet';
 import { TeamFormSheet } from '@/components/teams/TeamFormSheet';
 import { Button } from '@/components/ui/Button';
+import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { HeaderButton } from '@/components/ui/HeaderButton';
-import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { playersQuery } from '@/db/repositories/players';
+import { userMessage } from '@/db/repositories/errors';
+import { deletePlayer, playersQuery } from '@/db/repositories/players';
 import { getTeam } from '@/db/repositories/teams';
 import { players, teams, type Player } from '@/db/schema';
-import { formatPositions, POSITION_NAMES } from '@/domain/positions';
-import { playersWithDuplicateJersey, sortRoster, type RosterSort } from '@/domain/roster';
+import { POSITION_NAMES } from '@/domain/positions';
+import {
+  playersWithDuplicateJersey,
+  ROSTER_SORTS,
+  sortRoster,
+  type RosterSort,
+} from '@/domain/roster';
 import { useLiveData } from '@/hooks/useLiveData';
 import { useAppStore } from '@/stores/appStore';
 
-const SORT_OPTIONS: { label: string; value: RosterSort }[] = [
-  { label: 'Number', value: 'number' },
-  { label: 'Name', value: 'name' },
-  { label: 'Position', value: 'position' },
-];
+const SORT_LABEL: Record<RosterSort, string> = {
+  number: 'Number',
+  name: 'Name',
+  position: 'Position',
+};
+
+/** The sort after `sort`: the sort pill steps through them in order. */
+function nextSort(sort: RosterSort): RosterSort {
+  return ROSTER_SORTS[(ROSTER_SORTS.indexOf(sort) + 1) % ROSTER_SORTS.length];
+}
 
 /** `player` is kept after closing so the sheet's content doesn't change while it slides away. */
 type FormState = { open: boolean; player: Player | null };
+type DeleteState = { open: boolean; player: Player | null; error: string | null };
 
 export default function RosterScreen() {
   const { teamId: teamIdParam } = useLocalSearchParams<{ teamId: string }>();
@@ -35,6 +47,11 @@ export default function RosterScreen() {
   const team = useLiveData(() => getTeam(teamId), [teamId], [teams]);
   const roster = useLiveData(() => playersQuery(teamId).all(), [teamId], [players]);
   const [form, setForm] = useState<FormState>({ open: false, player: null });
+  const [deleting, setDeleting] = useState<DeleteState>({
+    open: false,
+    player: null,
+    error: null,
+  });
   const [showInactive, setShowInactive] = useState(false);
   const rosterSort = useAppStore((s) => s.rosterSort);
   const setRosterSort = useAppStore((s) => s.setRosterSort);
@@ -65,6 +82,17 @@ export default function RosterScreen() {
     );
   }
 
+  function confirmDeletePlayer() {
+    const player = deleting.player;
+    if (!player) return;
+    try {
+      deletePlayer(player.id);
+      setDeleting((d) => ({ ...d, open: false }));
+    } catch (e) {
+      setDeleting((d) => ({ ...d, error: userMessage(e) }));
+    }
+  }
+
   return (
     <View className="flex-1 bg-gray-50">
       <Stack.Screen
@@ -72,8 +100,10 @@ export default function RosterScreen() {
           title: team.name,
           headerRight: () => (
             <View className="flex-row items-center gap-1">
+              {/* "Edit", not "Edit team": every dp here goes to the team's name. */}
               <HeaderButton
-                label="Edit team"
+                label="Edit"
+                accessibilityLabel="Edit team"
                 icon="create-outline"
                 onPress={() => setEditingTeam(true)}
               />
@@ -108,16 +138,6 @@ export default function RosterScreen() {
           keyExtractor={(p) => String(p.id)}
           stickySectionHeadersEnabled={false}
           contentContainerClassName="pb-8"
-          ListHeaderComponent={
-            <View className="px-4 pt-4">
-              <SegmentedControl
-                label="Sort by"
-                options={SORT_OPTIONS}
-                value={rosterSort}
-                onChange={setRosterSort}
-              />
-            </View>
-          }
           renderSectionHeader={({ section }) =>
             section.key === 'inactive' ? (
               <Pressable
@@ -136,9 +156,24 @@ export default function RosterScreen() {
                 />
               </Pressable>
             ) : (
-              <Text className="px-4 pt-4 pb-2 text-sm font-semibold text-gray-500 uppercase">
-                {section.title}
-              </Text>
+              // The sort rides on the first header: rarely changed, so it shouldn't cost a row.
+              <View className="flex-row items-center justify-between px-4 pt-3 pb-1">
+                <Text className="text-sm font-semibold text-gray-500 uppercase">
+                  {section.title}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Sorted by ${SORT_LABEL[rosterSort].toLowerCase()}`}
+                  accessibilityHint={`Sorts by ${SORT_LABEL[nextSort(rosterSort)].toLowerCase()}`}
+                  onPress={() => setRosterSort(nextSort(rosterSort))}
+                  className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 active:bg-gray-100"
+                >
+                  <Ionicons name="swap-vertical" size={16} color="#374151" />
+                  <Text className="text-base font-semibold text-gray-800">
+                    {SORT_LABEL[rosterSort]}
+                  </Text>
+                </Pressable>
+              </View>
             )
           }
           renderItem={({ item }) => (
@@ -158,6 +193,19 @@ export default function RosterScreen() {
         player={form.player ?? undefined}
         roster={roster}
         onClose={() => setForm((f) => ({ ...f, open: false }))}
+        onDeletePress={(player) => {
+          setForm((f) => ({ ...f, open: false }));
+          setDeleting({ open: true, player, error: null });
+        }}
+      />
+      <ConfirmSheet
+        visible={deleting.open}
+        title={`Delete ${deleting.player?.name ?? 'player'}?`}
+        message={`${deleting.player?.name ?? 'They'} will be removed from the roster. This can't be undone.`}
+        confirmLabel="Delete player"
+        error={deleting.error}
+        onConfirm={confirmDeletePlayer}
+        onClose={() => setDeleting((d) => ({ ...d, open: false }))}
       />
       <TeamFormSheet
         visible={editingTeam}
@@ -187,9 +235,9 @@ type PlayerRowProps = {
   onPress: () => void;
 };
 
+/** The whole row opens the player (no chevron): name first, then their positions. */
 function PlayerRow({ player, kitColor, duplicateJersey, onPress }: PlayerRowProps) {
   const jersey = player.jerseyNumber === null ? 'no number' : `number ${player.jerseyNumber}`;
-  const positions = formatPositions(player);
   const spokenPositions = [player.primaryPosition, player.secondaryPosition]
     .flatMap((p) => (p ? [POSITION_NAMES[p]] : []))
     .join(' or ');
@@ -211,13 +259,20 @@ function PlayerRow({ player, kitColor, duplicateJersey, onPress }: PlayerRowProp
       <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} inactive={!player.isActive} />
       <Text
         numberOfLines={1}
-        className={`flex-1 text-base ${player.isActive ? 'text-gray-900' : 'text-gray-500'}`}
+        className={`flex-1 text-base font-semibold ${player.isActive ? 'text-gray-900' : 'text-gray-500'}`}
       >
         {player.name}
       </Text>
-      {positions !== '' && <Text className="text-sm font-semibold text-gray-500">{positions}</Text>}
+      {/* Main position stands out; the second one is secondary. Sibling Texts, not nested. */}
+      {player.primaryPosition && (
+        <View className="flex-row items-center">
+          <Text className="text-sm font-bold text-gray-800">{player.primaryPosition}</Text>
+          {player.secondaryPosition && (
+            <Text className="text-sm text-gray-500"> / {player.secondaryPosition}</Text>
+          )}
+        </View>
+      )}
       {duplicateJersey && <Ionicons name="warning-outline" size={20} color="#b45309" />}
-      <Ionicons name="chevron-forward" size={20} color="#9ca3af" />
     </Pressable>
   );
 }

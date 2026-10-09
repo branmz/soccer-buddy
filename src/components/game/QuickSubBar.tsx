@@ -25,7 +25,7 @@ export function QuickSubBar({ presets, onPress }: QuickSubBarProps) {
           accessibilityRole="button"
           accessibilityLabel={`Quick sub ${preset.presetName}: ${preset.substitutions.length} substitutions`}
           onPress={() => onPress(preset)}
-          className="min-h-11 flex-row items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 active:bg-green-100"
+          className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-3 active:bg-green-100"
         >
           <Ionicons name="swap-vertical" size={18} color="#1b5e20" />
           <Text numberOfLines={1} className="max-w-40 text-base font-semibold text-pitch-dark">

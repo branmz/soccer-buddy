@@ -125,7 +125,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
           <View className="flex-1 flex-row items-center gap-1.5 pr-1">
             {row.player.jerseyNumber !== null && (
               <Text
-                className="w-6 text-right text-sm font-semibold text-gray-400"
+                className="w-6 text-right text-sm font-semibold text-gray-500"
                 style={{ fontVariant: ['tabular-nums'] }}
               >
                 {row.player.jerseyNumber}
@@ -133,7 +133,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
             )}
             <Text
               numberOfLines={1}
-              className={`shrink text-base ${row.player.isActive ? 'text-gray-900' : 'text-gray-400'}`}
+              className={`shrink text-base ${row.player.isActive ? 'text-gray-900' : 'text-gray-500'}`}
             >
               {row.player.name}
             </Text>

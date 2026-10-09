@@ -3,11 +3,10 @@ import { router, Tabs } from 'expo-router';
 import { useEffect, type ComponentProps } from 'react';
 import type { ColorValue } from 'react-native';
 
+import { BRAND } from '@/constants/colors';
 import { liveMatchQuery } from '@/db/repositories/matches';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
-
-const BRAND = '#16a34a';
 
 function tabIcon(name: IconName) {
   return function TabIcon({ color, size }: { color: ColorValue; size: number }) {

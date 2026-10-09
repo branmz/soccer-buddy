@@ -18,7 +18,7 @@ export function FormationBar({ formationName, onSwitch, onEdit }: FormationBarPr
         accessibilityRole="button"
         accessibilityLabel={`Formation ${formationName ?? ''}. Switch formation`}
         onPress={onSwitch}
-        className="min-h-11 shrink flex-row items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 active:bg-gray-100"
+        className="min-h-12 shrink flex-row items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 active:bg-gray-100"
       >
         <Ionicons name="grid-outline" size={18} color="#374151" />
         <Text numberOfLines={1} className="shrink text-base font-bold text-gray-900">
@@ -31,7 +31,7 @@ export function FormationBar({ formationName, onSwitch, onEdit }: FormationBarPr
         accessibilityRole="button"
         accessibilityHint="Move spots or change their positions during the match"
         onPress={onEdit}
-        className="min-h-11 flex-row items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 active:bg-green-100"
+        className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 active:bg-green-100"
       >
         <Ionicons name="move" size={18} color="#1b5e20" />
         <Text className="text-base font-semibold text-pitch-dark">Edit Formation</Text>
@@ -63,41 +63,56 @@ export function FormationEditBar({
       ? "Tap the grass to move the goalkeeper. The GK spot can't change position."
       : `Tap the grass to move ${selectedSlot.label}, or change its position.`;
   return (
-    <View className="gap-1 border-b border-yellow-300 bg-yellow-50 px-3 py-1.5">
-      <Text accessibilityLiveRegion="polite" className="text-sm text-gray-800">
-        {hint}
-      </Text>
-      <View className="flex-row items-center gap-2">
+    <View className="gap-2 border-b border-yellow-300 bg-yellow-50 px-3 py-2">
+      {/* At most two lines next to a 48dp pill: the row keeps one height as the hint changes,
+          so the pitch below never jumps while the coach is tapping it. */}
+      <View className="min-h-12 flex-row items-center gap-2">
+        <Text
+          accessibilityLiveRegion="polite"
+          numberOfLines={2}
+          className="flex-1 text-base font-medium text-gray-900"
+        >
+          {hint}
+        </Text>
         {selectedSlot && positionOptionsFor(selectedSlot).length > 0 && (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
             onPress={() => onChangePosition(selectedSlot)}
-            className="min-h-11 flex-row items-center gap-1 rounded-full border border-brand bg-white px-3 active:bg-green-50"
+            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-white px-3 active:bg-green-50"
           >
             <Text className="text-lg font-bold text-pitch-dark">{selectedSlot.label}</Text>
             <Ionicons name="chevron-down" size={18} color="#1b5e20" />
           </Pressable>
         )}
-        <View className="flex-1" />
+      </View>
+      {/* Equal halves: big targets, nothing hanging off to one side. */}
+      <View className="flex-row gap-2">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Undo last formation change"
           accessibilityState={{ disabled: !canUndo }}
           disabled={!canUndo}
           onPress={onUndo}
-          // Both states set every class; only the values change (no Android ghosting).
-          className={`min-h-11 flex-row items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 active:bg-gray-100 ${
-            canUndo ? 'opacity-100' : 'opacity-40'
+          // Disabled is muted but still readable (a 40% fade washed out on the cream bar). Both
+          // states set every class; only the values change (no Android ghosting).
+          className={`min-h-12 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border px-3 ${
+            canUndo
+              ? 'border-gray-300 bg-white active:bg-gray-100'
+              : 'border-gray-200 bg-gray-100 active:bg-gray-100'
           }`}
         >
-          <Ionicons name="arrow-undo" size={18} color="#111827" />
-          <Text className="text-base font-semibold text-gray-900">Undo</Text>
+          <Ionicons name="arrow-undo" size={18} color={canUndo ? '#111827' : '#6b7280'} />
+          <Text
+            className={`text-base font-semibold ${canUndo ? 'text-gray-900' : 'text-gray-500'}`}
+          >
+            Undo
+          </Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           onPress={onDone}
-          className="min-h-11 flex-row items-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-pitch-dark"
+          className="min-h-12 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-pitch-dark"
         >
           <Ionicons name="checkmark" size={18} color="#ffffff" />
           <Text className="text-base font-semibold text-white">Done</Text>

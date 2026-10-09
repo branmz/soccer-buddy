@@ -325,9 +325,10 @@ export function liveHint(
   return `${nameOf(playerId)}: tap a bench player to sub on, or another spot to swap.`;
 }
 
+/** What the selection will do, in cyan like the selected player's ring. */
 export function LiveHint({ text, onCancel }: { text: string; onCancel: () => void }) {
   return (
-    <View className="min-h-11 flex-row items-center gap-2 border-b border-yellow-300 bg-yellow-50 px-3">
+    <View className="min-h-12 flex-row items-center gap-2 border-b border-select-strong bg-cyan-50 px-3">
       <Text
         accessibilityLiveRegion="polite"
         className="flex-1 py-1 text-base font-medium text-gray-900"
@@ -337,7 +338,7 @@ export function LiveHint({ text, onCancel }: { text: string; onCancel: () => voi
       <Pressable
         accessibilityRole="button"
         onPress={onCancel}
-        className="min-h-11 justify-center rounded-full px-3 active:bg-yellow-100"
+        className="min-h-12 justify-center rounded-full px-3 active:bg-cyan-100"
       >
         <Text className="text-base font-semibold text-brand">Cancel</Text>
       </Pressable>

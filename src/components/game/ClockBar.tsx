@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { BRAND } from '@/constants/colors';
 import { breakName, periodName, type ClockAction, type ClockState } from '@/domain/clock';
 import type { Score } from '@/domain/stats';
 import { capitalizeWords } from '@/domain/text';
@@ -49,6 +50,30 @@ const ACTION_ICON: Record<ClockAction, IconName> = {
   finish: 'flag',
 };
 
+/**
+ * The bar's colors. Paused turns the whole bar amber, so a glance from the sideline tells a
+ * stopped clock from a running one; a small chip didn't. Both states set every value (removing
+ * a class leaves a one-frame ghost on Android).
+ */
+const BAR = {
+  running: {
+    box: 'bg-pitch-dark',
+    soft: 'text-green-100',
+    subs: 'text-green-200',
+    strong: 'text-white',
+    icon: '#ffffff',
+    press: 'active:bg-white/10',
+  },
+  paused: {
+    box: 'bg-amber-400',
+    soft: 'text-gray-900',
+    subs: 'text-gray-900',
+    strong: 'text-gray-950',
+    icon: '#030712',
+    press: 'active:bg-black/10',
+  },
+} as const;
+
 /** Score, clock, period and the clock controls, across the top of the live screen. */
 export function ClockBar({
   teamName,
@@ -65,7 +90,9 @@ export function ClockBar({
   onScorePress,
   insetTop,
 }: ClockBarProps) {
-  const status =
+  const paused = clock.isPaused;
+  const bar = paused ? BAR.paused : BAR.running;
+  const period =
     clock.phase === 'periodEnded'
       ? breakName(clock.currentPeriod, periodCount)
       : periodName(clock.currentPeriod, periodCount);
@@ -74,35 +101,36 @@ export function ClockBar({
   const primary = actions.find((a) => a !== 'endPeriod' && a !== 'finish');
   const lastPeriod = clock.currentPeriod >= periodCount;
   const secondary = actions.find((a) => a === 'endPeriod' || (a === 'finish' && lastPeriod));
+  const digitsColor = paused ? bar.strong : clock.isStoppage ? 'text-yellow-300' : 'text-white';
 
   return (
-    <View className="gap-2 bg-pitch-dark px-2 pb-3" style={{ paddingTop: insetTop + 4 }}>
+    <View className={`gap-2 px-2 pb-3 ${bar.box}`} style={{ paddingTop: insetTop + 4 }}>
       <View className="flex-row items-center">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Back to Game Day"
           hitSlop={8}
           onPress={onBack}
-          className="h-11 w-11 items-center justify-center rounded-full active:bg-white/10"
+          className={`h-11 w-11 items-center justify-center rounded-full ${bar.press}`}
         >
-          <Ionicons name="chevron-back" size={26} color="#ffffff" />
+          <Ionicons name="chevron-back" size={26} color={bar.icon} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`${teamName} ${score.us}, ${opponentName} ${score.them}. Open match log`}
           onPress={onScorePress}
-          className="flex-1 flex-row items-center justify-center gap-3 rounded-xl py-1 active:bg-white/10"
+          className={`flex-1 flex-row items-center justify-center gap-3 rounded-xl py-1 ${bar.press}`}
         >
           <Text
             numberOfLines={1}
-            className="shrink text-right text-base font-semibold text-green-100"
+            className={`shrink text-right text-base font-semibold ${bar.soft}`}
           >
             {teamName}
           </Text>
-          <Text className="text-3xl font-black text-white">
+          <Text className={`text-3xl font-black ${bar.strong}`}>
             {score.us} – {score.them}
           </Text>
-          <Text numberOfLines={1} className="shrink text-base font-semibold text-green-100">
+          <Text numberOfLines={1} className={`shrink text-base font-semibold ${bar.soft}`}>
             {opponentName}
           </Text>
         </Pressable>
@@ -111,9 +139,9 @@ export function ClockBar({
           accessibilityLabel="More match options"
           hitSlop={8}
           onPress={onMore}
-          className="h-11 w-11 items-center justify-center rounded-full active:bg-white/10"
+          className={`h-11 w-11 items-center justify-center rounded-full ${bar.press}`}
         >
-          <Ionicons name="ellipsis-vertical" size={24} color="#ffffff" />
+          <Ionicons name="ellipsis-vertical" size={24} color={bar.icon} />
         </Pressable>
       </View>
 
@@ -121,20 +149,17 @@ export function ClockBar({
         <View className="flex-1">
           <Text
             accessibilityRole="timer"
-            accessibilityLabel={`Clock ${clock.display}`}
-            className={`text-5xl font-black ${clock.isStoppage ? 'text-yellow-300' : 'text-white'}`}
+            accessibilityLabel={`Clock ${clock.display}${paused ? ', paused' : ''}`}
+            className={`text-5xl font-black ${digitsColor}`}
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {clock.display}
           </Text>
           <View className="flex-row items-center gap-2">
-            <Text className="text-base font-semibold text-green-100">{status}</Text>
-            {clock.isPaused && (
-              <Text className="rounded bg-amber-400 px-1.5 text-sm font-bold text-gray-900">
-                PAUSED
-              </Text>
-            )}
-            <Text className="text-base text-green-200">
+            <Text className={`text-base font-semibold ${bar.soft}`}>
+              {paused ? `PAUSED · ${period}` : period}
+            </Text>
+            <Text className={`text-base ${bar.subs}`}>
               · Subs {subsUsed}
               {maxSubs === null ? '' : ` / ${maxSubs}`}
             </Text>
@@ -145,7 +170,7 @@ export function ClockBar({
             <ClockButton
               label={actionLabel(primary, clock, periodCount)}
               icon={ACTION_ICON[primary]}
-              tone={primary === 'pause' ? 'amber' : 'green'}
+              tone={primary === 'pause' ? 'amber' : paused ? 'dark' : 'light'}
               onPress={() => onAction(primary)}
             />
           )}
@@ -153,7 +178,7 @@ export function ClockBar({
             <ClockButton
               label={actionLabel(secondary, clock, periodCount)}
               icon={ACTION_ICON[secondary]}
-              tone="outline"
+              tone={paused ? 'outlineDark' : 'outline'}
               onPress={() => onAction(secondary)}
             />
           )}
@@ -163,9 +188,17 @@ export function ClockBar({
   );
 }
 
+/** Solid fills with dark-on-light or light-on-dark text: green on green washed out in sun. */
 const TONE = {
-  green: {
-    box: 'border-green-400 bg-green-500 active:bg-green-600',
+  /** Start the next period, on the green bar. */
+  light: {
+    box: 'border-white bg-white active:bg-gray-200',
+    text: 'text-gray-950',
+    icon: BRAND,
+  },
+  /** Resume, on the amber (paused) bar. */
+  dark: {
+    box: 'border-gray-950 bg-gray-950 active:bg-gray-800',
     text: 'text-white',
     icon: '#ffffff',
   },
@@ -178,6 +211,11 @@ const TONE = {
     box: 'border-white/60 bg-transparent active:bg-white/10',
     text: 'text-white',
     icon: '#ffffff',
+  },
+  outlineDark: {
+    box: 'border-gray-900/60 bg-transparent active:bg-black/10',
+    text: 'text-gray-950',
+    icon: '#030712',
   },
 } as const;
 

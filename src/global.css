@@ -8,5 +8,10 @@
   --color-pitch: #2e7d32;
   --color-pitch-dark: #1b5e20;
   --color-pitch-line: #e8f5e9;
-  --color-brand: #16a34a;
+  /* Dark enough for white text in sunlight (5:1). Mirrored as BRAND in src/constants/colors.ts. */
+  --color-brand: #15803d;
+  /* "Selected" is cyan (no kit color is): yellow is kept for cards and position fit.
+     Light on the grass (cyan-300, 3.5:1), dark on white surfaces (cyan-700, 5.4:1). */
+  --color-select: #67e8f9;
+  --color-select-strong: #0e7490;
 }

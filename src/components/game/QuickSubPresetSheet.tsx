@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
+import { BRAND } from '@/constants/colors';
 import { userMessage } from '@/db/repositories/errors';
 import { createPreset, deletePreset, updatePreset } from '@/db/repositories/presets';
 import type { Player } from '@/db/schema';
@@ -160,11 +161,11 @@ function PresetForm({
                   <Ionicons
                     name={side === 'out' ? 'arrow-down-circle' : 'arrow-up-circle'}
                     size={22}
-                    color={side === 'out' ? '#dc2626' : '#16a34a'}
+                    color={side === 'out' ? '#dc2626' : BRAND}
                   />
                   <Text
                     numberOfLines={1}
-                    className={`flex-1 text-base ${player ? 'font-semibold text-gray-900' : 'text-gray-400'}`}
+                    className={`flex-1 text-base ${player ? 'font-semibold text-gray-900' : 'text-gray-500'}`}
                   >
                     {player?.name ?? (side === 'out' ? 'Off' : 'On')}
                   </Text>

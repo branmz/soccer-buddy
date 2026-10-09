@@ -130,7 +130,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
             accessibilityRole="button"
             accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
             onPress={() => setPositionSheet({ open: true, slot: selectedSlot })}
-            className="min-h-11 flex-row items-center gap-1 rounded-full border border-brand bg-white px-3 active:bg-green-50"
+            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-white px-3 active:bg-green-50"
           >
             <Text className="text-base text-pitch-dark">Position</Text>
             <Text className="text-lg font-bold text-pitch-dark">{selectedSlot.label}</Text>
@@ -141,7 +141,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           <Pressable
             accessibilityRole="button"
             onPress={clearSelection}
-            className="min-h-10 justify-center rounded-full px-3 active:bg-gray-100"
+            className="min-h-12 justify-center rounded-full px-3 active:bg-gray-100"
           >
             <Text className="text-base font-semibold text-brand">Cancel</Text>
           </Pressable>
@@ -210,13 +210,18 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           accessibilityState={{ disabled: !canUndo }}
           disabled={!canUndo}
           onPress={undo}
-          // Both states set every class; only the values change (no Android ghosting).
-          className={`min-h-12 flex-row items-center gap-1.5 rounded-full border border-gray-300 bg-white px-4 active:bg-gray-100 ${
-            canUndo ? 'opacity-100' : 'opacity-40'
+          // Disabled is muted but still readable (a 40% fade washed out). Both states set every
+          // class; only the values change (no Android ghosting).
+          className={`min-h-12 flex-row items-center gap-1.5 rounded-full border px-4 ${
+            canUndo
+              ? 'border-gray-300 bg-white active:bg-gray-100'
+              : 'border-gray-200 bg-gray-100 active:bg-gray-100'
           }`}
         >
-          <Ionicons name="arrow-undo" size={20} color="#111827" />
-          <Text className="text-lg font-semibold text-gray-900">Undo</Text>
+          <Ionicons name="arrow-undo" size={20} color={canUndo ? '#111827' : '#6b7280'} />
+          <Text className={`text-lg font-semibold ${canUndo ? 'text-gray-900' : 'text-gray-500'}`}>
+            Undo
+          </Text>
         </Pressable>
         <Pressable
           accessibilityRole="switch"

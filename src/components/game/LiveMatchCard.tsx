@@ -13,6 +13,8 @@ import { useMatchClock } from '@/hooks/useMatchClock';
 const MS_PER_MINUTE = 60_000;
 /** Used when the team has no kit colors (the app's dark pitch green). */
 const DEFAULT_CARD = '#1b5e20';
+/** amber-400: paused, the card turns amber like the live clock bar. */
+const PAUSED_CARD = '#fbbf24';
 
 type LiveMatchCardProps = {
   match: Match;
@@ -38,7 +40,7 @@ export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchC
     : periodName(clock.currentPeriod, match.periodCount);
 
   // Kit colors are user data, so the card's colors are inline styles.
-  const background = kitColor ?? DEFAULT_CARD;
+  const background = clock.isPaused ? PAUSED_CARD : (kitColor ?? DEFAULT_CARD);
   const text = readableTextColor(background);
   const softText = withAlpha(text, 0.8);
 
@@ -74,7 +76,7 @@ export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchC
           </Text>
         )}
         {clock.isPaused && (
-          <Text className="rounded bg-amber-400 px-1.5 text-sm font-bold text-gray-900">
+          <Text className="rounded bg-gray-900 px-1.5 text-sm font-bold text-amber-300">
             PAUSED
           </Text>
         )}

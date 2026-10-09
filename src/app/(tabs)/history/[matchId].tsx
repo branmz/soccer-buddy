@@ -27,6 +27,7 @@ import { finalGameMs, minutesPlayed, minutesWithPlayers } from '@/domain/history
 import { deriveLineup } from '@/domain/lineup';
 import { applyLiveLayout } from '@/domain/liveLayout';
 import { matchKitColor } from '@/domain/matchSetup';
+import { distinctNames } from '@/domain/roster';
 import { matchScore, playerMatchStats } from '@/domain/stats';
 import { keyMoments, timelineEntries } from '@/domain/timeline';
 import { useLiveData } from '@/hooks/useLiveData';
@@ -56,6 +57,8 @@ export default function MatchDetailScreen() {
 
   const starting = useMemo(() => (match ? matchLineup(match) : null), [match]);
   const playersById = useMemo(() => new Map(roster.map((p) => [p.id, p])), [roster]);
+  // For the log's plain text: "Michael #3" / "Michael #6" when names clash.
+  const namesById = useMemo(() => distinctNames(roster), [roster]);
   const stats = useMemo(() => playerMatchStats(events), [events]);
   const entries = useMemo(() => {
     if (!match || !starting) return [];
@@ -65,10 +68,10 @@ export default function MatchDetailScreen() {
       matchLiveLayout(match)?.slots ?? null,
     );
     return timelineEntries(events, match.periodLengthMinutes * MS_PER_MINUTE, {
-      player: (id) => playersById.get(id)?.name ?? 'Unknown',
+      player: (id) => namesById.get(id) ?? 'Unknown',
       slot: (slotId) => lineup.slots.find((s) => s.slotId === slotId)?.label ?? slotId,
     });
-  }, [match, starting, events, playersById]);
+  }, [match, starting, events, namesById]);
   const minutes = useMemo(
     () =>
       starting

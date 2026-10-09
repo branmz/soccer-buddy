@@ -1,6 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
+import { BRAND } from '@/constants/colors';
+
 /** `success`: something was recorded (offers Undo). `undone`: an undo happened (no button,
  *  so it can't be mistaken for a redo). `error`: something was refused. */
 export type Toast = { id: number; text: string; tone: 'success' | 'undone' | 'error' };
@@ -10,7 +12,7 @@ const TONE = {
     box: 'border-brand bg-white',
     text: 'text-gray-900',
     icon: 'checkmark-circle',
-    iconColor: '#16a34a',
+    iconColor: BRAND,
   },
   undone: {
     box: 'border-gray-400 bg-white',
@@ -33,16 +35,17 @@ type LiveToastProps = {
 };
 
 /**
- * A short message over the top of the pitch after recording something (or failing to).
- * Solid colors only: a see-through background washed out against the grass. It stops at the
- * bench (the right quarter of the board, see BenchSidebar) so bench players stay visible.
+ * A short message over the bottom of the pitch after recording something (or failing to): near
+ * the thumb, so its Undo is in reach, and clear of the forwards. Solid colors only: a
+ * see-through background washed out against the grass. It stops at the bench (the right quarter
+ * of the board, see BenchSidebar) so bench players stay visible.
  */
 export function LiveToast({ toast, onUndo }: LiveToastProps) {
   const style = TONE[toast.tone];
   return (
     <View
       accessibilityLiveRegion="polite"
-      className={`absolute top-2 right-1/4 left-2 mr-2 min-h-14 flex-row items-center gap-2 rounded-xl border-2 py-2 pr-1 pl-3 ${style.box}`}
+      className={`absolute right-1/4 bottom-2 left-2 mr-2 min-h-14 flex-row items-center gap-2 rounded-xl border-2 py-2 pr-1 pl-3 ${style.box}`}
       // Mounted fresh for each toast (keyed), so the shadow never toggles (no Android ghosting).
       style={{ elevation: 6 }}
     >
@@ -52,7 +55,7 @@ export function LiveToast({ toast, onUndo }: LiveToastProps) {
         <Pressable
           accessibilityRole="button"
           onPress={onUndo}
-          className="min-h-11 flex-row items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 active:bg-gray-100"
+          className="min-h-12 flex-row items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 active:bg-gray-100"
         >
           <Ionicons name="arrow-undo" size={18} color="#111827" />
           <Text className="text-base font-bold text-gray-900">Undo</Text>

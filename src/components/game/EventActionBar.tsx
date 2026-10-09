@@ -36,10 +36,11 @@ export function EventActionBar({
       style={{ paddingBottom: Math.max(insetBottom, 8) }}
     >
       <ActionButton label="Goal" icon="football" tone="green" onPress={onGoal} />
+      {/* Dark, not white like Log and Undo: next to the green Goal it must never pass for it. */}
       <ActionButton
-        label="Opp. goal"
+        label="Their goal"
         icon="football-outline"
-        tone="gray"
+        tone="dark"
         onPress={onOpponentGoal}
       />
       <ActionButton
@@ -63,6 +64,11 @@ export function EventActionBar({
 const TONE = {
   green: {
     box: 'border-brand bg-brand active:bg-pitch-dark',
+    text: 'text-white',
+    icon: '#ffffff',
+  },
+  dark: {
+    box: 'border-gray-900 bg-gray-900 active:bg-gray-700',
     text: 'text-white',
     icon: '#ffffff',
   },

@@ -11,6 +11,7 @@ import { UnsavedChangesSheet } from '@/components/tactics/UnsavedChangesSheet';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { HeaderButton } from '@/components/ui/HeaderButton';
+import { BRAND } from '@/constants/colors';
 import { getPresetFormation } from '@/constants/presetFormations';
 import { userMessage } from '@/db/repositories/errors';
 import {
@@ -182,7 +183,7 @@ export default function FormationEditorScreen() {
               <Text numberOfLines={1} className="shrink text-xl font-bold text-pitch-dark">
                 {children}
               </Text>
-              <Ionicons name="create-outline" size={24} color="#16a34a" />
+              <Ionicons name="create-outline" size={24} color={BRAND} />
             </Pressable>
           ),
           headerRight: () => (

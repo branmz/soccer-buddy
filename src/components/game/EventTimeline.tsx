@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Text, View } from 'react-native';
 
+import { BRAND } from '@/constants/colors';
 import type { TimelineEntry, TimelineKind } from '@/domain/timeline';
 
 import { RefereeCardIcon } from './RefereeCardIcon';
@@ -12,7 +13,7 @@ const KIND_ICON: Record<
   Exclude<TimelineKind, 'yellow' | 'red'>,
   { name: IconName; color: string }
 > = {
-  goal: { name: 'football', color: '#16a34a' },
+  goal: { name: 'football', color: BRAND },
   opponentGoal: { name: 'football-outline', color: '#6b7280' },
   sub: { name: 'swap-vertical', color: '#1b5e20' },
   swap: { name: 'shuffle', color: '#6b7280' },

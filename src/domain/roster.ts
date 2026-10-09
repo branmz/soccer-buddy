@@ -82,6 +82,47 @@ export function findJerseyConflict(
   return players.find((p) => p.isActive && p.id !== excludeId && p.jerseyNumber === jerseyNumber);
 }
 
+/**
+ * Another active player with the same name (ignoring case and spaces), for a warning while
+ * editing: two "Michael"s look the same on the pitch. `excludeId` is the player being edited.
+ */
+export function findNameConflict(
+  players: readonly RosterEntry[],
+  name: string,
+  excludeId?: number,
+): RosterEntry | undefined {
+  const key = name.trim().toLowerCase();
+  if (key === '') return undefined;
+  return players.find(
+    (p) => p.isActive && p.id !== excludeId && p.name.trim().toLowerCase() === key,
+  );
+}
+
+/**
+ * Names that tell players apart in plain text (the match log, toasts): when two players share
+ * a name (ignoring case and spaces), each gets their number, e.g. "Michael #3" / "Michael #6".
+ * Unique names, and a clashing player with no number, stay as they are.
+ */
+export function distinctNames(
+  players: readonly Pick<RosterEntry, 'id' | 'name' | 'jerseyNumber'>[],
+): Map<number, string> {
+  const key = (name: string) => name.trim().toLowerCase();
+  const counts = new Map<string, number>();
+  for (const player of players) {
+    counts.set(key(player.name), (counts.get(key(player.name)) ?? 0) + 1);
+  }
+  return new Map(
+    players.map((player) => {
+      const clashes = (counts.get(key(player.name)) ?? 0) > 1;
+      const name = player.name.trim();
+      return [
+        player.id,
+        clashes && player.jerseyNumber !== null ? `${name} #${player.jerseyNumber}` : name,
+      ];
+    }),
+  );
+}
+
 /** Parses the jersey text field: blank means no number. Returns undefined if not a number. */
 export function parseJerseyInput(text: string): number | null | undefined {
   const trimmed = text.trim();

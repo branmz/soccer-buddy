@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Pressable, Text } from 'react-native';
 
+import { BRAND } from '@/constants/colors';
 import { capitalizeWords } from '@/domain/text';
 
 /** `danger` is for the final confirm; `dangerOutline` for the entry point to a destructive flow. */
@@ -28,7 +29,7 @@ const iconColor: Record<Variant, string> = {
   secondary: '#111827',
   danger: '#ffffff',
   dangerOutline: '#dc2626',
-  ghost: '#16a34a',
+  ghost: BRAND,
 };
 
 type ButtonProps = {
