@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
 import { FormationPickerSheet } from '@/components/game/FormationPickerSheet';
@@ -9,6 +9,7 @@ import { QuickSubPresetSheet, type EditablePreset } from '@/components/game/Quic
 import { SquadSheet } from '@/components/game/SquadSheet';
 import { ColorSwatch } from '@/components/teams/ColorSwatch';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { HeaderButton } from '@/components/ui/HeaderButton';
@@ -32,7 +33,6 @@ import { presetsForMatch } from '@/db/repositories/presets';
 import { getTeam } from '@/db/repositories/teams';
 import { matches, players, quickSubPresets, teams } from '@/db/schema';
 import { lineupPlayerIds, matchKitColor } from '@/domain/matchSetup';
-import { capitalizeWords } from '@/domain/text';
 import { MAX_PERIODS } from '@/domain/validation';
 import { useLiveData } from '@/hooks/useLiveData';
 
@@ -177,7 +177,7 @@ export default function MatchSetupScreen() {
         }}
       />
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerClassName="gap-4 p-4 pb-8">
-        <Card title="Match">
+        <Card title="Match" className="gap-4">
           <TextField
             label="Opponent"
             value={opponent}
@@ -244,7 +244,7 @@ export default function MatchSetupScreen() {
           {fieldErrors.venue && <Text className="text-sm text-danger">{fieldErrors.venue}</Text>}
         </Card>
 
-        <Card title="Lineup">
+        <Card title="Lineup" className="gap-4">
           <View className="flex-row gap-3">
             <SelectField
               label="Formation"
@@ -304,7 +304,7 @@ export default function MatchSetupScreen() {
           )}
         </Card>
 
-        <Card title="Quick subs">
+        <Card title="Quick subs" className="gap-4">
           <Text className="text-sm text-ink-soft">
             Plan subs ahead and make them with one tap during the match.
           </Text>
@@ -408,17 +408,6 @@ export default function MatchSetupScreen() {
         }}
         onClose={() => setDeleteOpen(false)}
       />
-    </View>
-  );
-}
-
-function Card({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <View className="gap-4 rounded-2xl border border-line bg-surface p-4">
-      <Text accessibilityRole="header" className="text-lg font-bold text-ink">
-        {capitalizeWords(title)}
-      </Text>
-      {children}
     </View>
   );
 }

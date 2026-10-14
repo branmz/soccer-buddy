@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { FlatList, Pressable, Text, View } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 
 import { LiveMatchCard } from '@/components/game/LiveMatchCard';
 import { NewMatchSheet } from '@/components/game/NewMatchSheet';
@@ -8,6 +8,8 @@ import { SeasonSnapshot } from '@/components/game/SeasonSnapshot';
 import { MatchResultRow } from '@/components/history/MatchResultRow';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { ListRow } from '@/components/ui/ListRow';
+import { SectionHeading } from '@/components/ui/SectionHeading';
 import { eventsQuery } from '@/db/repositories/events';
 import { NO_HISTORY, teamHistory } from '@/db/repositories/history';
 import { liveMatchQuery, matchesQuery } from '@/db/repositories/matches';
@@ -148,18 +150,14 @@ export default function GameDayScreen() {
             )}
             <Button label="New match" icon="add" onPress={() => setNewOpen(true)} />
             {drafts.length > 0 && (
-              <Text className="pt-3 text-sm font-semibold text-ink-muted uppercase">
-                Not kicked off yet · {drafts.length}
-              </Text>
+              <SectionHeading className="pt-3">Not kicked off yet · {drafts.length}</SectionHeading>
             )}
           </View>
         }
         ListFooterComponent={
           last && (
             <View className="gap-3">
-              <Text className="pt-3 text-sm font-semibold text-ink-muted uppercase">
-                Last result
-              </Text>
+              <SectionHeading className="pt-3">Last result</SectionHeading>
               <MatchResultRow
                 item={last}
                 kitColor={matchKitColor(team, last.match.isHome)}
@@ -171,7 +169,7 @@ export default function GameDayScreen() {
                   )
                 }
               />
-              <Text className="pt-3 text-sm font-semibold text-ink-muted uppercase">Season</Text>
+              <SectionHeading className="pt-3">Season</SectionHeading>
               <SeasonSnapshot
                 record={snapshot.record}
                 form={snapshot.form}
@@ -187,11 +185,7 @@ export default function GameDayScreen() {
           )
         }
         renderItem={({ item }) => (
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => openSetup(item)}
-            className="min-h-16 flex-row items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 active:bg-canvas"
-          >
+          <ListRow onPress={() => openSetup(item)}>
             <View className="flex-1 gap-0.5">
               <Text numberOfLines={1} className="text-lg font-bold text-ink">
                 vs {item.opponentName}
@@ -202,7 +196,7 @@ export default function GameDayScreen() {
                 {item.periodLengthMinutes} min
               </Text>
             </View>
-          </Pressable>
+          </ListRow>
         )}
       />
       {newMatchSheet}

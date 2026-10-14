@@ -15,6 +15,10 @@ Read before writing code. For styling and screen rules, see also `docs/UI_RULES.
   classes and hex values are only for colors fixed by what they sit on: text, icons and chips
   on a solid fill (white on green, gray-950 on amber), the pitch's tokens and rings, referee
   cards, W/D/L badges
+- **Build screens from `src/components/ui`**, not hand-copied class strings: a white card is
+  `Card` (optional `title`, `flush` for tables), a tappable list row is `ListRow`, the small grey
+  uppercase label over a group is `SectionHeading`. Their `className` is for layout only (gap,
+  spacing)
 - Files: components `PascalCase.tsx`, everything else `camelCase.ts`
 - Formatting is owned by Prettier — don't hand-format
 - A PostToolUse hook (`.claude/hooks/lint-changed-file.mjs`) runs Prettier + ESLint on every

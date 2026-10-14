@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Text, View } from 'react-native';
 
 import { ResultBadge, resultLabel } from '@/components/history/ResultBadge';
+import { Card } from '@/components/ui/Card';
 import type { MatchResult, SeasonRecord } from '@/domain/stats';
 
 type SeasonSnapshotProps = {
@@ -19,7 +20,7 @@ type SeasonSnapshotProps = {
 export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps) {
   const { played, wins, draws, losses, goalsFor, goalsAgainst } = record;
   return (
-    <View className="gap-3 rounded-2xl border border-line bg-surface px-4 py-3">
+    <Card>
       <Line label="Record">
         <View
           accessible
@@ -49,7 +50,7 @@ export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps
       <Line label="Top scorers">
         <Text className="text-base text-ink">{topScorers ?? 'No goals yet'}</Text>
       </Line>
-    </View>
+    </Card>
   );
 }
 

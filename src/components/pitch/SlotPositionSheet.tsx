@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 
+import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Sheet } from '@/components/ui/Sheet';
 import { positionOptionsFor } from '@/domain/board';
 import { POSITION_LINE, POSITION_NAMES, type PlayerPosition } from '@/domain/positions';
@@ -26,7 +27,7 @@ export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositi
     <Sheet visible={visible} title="Change position" onClose={onClose}>
       {LINES.map(({ role, title }) => (
         <View key={role} className="gap-2">
-          <Text className="text-sm font-semibold text-ink-muted uppercase">{title}</Text>
+          <SectionHeading>{title}</SectionHeading>
           <View accessibilityRole="radiogroup" className="flex-row flex-wrap gap-2">
             {options
               .filter((p) => POSITION_LINE[p] === role)

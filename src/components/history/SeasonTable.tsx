@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { RefereeCardIcon } from '@/components/game/RefereeCardIcon';
+import { Card } from '@/components/ui/Card';
 import { COLORS } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 import type { SeasonRow, SeasonTableSort, SortDirection } from '@/domain/history';
@@ -71,7 +72,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
   );
   const sortLabel = sort.direction === 'desc' ? 'descending' : 'ascending';
   return (
-    <View className="rounded-2xl border border-line bg-surface">
+    <Card flush>
       <View className="flex-row items-center border-b border-line px-3">
         <Pressable
           accessibilityRole="button"
@@ -157,7 +158,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
           })}
         </View>
       ))}
-    </View>
+    </Card>
   );
 }
 
