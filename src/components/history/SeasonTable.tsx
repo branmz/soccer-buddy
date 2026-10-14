@@ -146,13 +146,15 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
             return (
               <Text
                 key={column.key}
-                // Only the color marks the sorted column: a weight change flickers on Android.
+                // Only the color marks the sorted column: a weight change flickers on Android. A
+                // zero is a dash in ink-muted: the shape sets it apart, readable in sun (a border
+                // gray all but vanished). The row's spoken label still says "0".
                 className={`text-center text-base font-semibold ${
-                  value === 0 ? 'text-line-strong' : active ? 'text-brand-strong' : 'text-ink-soft'
+                  value === 0 ? 'text-ink-muted' : active ? 'text-brand-strong' : 'text-ink-soft'
                 }`}
                 style={{ width: column.width, fontVariant: ['tabular-nums'] }}
               >
-                {value}
+                {value === 0 ? '–' : value}
               </Text>
             );
           })}

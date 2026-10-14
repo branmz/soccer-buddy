@@ -65,6 +65,7 @@ import {
 import {
   availableClockActions,
   clockControls,
+  isClockStopped,
   periodName,
   startPeriodLabel,
   type ClockAction,
@@ -434,7 +435,12 @@ export default function LiveMatchScreen() {
             entries={keyMoments(entries)}
             emptyText="No goals or red cards."
           />
-          <TimelineCard title="Match log" entries={entries} collapsible />
+          <TimelineCard
+            title="Match log"
+            entries={entries}
+            collapsible
+            emptyText="Nothing was recorded in this match."
+          />
           <MinutesPlayedCard minutes={played} stats={contributions} kitColor={kitColor} />
         </FinishedSummary>
       </>
@@ -619,8 +625,9 @@ export default function LiveMatchScreen() {
 
   return (
     <View className="flex-1 bg-muted">
-      {/* The clock bar runs under the status bar: dark green, or amber while paused. */}
-      <StatusBar style={clock.isPaused ? 'dark' : 'light'} />
+      {/* The clock bar runs under the status bar: dark green, or amber while the clock is stopped
+          (paused, or between periods), with dark icons. */}
+      <StatusBar style={isClockStopped(clock) ? 'dark' : 'light'} />
       <KeepScreenAwake />
       <ClockBar
         teamName={team.name}
@@ -647,6 +654,7 @@ export default function LiveMatchScreen() {
           canUndo={layoutUndo.length > 0}
           onChangePosition={(slot) => setPositionSheet({ open: true, slot })}
           onUndo={undoLayout}
+          onCancel={() => setSelection(null)}
           onDone={() => {
             setEditingFormation(false);
             setSelection(null);

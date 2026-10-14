@@ -89,10 +89,10 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
   // The hint bar's look: yellow while moving spots (a mode), cyan while a player is selected
   // (like their ring and the live board's hint), plain otherwise. Each sets every value.
   const hintBar = movingSpots
-    ? { box: 'border-yellow-300 bg-yellow-50', press: 'active:bg-yellow-100' }
+    ? { box: 'border-yellow-300 bg-yellow-50' }
     : selection
-      ? { box: 'border-select-strong bg-select-tint', press: 'active:bg-select-tint-strong' }
-      : { box: 'border-line bg-surface', press: 'active:bg-muted' };
+      ? { box: 'border-select-strong bg-select-tint' }
+      : { box: 'border-line bg-surface' };
 
   const pitchSize = area && fitPitch(area);
   const tokenSize = tokenSizeFor(pitchSize?.width ?? 0);
@@ -129,11 +129,12 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
       <View
         className={`min-h-touch-lg flex-row items-center gap-2 border-b px-4 py-1 ${hintBar.box}`}
       >
-        {/* Two lines at most, even at a large font size: a third would grow the bar and
-            move the pitch between taps. */}
+        {/* Two lines at most, and the font scale capped at 1.15: a third line, or bigger text,
+            would grow the bar and move the pitch between taps. */}
         <Text
           accessibilityLiveRegion="polite"
           numberOfLines={2}
+          maxFontSizeMultiplier={1.15}
           className="flex-1 text-base font-medium text-ink"
         >
           {hintText(
@@ -157,7 +158,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
             onPress={() => setPositionSheet({ open: true, slot: selectedSlot })}
             className="min-h-touch flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
           >
-            <Text className="text-base text-brand-strong">Position</Text>
+            {/* Just the label, like the live editor: room for the hint beside Cancel. */}
             <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
             <Ionicons name="chevron-down" size={18} color={COLORS.brandStrong} />
           </Pressable>
@@ -166,9 +167,12 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           <Pressable
             accessibilityRole="button"
             onPress={clearSelection}
-            className={`min-h-touch justify-center rounded-full px-3 ${hintBar.press}`}
+            // A white pill, like every other control by the pitch: plain green text read as part
+            // of the hint, not as a button.
+            className="min-h-touch flex-row items-center gap-1 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
           >
-            <Text className="text-base font-semibold text-brand">Cancel</Text>
+            <Ionicons name="close" size={18} color={COLORS.ink} />
+            <Text className="text-base font-semibold text-ink">Cancel</Text>
           </Pressable>
         )}
       </View>

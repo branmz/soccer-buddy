@@ -29,10 +29,12 @@ import {
   type MatchSetupInput,
 } from '@/db/repositories/matches';
 import { playersQuery } from '@/db/repositories/players';
-import { presetsForMatch } from '@/db/repositories/presets';
+import { deletePreset, presetsForMatch } from '@/db/repositories/presets';
 import { getTeam } from '@/db/repositories/teams';
-import { matches, players, quickSubPresets, teams } from '@/db/schema';
+import { matches, players, quickSubPresets, teams, type Player } from '@/db/schema';
 import { lineupPlayerIds, matchKitColor } from '@/domain/matchSetup';
+import { formatPositions } from '@/domain/positions';
+import { distinctNames } from '@/domain/roster';
 import { MAX_PERIODS } from '@/domain/validation';
 import { useLiveData } from '@/hooks/useLiveData';
 
@@ -83,6 +85,12 @@ export default function MatchSetupScreen() {
     open: boolean;
     preset: EditablePreset | null;
   }>({ open: false, preset: null });
+  // The preset stays set while the confirm slides away, so its title doesn't flicker.
+  const [deletingPreset, setDeletingPreset] = useState<{
+    open: boolean;
+    preset: EditablePreset | null;
+    error: string | null;
+  }>({ open: false, preset: null, error: null });
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleted, setDeleted] = useState(false);
 
@@ -124,6 +132,11 @@ export default function MatchSetupScreen() {
   const squad = new Set(lineup ? lineupPlayerIds(lineup) : []);
   const kitColor = matchKitColor(team, match.isHome);
   const byId = new Map(roster.map((p) => [p.id, p]));
+  // Two Michaels read as "Michael #3" / "Michael #6" in quick-sub names and summaries.
+  const names = distinctNames(roster);
+  const nameOf = (id: number) => names.get(id) ?? '?';
+  const positionOf = (player: Player) =>
+    lineup?.slots.find((slot) => slot.playerId === player.id)?.label ?? formatPositions(player);
   const onPitch = new Set(lineup?.slots.flatMap((s) => (s.playerId ? [s.playerId] : [])) ?? []);
   const squadPlayers = roster
     .filter((p) => squad.has(p.id))
@@ -319,6 +332,7 @@ export default function MatchSetupScreen() {
                     id: preset.id,
                     name: preset.presetName,
                     pairs: preset.substitutions,
+                    everyMatch: preset.teamId !== null,
                   },
                 })
               }
@@ -331,10 +345,7 @@ export default function MatchSetupScreen() {
                 </Text>
                 <Text numberOfLines={2} className="text-sm text-ink-muted">
                   {preset.substitutions
-                    .map(
-                      (p) =>
-                        `${byId.get(p.inPlayerId)?.name ?? '?'} for ${byId.get(p.outPlayerId)?.name ?? '?'}`,
-                    )
+                    .map((p) => `${nameOf(p.inPlayerId)} for ${nameOf(p.outPlayerId)}`)
                     .join(', ')}
                 </Text>
               </View>
@@ -393,7 +404,36 @@ export default function MatchSetupScreen() {
         matchId={matchId}
         players={squadPlayers}
         kitColor={kitColor}
+        nameOf={nameOf}
+        positionOf={positionOf}
         onClose={() => setPresetSheet((s) => ({ ...s, open: false }))}
+        onDeletePress={(preset) => {
+          setPresetSheet((s) => ({ ...s, open: false }));
+          setDeletingPreset({ open: true, preset, error: null });
+        }}
+      />
+      <ConfirmSheet
+        visible={deletingPreset.open}
+        title={`Delete ${deletingPreset.preset?.name || 'quick sub'}?`}
+        message={
+          deletingPreset.preset?.everyMatch
+            ? "It's used in every match, so it goes from all of them. This can't be undone."
+            : "It goes from this match. This can't be undone."
+        }
+        confirmLabel="Delete quick sub"
+        error={deletingPreset.error}
+        onConfirm={() => {
+          const { preset } = deletingPreset;
+          if (!preset) return;
+          // Closes only once it's gone; a failure shows in the confirm, like Delete Player.
+          try {
+            deletePreset(preset.id);
+            setDeletingPreset((d) => ({ ...d, open: false }));
+          } catch (e) {
+            setDeletingPreset((d) => ({ ...d, error: userMessage(e) }));
+          }
+        }}
+        onClose={() => setDeletingPreset((d) => ({ ...d, open: false }))}
       />
       <ConfirmSheet
         visible={deleteOpen}

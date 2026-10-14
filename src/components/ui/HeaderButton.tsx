@@ -44,6 +44,13 @@ const VARIANT: Record<Variant, { box: string; text: string; icon: string }> = {
   },
 };
 
+/** Disabled reads as off at a glance, like `Button`: muted fill, ink-muted text, never a fade. */
+const DISABLED = {
+  box: 'border-line bg-muted active:bg-muted',
+  text: 'text-ink-muted',
+  icon: COLORS.inkMuted,
+};
+
 /** Pill button with icon and text for stack headers. */
 export function HeaderButton({
   label,
@@ -54,7 +61,7 @@ export function HeaderButton({
   hideLabel = false,
   disabled = false,
 }: HeaderButtonProps) {
-  const style = VARIANT[variant];
+  const style = disabled ? DISABLED : VARIANT[variant];
   return (
     <Pressable
       accessibilityRole="button"

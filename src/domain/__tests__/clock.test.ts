@@ -6,6 +6,7 @@ import {
   formatClock,
   formatMatchMinute,
   getClockState,
+  isClockStopped,
   matchMinuteAt,
   periodElapsedMs,
   periodName,
@@ -207,6 +208,18 @@ describe('getClockState', () => {
     const p2 = period({ periodNumber: 2, startedAt: T0 + 30 * MIN });
     const state = getClockState([p1, p2], 20 * MIN, T0 + 51 * MIN);
     expect(state).toMatchObject({ currentPeriod: 2, isStoppage: true, display: "40+2'" });
+  });
+});
+
+describe('isClockStopped', () => {
+  it('is true while paused and at a break, false while running or before kickoff', () => {
+    const running = period({ periodNumber: 1 });
+    const paused = period({ periodNumber: 1, pausedAt: T0 + 10 * MIN });
+    const ended = period({ periodNumber: 1, endedAt: T0 + HALF });
+    expect(isClockStopped(getClockState([running], HALF, T0 + MIN))).toBe(false);
+    expect(isClockStopped(getClockState([paused], HALF, T0 + 20 * MIN))).toBe(true);
+    expect(isClockStopped(getClockState([ended], HALF, T0 + 50 * MIN))).toBe(true);
+    expect(isClockStopped(getClockState([], HALF, T0))).toBe(false);
   });
 });
 

@@ -57,7 +57,8 @@ export function SelectField({
         {leading}
         <Text
           numberOfLines={1}
-          className={`flex-1 text-base ${valueText ? 'font-semibold text-ink' : 'text-ink-muted'}`}
+          // Same weight with or without a value: toggling font weight ghosts on Android.
+          className={`flex-1 text-base font-semibold ${valueText ? 'text-ink' : 'text-ink-muted'}`}
         >
           {valueText ?? placeholder}
         </Text>

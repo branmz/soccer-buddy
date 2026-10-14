@@ -38,6 +38,15 @@ export type ClockState = {
   display: string;
 };
 
+/**
+ * Whether the clock is stopped mid-match: paused, or the break after a period. The live screen
+ * shows both in amber (clock bar, status bar, Game Day card); a green bar at a break read as a
+ * running clock. Before kickoff there's no live clock to show, so it isn't "stopped".
+ */
+export function isClockStopped(clock: Pick<ClockState, 'phase'>): boolean {
+  return clock.phase === 'paused' || clock.phase === 'periodEnded';
+}
+
 /** Active time in one period: (paused_at ?? ended_at ?? now) − started_at − paused_total_ms. */
 export function periodElapsedMs(period: ClockPeriod, now: number): number {
   const until = period.pausedAt ?? period.endedAt ?? now;

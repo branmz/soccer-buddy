@@ -23,7 +23,8 @@ export function TeamCardBody({ team, isActive }: { team: TeamSummary; isActive: 
   return (
     <>
       <View className="flex-row items-center gap-2">
-        <Text numberOfLines={1} className="shrink text-2xl font-bold text-ink">
+        {/* Two lines: a long club name keeps its squad suffix (U10 / U12) visible. */}
+        <Text numberOfLines={2} className="shrink text-2xl font-bold text-ink">
           {team.name}
         </Text>
         {isActive && (

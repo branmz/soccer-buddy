@@ -53,7 +53,8 @@ function describe(group: TimelineEvent[], names: Names): { kind: TimelineKind; t
       };
     }
     case 'opponent_goal':
-      return { kind: 'opponentGoal', text: 'Opponent goal' };
+      // The button's words ("Their Goal"), so the log and toast match what the coach tapped.
+      return { kind: 'opponentGoal', text: 'Their goal' };
     case 'yellow_card':
       return of('red_card').length > 0
         ? { kind: 'red', text: `Second yellow: ${name(first.playerId)} (sent off)` }

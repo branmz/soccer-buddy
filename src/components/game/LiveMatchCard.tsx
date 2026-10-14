@@ -6,7 +6,7 @@ import { COLORS } from '@/constants/colors';
 import { eventsQuery } from '@/db/repositories/events';
 import { matchPeriodsQuery } from '@/db/repositories/matches';
 import { matchEvents, matchPeriods, type Match } from '@/db/schema';
-import { breakName, periodName } from '@/domain/clock';
+import { breakName, isClockStopped, periodName } from '@/domain/clock';
 import { kitColorName } from '@/domain/colors';
 import { matchScore } from '@/domain/stats';
 import { useLiveData } from '@/hooks/useLiveData';
@@ -15,9 +15,10 @@ import { useMatchClock } from '@/hooks/useMatchClock';
 const MS_PER_MINUTE = 60_000;
 
 /**
- * The card's colors, like the live clock bar: dark green, amber while paused. Not the kit
- * color (a red kit made the card read as an error banner): the kit is a shirt by the team
- * name. Both states set every value (removing a class leaves a ghost on Android).
+ * The card's colors, like the live clock bar: dark green, amber while the clock is stopped
+ * (paused, or between periods). Not the kit color (a red kit made the card read as an error
+ * banner): the kit is a shirt by the team name. Both states set every value (removing a class
+ * leaves a ghost on Android).
  */
 const CARD = {
   running: {
@@ -28,7 +29,7 @@ const CARD = {
     pillText: 'text-brand-strong',
     pillIcon: COLORS.brandStrong,
   },
-  paused: {
+  stopped: {
     box: 'bg-paused',
     soft: 'text-gray-800',
     strong: 'text-gray-950',
@@ -60,7 +61,8 @@ export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchC
   const status = onBreak
     ? breakName(clock.currentPeriod, match.periodCount)
     : periodName(clock.currentPeriod, match.periodCount);
-  const card = clock.isPaused ? CARD.paused : CARD.running;
+  // Amber whenever the clock is stopped (paused or at a break), like the live screen's clock bar.
+  const card = isClockStopped(clock) ? CARD.stopped : CARD.running;
   const kit = kitColor ? `, wearing the ${kitColorName(kitColor)} kit` : '';
 
   return (

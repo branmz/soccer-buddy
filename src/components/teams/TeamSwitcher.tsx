@@ -32,7 +32,12 @@ export function TeamSwitcher() {
         className="min-h-touch max-w-52 flex-row items-center gap-2 rounded-full border border-line-strong bg-surface px-4 active:bg-muted"
       >
         {kit && <ColorSwatch color={kit} size={16} />}
-        <Text numberOfLines={1} className="shrink text-lg font-semibold text-ink">
+        {/* Middle ellipsis: "Greenwich Pal…U12" keeps two squads from one club apart. */}
+        <Text
+          numberOfLines={1}
+          ellipsizeMode="middle"
+          className="shrink text-lg font-semibold text-ink"
+        >
           {team?.name ?? 'Add A Team'}
         </Text>
         <Ionicons name="chevron-down" size={20} color={COLORS.inkSoft} />
