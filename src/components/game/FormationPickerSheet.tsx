@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { FormationThumbnail } from '@/components/pitch/FormationThumbnail';
+import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Sheet } from '@/components/ui/Sheet';
 import { COLORS } from '@/constants/colors';
 import { PRESET_FORMATIONS } from '@/constants/presetFormations';
@@ -61,7 +62,7 @@ export function FormationPickerSheet({
           Players move to the closest matching spots in the new shape. You can fine-tune it after.
         </Text>
       )}
-      {savedChoices.length > 0 && <SectionTitle title="Saved" />}
+      {savedChoices.length > 0 && <SectionHeading className="-mb-2">Saved</SectionHeading>}
       {savedChoices.map((choice) => (
         <ChoiceRow
           key={`saved-${choice.formationId}`}
@@ -71,7 +72,7 @@ export function FormationPickerSheet({
           onPress={() => onPick(choice)}
         />
       ))}
-      <SectionTitle title={`${fieldSize}v${fieldSize} presets`} />
+      <SectionHeading className="-mb-2">{`${fieldSize}v${fieldSize} presets`}</SectionHeading>
       {presetChoices.map((choice) => (
         <ChoiceRow
           key={`preset-${choice.name}`}
@@ -84,10 +85,6 @@ export function FormationPickerSheet({
       <View className="h-2" />
     </Sheet>
   );
-}
-
-function SectionTitle({ title }: { title: string }) {
-  return <Text className="-mb-2 text-sm font-semibold text-ink-muted uppercase">{title}</Text>;
 }
 
 type ChoiceRowProps = {

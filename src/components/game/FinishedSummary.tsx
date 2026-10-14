@@ -6,6 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { KitShirt } from '@/components/teams/KitShirt';
 import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import { COLORS } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 import { formatMinutesPlayed } from '@/domain/history';
@@ -27,7 +28,7 @@ type FinishedSummaryProps = {
   insetTop: number;
   /** Shows a Done button at the bottom (the live screen at full time). */
   done?: { onPress: () => void; insetBottom: number };
-  /** The cards below the score, in order (`SummaryCard`, `MinutesPlayedCard`). */
+  /** The cards below the score, in order (`TimelineCard`, `MinutesPlayedCard`). */
   children: ReactNode;
 };
 
@@ -85,18 +86,6 @@ export function FinishedSummary({
   );
 }
 
-/** A white card with a heading, for the summary's sections. */
-export function SummaryCard({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <View className="gap-1 rounded-2xl border border-line bg-surface p-4">
-      <Text accessibilityRole="header" className="pb-1 text-lg font-bold text-ink">
-        {capitalizeWords(title)}
-      </Text>
-      {children}
-    </View>
-  );
-}
-
 /**
  * A section of the match log (the whole log, or only the key moments). `collapsible` starts it
  * closed behind a "Show all" toggle: the full log repeats the key moments above it.
@@ -115,13 +104,13 @@ export function TimelineCard({
   const [open, setOpen] = useState(!collapsible);
   if (!collapsible || entries.length === 0) {
     return (
-      <SummaryCard title={title}>
+      <Card title={title} className="gap-1">
         <EventTimeline entries={entries} emptyText={emptyText} />
-      </SummaryCard>
+      </Card>
     );
   }
   return (
-    <View className="gap-1 rounded-2xl border border-line bg-surface px-4 pt-2 pb-2">
+    <Card flush className="gap-1 px-4 pt-2 pb-2">
       {/* The title stays a heading (for screen-reader navigation) beside a separate toggle. */}
       <View className="min-h-12 flex-row items-center gap-2">
         <Text accessibilityRole="header" className="flex-1 text-lg font-bold text-ink">
@@ -147,7 +136,7 @@ export function TimelineCard({
         </Pressable>
       </View>
       {open && <EventTimeline entries={entries} emptyText={emptyText} />}
-    </View>
+    </Card>
   );
 }
 
@@ -161,7 +150,7 @@ type MinutesPlayedCardProps = {
 
 export function MinutesPlayedCard({ minutes, stats, kitColor }: MinutesPlayedCardProps) {
   return (
-    <SummaryCard title="Minutes played">
+    <Card title="Minutes played" className="gap-1">
       {minutes.map(({ player, minutes: played }) => (
         <View
           key={player.id}
@@ -181,7 +170,7 @@ export function MinutesPlayedCard({ minutes, stats, kitColor }: MinutesPlayedCar
           </Text>
         </View>
       ))}
-    </SummaryCard>
+    </Card>
   );
 }
 

@@ -74,8 +74,8 @@ what to build next. Update its Status section when a milestone's PR merges.
 - `src/lib/haptics.ts` — `confirmHaptic` / `rejectHaptic` / `tapHaptic` / `periodEndHaptic`
   (Android haptics engine, no VIBRATE permission)
 - `src/components/ui/` — generic primitives (Button, IconButton, TextField, Sheet, ConfirmSheet,
-  SegmentedControl, EmptyState); `src/components/teams/` — team/player forms, TeamSwitcher,
-  JerseyBadge, ColorSwatch, KitShirt
+  SegmentedControl, EmptyState, Card, ListRow, SectionHeading); `src/components/teams/` —
+  team/player forms, TeamSwitcher, JerseyBadge, ColorSwatch, KitShirt
 
 ## Rules (open the matching page before you change code)
 

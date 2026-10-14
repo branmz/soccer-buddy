@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { Button } from '@/components/ui/Button';
+import { SectionHeading } from '@/components/ui/SectionHeading';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
@@ -125,9 +126,7 @@ function PresetForm({
       {pairs.map((pair, index) => (
         <View key={index} className="gap-2 rounded-xl border border-line p-3">
           <View className="flex-row items-center gap-2">
-            <Text className="flex-1 text-sm font-semibold text-ink-muted uppercase">
-              Sub {index + 1}
-            </Text>
+            <SectionHeading className="flex-1">Sub {index + 1}</SectionHeading>
             {pairs.length > 1 && (
               <Pressable
                 accessibilityRole="button"

@@ -1,11 +1,11 @@
 import { router } from 'expo-router';
-import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { FormationThumbnail } from '@/components/pitch/FormationThumbnail';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ReorderList } from '@/components/ui/ReorderList';
+import { SectionHeading } from '@/components/ui/SectionHeading';
 import { PRESET_FORMATIONS } from '@/constants/presetFormations';
 import { ValidationError } from '@/db/repositories/errors';
 import { formationsQuery, setFormationOrder } from '@/db/repositories/formations';
@@ -89,7 +89,7 @@ export default function TacticsScreen() {
       onReorder={saveOrder}
       header={
         <>
-          <SectionTitle>Saved · {saved.length}</SectionTitle>
+          <SectionHeading className="pt-2">Saved · {saved.length}</SectionHeading>
           {saved.length === 0 && (
             <Text className="text-base text-ink-muted">
               No saved formations for {team.name} yet. Pick a preset below to start one.
@@ -99,9 +99,9 @@ export default function TacticsScreen() {
       }
       footer={
         <>
-          <SectionTitle>
+          <SectionHeading className="pt-2">
             Start from a {fieldSize}v{fieldSize} preset
-          </SectionTitle>
+          </SectionHeading>
           {presets.map((row) => (
             <Pressable
               key={row.id}
@@ -117,10 +117,6 @@ export default function TacticsScreen() {
       }
     />
   );
-}
-
-function SectionTitle({ children }: { children: ReactNode }) {
-  return <Text className="pt-2 text-sm font-semibold text-ink-muted uppercase">{children}</Text>;
 }
 
 function formationDetail(row: SavedRow | PresetRow, fieldSize: number): string {

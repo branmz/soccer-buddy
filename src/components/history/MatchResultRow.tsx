@@ -1,7 +1,8 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Pressable, Text, View } from 'react-native';
+import { Text, View } from 'react-native';
 
 import { KitShirt } from '@/components/teams/KitShirt';
+import { ListRow } from '@/components/ui/ListRow';
 import { COLORS } from '@/constants/colors';
 import type { FinishedMatch } from '@/db/repositories/history';
 import { kitColorName } from '@/domain/colors';
@@ -26,11 +27,9 @@ export function MatchResultRow({ item, kitColor, scorers, onPress }: MatchResult
   const kit = kitColor ? `, ${kitColorName(kitColor)} kit` : '';
   const scored = scorers ? `. Scorers: ${scorers}` : '';
   return (
-    <Pressable
-      accessibilityRole="button"
+    <ListRow
       accessibilityLabel={`${resultLabel(result)} against ${match.opponentName}, ${score.us} to ${score.them}. ${date}, ${venue}${kit}${scored}`}
       onPress={onPress}
-      className="min-h-16 flex-row items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 active:bg-canvas"
     >
       <ResultBadge result={result} />
       <View className="flex-1 gap-0.5">
@@ -55,6 +54,6 @@ export function MatchResultRow({ item, kitColor, scorers, onPress }: MatchResult
       <Text className="text-2xl font-black text-ink" style={{ fontVariant: ['tabular-nums'] }}>
         {score.us}–{score.them}
       </Text>
-    </Pressable>
+    </ListRow>
   );
 }
