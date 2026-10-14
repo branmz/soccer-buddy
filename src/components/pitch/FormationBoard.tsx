@@ -126,7 +126,9 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
 
   return (
     <View className="flex-1">
-      <View className={`min-h-14 flex-row items-center gap-2 border-b px-4 py-1 ${hintBar.box}`}>
+      <View
+        className={`min-h-touch-lg flex-row items-center gap-2 border-b px-4 py-1 ${hintBar.box}`}
+      >
         {/* Two lines at most, even at a large font size: a third would grow the bar and
             move the pitch between taps. */}
         <Text
@@ -153,7 +155,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
             accessibilityRole="button"
             accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
             onPress={() => setPositionSheet({ open: true, slot: selectedSlot })}
-            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
+            className="min-h-touch flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
           >
             <Text className="text-base text-brand-strong">Position</Text>
             <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
@@ -164,7 +166,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           <Pressable
             accessibilityRole="button"
             onPress={clearSelection}
-            className={`min-h-12 justify-center rounded-full px-3 ${hintBar.press}`}
+            className={`min-h-touch justify-center rounded-full px-3 ${hintBar.press}`}
           >
             <Text className="text-base font-semibold text-brand">Cancel</Text>
           </Pressable>
@@ -235,7 +237,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           onPress={undo}
           // Disabled is muted but still readable (a 40% fade washed out). Both states set every
           // class; only the values change (no Android ghosting).
-          className={`min-h-12 flex-row items-center gap-1.5 rounded-full border px-4 ${
+          className={`min-h-touch flex-row items-center gap-1.5 rounded-full border px-4 ${
             canUndo
               ? 'border-line-strong bg-surface active:bg-muted'
               : 'border-line bg-muted active:bg-muted'
@@ -252,7 +254,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           accessibilityState={{ checked: movingSpots }}
           accessibilityHint="When on, you can move spots and change their positions, like ST to CAM"
           onPress={() => setMode(movingSpots ? 'players' : 'positions')}
-          className={`min-h-12 flex-row items-center gap-1.5 rounded-full border px-4 ${
+          className={`min-h-touch flex-row items-center gap-1.5 rounded-full border px-4 ${
             movingSpots
               ? 'border-brand bg-brand active:bg-brand-strong'
               : 'border-brand-edge bg-brand-tint active:bg-brand-tint-strong'

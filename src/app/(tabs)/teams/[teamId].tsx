@@ -146,7 +146,7 @@ export default function RosterScreen() {
                 accessibilityRole="button"
                 accessibilityState={{ expanded: showInactive }}
                 onPress={() => setShowInactive((v) => !v)}
-                className="min-h-12 flex-row items-center gap-1 px-4 pt-4"
+                className="min-h-touch flex-row items-center gap-1 px-4 pt-4"
               >
                 <SectionHeading header={false}>{section.title}</SectionHeading>
                 <Ionicons
@@ -164,7 +164,7 @@ export default function RosterScreen() {
                   accessibilityLabel={`Sorted by ${SORT_LABEL[rosterSort].toLowerCase()}`}
                   accessibilityHint={`Sorts by ${SORT_LABEL[nextSort(rosterSort)].toLowerCase()}`}
                   onPress={() => setRosterSort(nextSort(rosterSort))}
-                  className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
+                  className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
                 >
                   <Ionicons name="swap-vertical" size={16} color={COLORS.inkSoft} />
                   <Text className="text-base font-semibold text-ink">{SORT_LABEL[rosterSort]}</Text>

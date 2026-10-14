@@ -52,7 +52,7 @@ export function SelectField({
           Keyboard.dismiss();
           onPress();
         }}
-        className={`min-h-12 flex-row items-center gap-2 rounded-xl border px-3 ${boxClass}`}
+        className={`min-h-touch flex-row items-center gap-2 rounded-xl border px-3 ${boxClass}`}
       >
         {leading}
         <Text

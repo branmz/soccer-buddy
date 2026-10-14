@@ -43,7 +43,7 @@ export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositi
                       onPick(position);
                       onClose();
                     }}
-                    className={`min-h-12 min-w-16 items-center justify-center rounded-xl border px-3 ${
+                    className={`min-h-touch min-w-16 items-center justify-center rounded-xl border px-3 ${
                       selected
                         ? 'border-brand bg-brand'
                         : 'border-line-strong bg-surface active:bg-muted'

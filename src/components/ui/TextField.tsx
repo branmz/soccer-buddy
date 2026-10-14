@@ -27,7 +27,7 @@ export function TextField({ label, error, warning, ...inputProps }: TextFieldPro
         accessibilityLabel={label}
         // gray-500: gray-400 placeholders wash out in sunlight.
         placeholderTextColor={COLORS.inkMuted}
-        className={`min-h-12 rounded-xl border bg-surface px-3 text-base text-ink ${borderClass}`}
+        className={`min-h-touch rounded-xl border bg-surface px-3 text-base text-ink ${borderClass}`}
         {...inputProps}
       />
       {error ? (

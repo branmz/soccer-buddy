@@ -45,6 +45,8 @@ what to build next. Update its Status section when a milestone's PR merges.
 - Expo needs port 8081; a stale `expo start` from a closed terminal can hold it. Find it with
   `Get-NetTCPConnection -LocalPort 8081` and stop that process
 - CLI globs don't match route folders like `(tabs)`: pass Prettier/ESLint explicit quoted paths
+- NativeWind's rem is 14px, not 16: Tailwind sizes come out at 14/16 (`min-h-12` = 42dp,
+  `text-base` = 14). Touch targets use the px tokens `min-h-touch` (48) / `min-h-touch-lg` (56)
 - The coach's device screenshots are in `screenshots/` (git-ignored); read them when asked
 
 ## Project Layout

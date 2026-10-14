@@ -83,7 +83,7 @@ export function BenchSidebar({
               accessibilityRole="button"
               accessibilityLabel="Move the selected player to the bench"
               onPress={onBenchZonePress}
-              className="mx-1 mb-1 min-h-12 items-center justify-center rounded-xl bg-brand px-1 active:bg-brand-strong"
+              className="mx-1 mb-1 min-h-touch items-center justify-center rounded-xl bg-brand px-1 active:bg-brand-strong"
             >
               <Ionicons name="arrow-down" size={16} color={ON_FILL} />
               <Text className="text-center text-xs font-semibold text-white">Move To Bench</Text>

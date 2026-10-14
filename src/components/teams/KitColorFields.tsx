@@ -69,7 +69,7 @@ export function KitColorFields({ home, away, onChangeHome, onChangeAway }: KitCo
                 onPress={() => pick(hex)}
                 // Both states set the border (only its color changes): removing the ring's
                 // classes left a one-frame ghost ring on the old pick (Android).
-                className={`h-11 w-11 items-center justify-center rounded-full border-2 ${
+                className={`h-touch w-touch items-center justify-center rounded-full border-2 ${
                   selected ? 'border-brand' : 'border-transparent'
                 }`}
               >

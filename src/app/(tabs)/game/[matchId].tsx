@@ -258,7 +258,7 @@ export default function MatchSetupScreen() {
             accessibilityRole="button"
             accessibilityLabel={`Who's here: ${squad.size} of ${roster.length} players. Change`}
             onPress={() => setSquadOpen(true)}
-            className="min-h-12 flex-row items-center gap-2 rounded-xl border border-line-strong bg-surface px-3 active:bg-canvas"
+            className="min-h-touch flex-row items-center gap-2 rounded-xl border border-line-strong bg-surface px-3 active:bg-canvas"
           >
             <Ionicons name="people-outline" size={20} color={COLORS.brandStrong} />
             <Text className="flex-1 text-base text-ink">
@@ -359,7 +359,7 @@ export default function MatchSetupScreen() {
             {error}
           </Text>
         )}
-        <Button label="Kick off" icon="play" onPress={startMatch} className="min-h-14" />
+        <Button label="Kick off" icon="play" onPress={startMatch} className="min-h-touch-lg" />
       </View>
 
       <FormationPickerSheet

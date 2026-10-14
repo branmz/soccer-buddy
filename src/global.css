@@ -67,4 +67,10 @@
   --color-pitch-dark: #1b5e20;
   --color-pitch-line: #e8f5e9;
   --color-pitch-stripe: #338a37;
+
+  /* Touch targets (min-h-touch, h-touch, w-touch): 48dp for every control, 56dp for a
+     screen's main action (Kick Off). In px, which is dp: NativeWind's rem is 14px (no root
+     font-size is set), so Tailwind's scale runs at 14/16 and min-h-12 is only 42dp. */
+  --spacing-touch: 48px;
+  --spacing-touch-lg: 56px;
 }

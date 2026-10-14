@@ -24,7 +24,8 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | UX review 4: Game Day season snapshot, Delete buttons, ⋮, Start Q2        | ✅ merged    | #20       |
 | —   | Theme tokens: colors from `global.css` + `COLORS`, not literal classes    | ✅ merged    | #21       |
 | —   | Expo 57.0.29 patch upgrade (router, linking, splash screen, jest-expo)    | ✅ merged    | #22       |
-| —   | UI primitives: shared `Card`, `ListRow`, `SectionHeading`                 | 🚧 in review | —         |
+| —   | UI primitives: shared `Card`, `ListRow`, `SectionHeading`                 | ✅ merged    | #23       |
+| —   | Touch targets: true 48dp (`touch` tokens; `min-h-12` was 42dp)            | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -109,7 +110,9 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
   - **Paused turns the whole clock bar amber** (dark text, dark Resume), so running vs paused
     reads at a glance; the Game Day live card goes amber too.
   - **Sideline legibility** (from a UX review, phase 1): brand green is `#15803d` (white text
-    5:1), readable text is never lighter than gray-500, and sideline touch targets are ≥48dp.
+    5:1), readable text is never lighter than gray-500, and sideline touch targets are ≥48dp
+    (`min-h-touch`; until the touch-targets fix, `min-h-12` was assumed to be 48dp but
+    NativeWind's 14px rem made it 42dp).
     The **selected** player is cyan (`select` / `select-strong` tokens: no kit color is cyan);
     on the pitch, yellow means a card or a spot that suits a player. In plain text (log, toasts) players who share a name show their number
     ("Michael #3"), via `distinctNames` in `src/domain/roster.ts`.
@@ -326,6 +329,12 @@ changed on each screen.
   labelled red **Delete** pill (`HeaderButton` `danger`), not a bare trash icon; the formation
   editor's More is an icon-only ⋮ (the room goes to the name); the button between quarters
   says **Start Q2** (`startPeriodLabel`), since a bare "Q2" isn't an action.
+- **Touch targets (after #23):** NativeWind's rem is 14px, so the "48dp" `min-h-12` was 42dp
+  and some controls were 31–38dp. Every control is now on the px tokens `touch` (48dp) /
+  `touch-lg` (56dp, Kick Off and Done); the bars that swap above the pitch (formation bar ↔
+  live hint, the Tactics hint bar) share `min-h-touch-lg`, so the pitch no longer shifts 6–7dp
+  when a player is picked up or dropped. The season table's narrow sort headers are the one
+  exception (48dp tall, column width).
 
 **Decided against, or deferred:**
 

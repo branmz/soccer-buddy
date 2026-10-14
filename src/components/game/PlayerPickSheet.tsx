@@ -68,7 +68,7 @@ export function PlayerPickSheet({
         <Pressable
           accessibilityRole="button"
           onPress={() => onPick(null)}
-          className="min-h-12 items-center justify-center rounded-xl border border-line-strong bg-surface active:bg-muted"
+          className="min-h-touch items-center justify-center rounded-xl border border-line-strong bg-surface active:bg-muted"
         >
           <Text className="text-base font-semibold text-ink-soft">{noneLabel}</Text>
         </Pressable>
