@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { memo, useCallback, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
@@ -11,6 +12,7 @@ import {
 } from '@/components/pitch/BoardDragContext';
 import { fitPitch, Pitch, tokenSizeFor, type Size } from '@/components/pitch/Pitch';
 import { PlayerToken } from '@/components/pitch/PlayerToken';
+import { COLORS } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 import {
   findDropTarget,
@@ -329,20 +331,25 @@ export function liveHint(
 export function LiveHint({ text, onCancel }: { text: string; onCancel: () => void }) {
   return (
     <View className="min-h-touch-lg flex-row items-center gap-2 border-b border-select-strong bg-select-tint px-3 py-1">
-      {/* Two lines at most, like the Tactics hint: a third would grow the bar and move the pitch. */}
+      {/* Two lines at most and a capped font scale, like the Tactics hint: more would grow the
+          bar and move the pitch. */}
       <Text
         accessibilityLiveRegion="polite"
         numberOfLines={2}
-        className="flex-1 py-1 text-base font-medium text-ink"
+        maxFontSizeMultiplier={1.15}
+        className="flex-1 text-base font-medium text-ink"
       >
         {text}
       </Text>
       <Pressable
         accessibilityRole="button"
         onPress={onCancel}
-        className="min-h-touch justify-center rounded-full px-3 active:bg-select-tint-strong"
+        // A white pill, like every other control by the pitch: plain green text read as part
+        // of the hint, not as a button.
+        className="min-h-touch flex-row items-center gap-1 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
       >
-        <Text className="text-base font-semibold text-brand">Cancel</Text>
+        <Ionicons name="close" size={18} color={COLORS.ink} />
+        <Text className="text-base font-semibold text-ink">Cancel</Text>
       </Pressable>
     </View>
   );

@@ -8,9 +8,21 @@ import { liveMatchQuery } from '@/db/repositories/matches';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
 
-function tabIcon(name: IconName) {
-  return function TabIcon({ color, size }: { color: ColorValue; size: number }) {
-    return <Ionicons name={name} color={color} size={size} />;
+/**
+ * Filled when active, outline when not: with readable (ink-muted) inactive labels, the active
+ * tab's green is close in lightness, so shape carries the difference too.
+ */
+function tabIcon(active: IconName, inactive: IconName) {
+  return function TabIcon({
+    color,
+    size,
+    focused,
+  }: {
+    color: ColorValue;
+    size: number;
+    focused: boolean;
+  }) {
+    return <Ionicons name={focused ? active : inactive} color={color} size={size} />;
   };
 }
 
@@ -28,13 +40,29 @@ export default function TabsLayout() {
   }, []);
 
   return (
-    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: COLORS.brand }}>
-      <Tabs.Screen name="teams" options={{ title: 'Teams', tabBarIcon: tabIcon('people') }} />
-      <Tabs.Screen name="tactics" options={{ title: 'Tactics', tabBarIcon: tabIcon('grid') }} />
-      <Tabs.Screen name="game" options={{ title: 'Game Day', tabBarIcon: tabIcon('stopwatch') }} />
+    <Tabs
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: COLORS.brand,
+        // React Navigation's default is 50% alpha text (about 3.3:1), too light in sun.
+        tabBarInactiveTintColor: COLORS.inkMuted,
+      }}
+    >
+      <Tabs.Screen
+        name="teams"
+        options={{ title: 'Teams', tabBarIcon: tabIcon('people', 'people-outline') }}
+      />
+      <Tabs.Screen
+        name="tactics"
+        options={{ title: 'Tactics', tabBarIcon: tabIcon('grid', 'grid-outline') }}
+      />
+      <Tabs.Screen
+        name="game"
+        options={{ title: 'Game Day', tabBarIcon: tabIcon('stopwatch', 'stopwatch-outline') }}
+      />
       <Tabs.Screen
         name="history"
-        options={{ title: 'History', tabBarIcon: tabIcon('stats-chart') }}
+        options={{ title: 'History', tabBarIcon: tabIcon('stats-chart', 'stats-chart-outline') }}
       />
     </Tabs>
   );

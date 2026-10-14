@@ -25,7 +25,8 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | Theme tokens: colors from `global.css` + `COLORS`, not literal classes    | ✅ merged    | #21       |
 | —   | Expo 57.0.29 patch upgrade (router, linking, splash screen, jest-expo)    | ✅ merged    | #22       |
 | —   | UI primitives: shared `Card`, `ListRow`, `SectionHeading`                 | ✅ merged    | #23       |
-| —   | Touch targets: true 48dp (`touch` tokens; `min-h-12` was 42dp)            | 🚧 in review | —         |
+| —   | Touch targets: true 48dp (`touch` tokens; `min-h-12` was 42dp)            | ✅ merged    | #24       |
+| —   | UX review 5: amber breaks, one-row live editor, quick-sub delete confirm  | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -90,6 +91,9 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
     the bar: the score
     (with a list icon) and **⋮ → Match log** open it. Their goal is dark, so it can't pass
     for the green Goal.
+  - **Quick subs in setup** (phase 5): the Off / On chips show positions and distinct names
+    ("Michael #3"), as do the setup summaries; **Delete quick sub** asks first in a red confirm
+    (an "every match" one says it leaves every match).
   - **Quick subs preview first** (phase 3): a tap shows the preset's pairs ("Call these
     players over…") and one **Make 2 Subs** confirms. A sub's incoming player must be on the
     bench (quick subs naming absent players fail per pair; the OK ones can still be made).
@@ -107,8 +111,10 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
     yellow asks "Yellow + red" or "Yellow only", and a straight red asks to confirm. In the
     card picker, the Yellow / Red options show their card and fill with that color when
     selected.
-  - **Paused turns the whole clock bar amber** (dark text, dark Resume), so running vs paused
-    reads at a glance; the Game Day live card goes amber too.
+  - **A stopped clock turns the whole clock bar amber** (dark text, dark Resume), so running vs
+    stopped reads at a glance; the Game Day live card and the status bar follow. Stopped means
+    paused **or between periods** (phase 5, `isClockStopped`): a green bar at the break read as
+    a running clock. "PAUSED" only shows while actually paused.
   - **Sideline legibility** (from a UX review, phase 1): brand green is `#15803d` (white text
     5:1), readable text is never lighter than gray-500, and sideline touch targets are ≥48dp
     (`min-h-touch`; until the touch-targets fix, `min-h-12` was assumed to be 48dp but
@@ -138,7 +144,9 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
     cyan "selected" ring has the same dark edge, without the pulse.
   - **Formation mid-match:** tap the formation pill to **switch** formations (players fit to
     the new shape: GK stays, then same position, line, distance), or **Edit formation** to
-    move/relabel spots. Neither records events; the kickoff snapshot never changes.
+    move/relabel spots. Neither records events; the kickoff snapshot never changes. The edit
+    bar is one row, the formation bar's height (phase 5; two rows dropped the pitch ~31dp):
+    hint + Undo + Done, or with a spot picked, its position pill + Cancel.
   - A **red-card spot** stays empty, but a pitch player can move into it (e.g. into goal):
     the lock moves to the spot they left, so the team stays a player down.
   - Half-time subs are stamped with the minute the half ended.
@@ -303,7 +311,7 @@ Was branch `feature/polish-eas-preview`. EAS project `@buranapple/coach-buddy` (
   on a transparent canvas, so circle masks never clip it. The themed-icon `monochromeImage` is
   a cutout of the art (coach + ball panels + trail), padded the same way.
 
-## UX review (October 2026: #17, #18, #19, phase 4)
+## UX review (October 2026: #17 – #20, #24, phase 5)
 
 A hard sideline-usability review (bright sun, one thumb) of the device screenshots and the
 code. Its rules now live in `docs/UI_RULES.md`; the product decisions above record what
@@ -321,7 +329,7 @@ changed on each screen.
   full-lineup highlights; rings with a dark edge (pulsing for the main position); Tactics hint
   legend ("Tap a spot. Bold yellow: CDM; light or thin ring: CB.") in a cyan bar while a player
   is selected. Board hints are capped at two lines, so the bar never grows and moves the pitch.
-- **Phase 4:** between matches Game Day felt empty, so under the live card and drafts it shows a
+- **Phase 4 (#20):** between matches Game Day felt empty, so under the live card and drafts it shows a
   **season snapshot**: the last result with its scorers (tap: the match in History, with the
   list under it for Back), then a white Season card (record, GF–GA, last-5 form newest first,
   top 3 scorers via `topScorers`) and See All In History. White, not dark green: on Game Day
@@ -329,12 +337,19 @@ changed on each screen.
   labelled red **Delete** pill (`HeaderButton` `danger`), not a bare trash icon; the formation
   editor's More is an icon-only ⋮ (the room goes to the name); the button between quarters
   says **Start Q2** (`startPeriodLabel`), since a bare "Q2" isn't an action.
-- **Touch targets (after #23):** NativeWind's rem is 14px, so the "48dp" `min-h-12` was 42dp
+- **Touch targets (#24):** NativeWind's rem is 14px, so the "48dp" `min-h-12` was 42dp
   and some controls were 31–38dp. Every control is now on the px tokens `touch` (48dp) /
   `touch-lg` (56dp, Kick Off and Done); the bars that swap above the pitch (formation bar ↔
   live hint, the Tactics hint bar) share `min-h-touch-lg`, so the pitch no longer shifts 6–7dp
   when a player is picked up or dropped. The season table's narrow sort headers are the one
   exception (48dp tall, column width).
+- **Phase 5:** a `ui-reviewer` agent pass over 28 device screenshots and the code. Amber at
+  breaks (`isClockStopped`); the live Edit Formation bar is one row; quick-sub delete
+  confirms; readable inactive tabs (outline icons); middle-ellipsis team names; season zeros
+  as "–"; disabled `HeaderButton`; cyan tap-to-move selection with a floating hint in
+  `ReorderList`; quick-sub pickers with positions and distinct names; 13dp bench names;
+  Cancel pills; dark labels on second-fit spots; constant select weight; hint font scale
+  capped at 1.15; copy ("Their goal", "Who's here?", "Nothing was recorded in this match.").
 
 **Decided against, or deferred:**
 
@@ -343,7 +358,9 @@ changed on each screen.
 - Rings are partly hidden under the position chip and the name label: accepted (moving the
   labels out would crowd the pitch).
 - A long period-end vibration needs the VIBRATE permission; for now it's three haptic pulses.
-- Nothing open from the review: phase 4 closed the last items.
+- From phase 5, deferred: one Undo while editing the live formation (the edit bar's Undo
+  and the match Undo stay separate); Title Case with lowercase minor words ("See All in
+  History", app-wide); white instead of yellow stoppage digits (yellow has three meanings).
 
 ## Later milestones (from the original plan)
 

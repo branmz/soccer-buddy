@@ -158,7 +158,8 @@ export function PlayerToken({
             <View className="h-[45%] w-[32%] rounded-sm bg-red-600" />
           ) : (
             <Text
-              className={`font-bold ${highlight === 'primary' ? 'text-gray-900' : 'text-white'}`}
+              // Dark on any highlight fill: white on the 30% yellow was about 3.3:1 over grass.
+              className={`font-bold ${highlight === null ? 'text-white' : 'text-gray-900'}`}
               style={{ fontSize: size * 0.3 }}
             >
               {label}

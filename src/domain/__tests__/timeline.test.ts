@@ -56,7 +56,7 @@ describe('timelineEntries', () => {
       "30' yellow Yellow card: Ana",
       "21' sub Sub: Bea on at CM",
       "20' sub Subs: Dee on for Bea, Eve on for Cam",
-      "12' opponentGoal Opponent goal",
+      "12' opponentGoal Their goal",
       "10' goal Goal: Cam (assist Bea)",
     ]);
   });
@@ -90,7 +90,7 @@ describe('keyMoments', () => {
     );
     expect(keyMoments(entries).map((e) => `${e.minute} ${e.text}`)).toEqual([
       "5' Goal: Ana",
-      "30' Opponent goal",
+      "30' Their goal",
       "40' Second yellow: Bea (sent off)",
       "44' Red card: Dee",
     ]);

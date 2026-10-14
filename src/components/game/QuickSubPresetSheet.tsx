@@ -10,12 +10,18 @@ import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { COLORS } from '@/constants/colors';
 import { userMessage } from '@/db/repositories/errors';
-import { createPreset, deletePreset, updatePreset } from '@/db/repositories/presets';
+import { createPreset, updatePreset } from '@/db/repositories/presets';
 import type { Player } from '@/db/schema';
 import type { QuickSubPair } from '@/domain/types';
 import { useOpenCount } from '@/hooks/useOpenCount';
 
-export type EditablePreset = { id: number; name: string; pairs: QuickSubPair[] };
+export type EditablePreset = {
+  id: number;
+  name: string;
+  pairs: QuickSubPair[];
+  /** A team preset, offered in every match (not only this one). */
+  everyMatch: boolean;
+};
 
 type QuickSubPresetSheetProps = {
   visible: boolean;
@@ -26,7 +32,13 @@ type QuickSubPresetSheetProps = {
   /** The players to choose from (the match squad), starters first. */
   players: Player[];
   kitColor: string | null;
+  /** Names that tell players apart ("Michael #3"), from `distinctNames`. */
+  nameOf: (playerId: number) => string;
+  /** The player's spot in the lineup, else their preferred positions ("" for none). */
+  positionOf: (player: Player) => string;
   onClose: () => void;
+  /** Delete asks first: the screen closes this sheet and opens a confirm. */
+  onDeletePress?: (preset: EditablePreset) => void;
 };
 
 /** Create or edit a quick-sub preset: a named set of subs made with one tap during a match. */
@@ -52,7 +64,10 @@ function PresetForm({
   matchId,
   players,
   kitColor,
+  nameOf,
+  positionOf,
   onClose,
+  onDeletePress,
 }: QuickSubPresetSheetProps) {
   const [name, setName] = useState(preset?.name ?? '');
   const [scope, setScope] = useState<'match' | 'team'>('match');
@@ -90,12 +105,6 @@ function PresetForm({
     } catch (e) {
       setError(userMessage(e));
     }
-  }
-
-  function remove() {
-    if (!preset) return;
-    deletePreset(preset.id);
-    onClose();
   }
 
   const used = new Set(pairs.flatMap((p) => [p.out, p.in]).filter((id) => id !== null));
@@ -150,7 +159,7 @@ function PresetForm({
                 <Pressable
                   key={side}
                   accessibilityRole="button"
-                  accessibilityLabel={`${side === 'out' ? 'Off' : 'On'}: ${player?.name ?? 'not picked'}`}
+                  accessibilityLabel={`${side === 'out' ? 'Off' : 'On'}: ${player ? nameOf(player.id) : 'not picked'}`}
                   accessibilityState={{ expanded: active }}
                   onPress={() => setPicking(active ? null : { index, side })}
                   className={`min-h-touch flex-1 flex-row items-center gap-2 rounded-xl border px-2 ${
@@ -164,9 +173,10 @@ function PresetForm({
                   />
                   <Text
                     numberOfLines={1}
-                    className={`flex-1 text-base ${player ? 'font-semibold text-ink' : 'text-ink-muted'}`}
+                    // Same weight either way: toggling font weight leaves a ghost on Android.
+                    className={`flex-1 text-base font-semibold ${player ? 'text-ink' : 'text-ink-muted'}`}
                   >
-                    {player?.name ?? (side === 'out' ? 'Off' : 'On')}
+                    {player ? nameOf(player.id) : side === 'out' ? 'Off' : 'On'}
                   </Text>
                 </Pressable>
               );
@@ -176,17 +186,25 @@ function PresetForm({
             <View className="flex-row flex-wrap gap-2">
               {players
                 .filter((p) => !used.has(p.id) || p.id === pair[picking.side])
-                .map((p) => (
-                  <Pressable
-                    key={p.id}
-                    accessibilityRole="button"
-                    onPress={() => setPlayer(index, picking.side, p.id)}
-                    className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-line bg-surface py-1 pr-3 pl-1 active:bg-muted"
-                  >
-                    <JerseyBadge number={p.jerseyNumber} kitColor={kitColor} size={30} />
-                    <Text className="text-sm font-semibold text-ink">{p.name}</Text>
-                  </Pressable>
-                ))}
+                .map((p) => {
+                  const position = positionOf(p);
+                  return (
+                    <Pressable
+                      key={p.id}
+                      accessibilityRole="button"
+                      accessibilityLabel={position ? `${nameOf(p.id)}, ${position}` : nameOf(p.id)}
+                      onPress={() => setPlayer(index, picking.side, p.id)}
+                      className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-line bg-surface py-1 pr-3 pl-1 active:bg-muted"
+                    >
+                      <JerseyBadge number={p.jerseyNumber} kitColor={kitColor} size={30} />
+                      {/* Sibling Texts, not nested: nested spans mis-measure on Android. */}
+                      <Text className="text-sm font-semibold text-ink">{nameOf(p.id)}</Text>
+                      {position !== '' && (
+                        <Text className="text-xs font-semibold text-ink-muted">{position}</Text>
+                      )}
+                    </Pressable>
+                  );
+                })}
             </View>
           )}
         </View>
@@ -206,7 +224,14 @@ function PresetForm({
         </Text>
       )}
       <Button label="Save quick sub" icon="save-outline" onPress={save} />
-      {preset && <Button label="Delete quick sub" variant="dangerOutline" onPress={remove} />}
+      {preset && onDeletePress && (
+        <Button
+          label="Delete quick sub"
+          variant="dangerOutline"
+          icon="trash-outline"
+          onPress={() => onDeletePress(preset)}
+        />
+      )}
     </>
   );
 }

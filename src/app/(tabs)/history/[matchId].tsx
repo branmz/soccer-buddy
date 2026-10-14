@@ -135,7 +135,12 @@ export default function MatchDetailScreen() {
           entries={keyMoments(entries)}
           emptyText="No goals or red cards."
         />
-        <TimelineCard title="Match log" entries={entries} collapsible />
+        <TimelineCard
+          title="Match log"
+          entries={entries}
+          collapsible
+          emptyText="Nothing was recorded in this match."
+        />
         <MinutesPlayedCard minutes={minutes} stats={stats} kitColor={kitColor} />
       </FinishedSummary>
       <ConfirmSheet

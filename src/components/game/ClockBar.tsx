@@ -9,7 +9,13 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ON_FILL } from '@/constants/colors';
-import { breakName, periodName, type ClockState, type EndClockAction } from '@/domain/clock';
+import {
+  breakName,
+  isClockStopped,
+  periodName,
+  type ClockState,
+  type EndClockAction,
+} from '@/domain/clock';
 import type { Score } from '@/domain/stats';
 import { capitalizeWords } from '@/domain/text';
 import { usePressScale } from '@/hooks/usePressScale';
@@ -48,9 +54,9 @@ function endLabel(action: EndClockAction, clock: ClockState, periodCount: number
 const endIcon = (action: EndClockAction): IconName => (action === 'endPeriod' ? 'stop' : 'flag');
 
 /**
- * The bar's colors. Paused turns the whole bar amber, so a glance from the sideline tells a
- * stopped clock from a running one; a small chip didn't. Both states set every value (removing
- * a class leaves a one-frame ghost on Android).
+ * The bar's colors. A stopped clock (paused, or between periods) turns the whole bar amber,
+ * so a glance from the sideline tells it from a running one; a small chip didn't. Both states
+ * set every value (removing a class leaves a one-frame ghost on Android).
  */
 const BAR = {
   running: {
@@ -61,7 +67,7 @@ const BAR = {
     icon: ON_FILL,
     press: 'active:bg-white/10',
   },
-  paused: {
+  stopped: {
     box: 'bg-paused',
     soft: 'text-gray-900',
     subs: 'text-gray-900',
@@ -88,12 +94,14 @@ export function ClockBar({
   insetTop,
 }: ClockBarProps) {
   const paused = clock.isPaused;
-  const bar = paused ? BAR.paused : BAR.running;
+  // Amber whenever the clock is stopped: paused, or the break between periods.
+  const stopped = isClockStopped(clock);
+  const bar = stopped ? BAR.stopped : BAR.running;
   const period =
     clock.phase === 'periodEnded'
       ? breakName(clock.currentPeriod, periodCount)
       : periodName(clock.currentPeriod, periodCount);
-  const digitsColor = paused ? bar.strong : clock.isStoppage ? 'text-yellow-300' : 'text-white';
+  const digitsColor = stopped ? bar.strong : clock.isStoppage ? 'text-yellow-300' : 'text-white';
   const subsLeft = maxSubs === null ? null : maxSubs - subsUsed;
   // Near the limit the count becomes a chip that pops on the green and the amber bar alike.
   // Every state sets the same classes (no Android ghosting); only the values change.
@@ -195,7 +203,7 @@ export function ClockBar({
           <EndButton
             label={endLabel(endAction, clock, periodCount)}
             icon={endIcon(endAction)}
-            tone={paused ? 'outlineDark' : 'outline'}
+            tone={stopped ? 'outlineDark' : 'outline'}
             onPress={() => onEnd(endAction)}
           />
         )}
@@ -204,7 +212,7 @@ export function ClockBar({
   );
 }
 
-/** An outline on the green bar, or a dark one on the amber (paused) bar. */
+/** An outline on the green bar, or a dark one on the amber (stopped) bar. */
 const TONE = {
   outline: {
     box: 'border-white/60 bg-transparent active:bg-white/10',

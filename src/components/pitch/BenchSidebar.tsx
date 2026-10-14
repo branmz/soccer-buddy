@@ -185,9 +185,10 @@ function BenchPlayer({
             />
             {stats && <ContributionMarks goals={stats.goals} assists={stats.assists} size={36} />}
           </View>
+          {/* 13dp like the names on pitch tokens: it's what the coach reads to pick a sub. */}
           <Text
             numberOfLines={1}
-            className={`text-xs font-semibold ${disabled ? 'text-ink-muted' : 'text-ink'}`}
+            className={`text-[13px] font-semibold ${disabled ? 'text-ink-muted' : 'text-ink'}`}
           >
             {player.name}
           </Text>

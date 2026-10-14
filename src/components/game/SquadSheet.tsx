@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
+import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Sheet } from '@/components/ui/Sheet';
 import { COLORS } from '@/constants/colors';
 import type { Player } from '@/db/schema';
@@ -27,11 +28,15 @@ export function SquadSheet({
 }: SquadSheetProps) {
   const here = roster.filter((p) => squad.has(p.id)).length;
   return (
-    <Sheet visible={visible} title={`Who's here? ${here} of ${roster.length}`} onClose={onClose}>
+    // The count goes under the title: Title Case made it "Who's Here? 13 Of 13".
+    <Sheet visible={visible} title="Who's here?" onClose={onClose}>
       <Text className="text-base text-ink-soft">
         Tap a player to mark them absent. Absent players leave the lineup and quick subs skip them.
         If they turn up late, add them from the live match&apos;s ⋮ menu.
       </Text>
+      <SectionHeading>
+        Here · {here} of {roster.length}
+      </SectionHeading>
       <View>
         {roster.map((player) => {
           const isHere = squad.has(player.id);

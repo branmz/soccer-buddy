@@ -47,76 +47,95 @@ type FormationEditBarProps = {
   canUndo: boolean;
   onChangePosition: (slot: FormationSlot) => void;
   onUndo: () => void;
+  /** Drops the picked spot (a tap on the grass would move it instead). */
+  onCancel: () => void;
   onDone: () => void;
 };
 
-/** Shown while the coach edits the formation mid-match. Players stay in their spots. */
+/**
+ * Shown while the coach edits the formation mid-match. Players stay in their spots.
+ *
+ * One row of the same height as the formation bar it replaces, so entering or leaving the
+ * editor never moves the pitch (two rows dropped it about 31dp under the coach's thumb). The
+ * hint is short and capped at two lines next to two pills on a 360dp phone. Like the Tactics
+ * bar: Undo and Done with nothing picked; the spot's position and Cancel once one is.
+ */
 export function FormationEditBar({
   selectedSlot,
   canUndo,
   onChangePosition,
   onUndo,
+  onCancel,
   onDone,
 }: FormationEditBarProps) {
   const hint = !selectedSlot
-    ? 'Drag a spot to move it, or tap a spot to change its position.'
+    ? 'Drag or tap a spot to change it.'
     : selectedSlot.role === 'GK'
-      ? "Tap the grass to move the goalkeeper. The GK spot can't change position."
-      : `Tap the grass to move ${selectedSlot.label}, or change its position.`;
+      ? 'Tap the grass to move the GK.'
+      : `Tap the grass to move ${selectedSlot.label}.`;
   return (
-    <View className="gap-2 border-b border-yellow-300 bg-yellow-50 px-3 py-2">
-      {/* At most two lines next to a 48dp pill: the row keeps one height as the hint changes,
-          so the pitch below never jumps while the coach is tapping it. */}
-      <View className="min-h-touch flex-row items-center gap-2">
-        <Text
-          accessibilityLiveRegion="polite"
-          numberOfLines={2}
-          className="flex-1 text-base font-medium text-ink"
-        >
-          {hint}
-        </Text>
-        {selectedSlot && positionOptionsFor(selectedSlot).length > 0 && (
+    <View className="min-h-touch-lg flex-row items-center gap-2 border-b border-yellow-300 bg-yellow-50 px-3 py-1">
+      <Text
+        accessibilityLiveRegion="polite"
+        numberOfLines={2}
+        maxFontSizeMultiplier={1.15}
+        className="flex-1 text-base font-medium text-ink"
+      >
+        {hint}
+      </Text>
+      {selectedSlot ? (
+        <>
+          {positionOptionsFor(selectedSlot).length > 0 && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
+              onPress={() => onChangePosition(selectedSlot)}
+              className="min-h-touch flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
+            >
+              <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
+              <Ionicons name="chevron-down" size={18} color={COLORS.brandStrong} />
+            </Pressable>
+          )}
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
-            onPress={() => onChangePosition(selectedSlot)}
-            className="min-h-touch flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
+            onPress={onCancel}
+            className="min-h-touch flex-row items-center gap-1 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
           >
-            <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
-            <Ionicons name="chevron-down" size={18} color={COLORS.brandStrong} />
+            <Ionicons name="close" size={18} color={COLORS.ink} />
+            <Text className="text-base font-semibold text-ink">Cancel</Text>
           </Pressable>
-        )}
-      </View>
-      {/* Equal halves: big targets, nothing hanging off to one side. */}
-      <View className="flex-row gap-2">
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Undo last formation change"
-          accessibilityState={{ disabled: !canUndo }}
-          disabled={!canUndo}
-          onPress={onUndo}
-          // Disabled is muted but still readable (a 40% fade washed out on the cream bar). Both
-          // states set every class; only the values change (no Android ghosting).
-          className={`min-h-touch flex-1 flex-row items-center justify-center gap-1.5 rounded-full border px-3 ${
-            canUndo
-              ? 'border-line-strong bg-surface active:bg-muted'
-              : 'border-line bg-muted active:bg-muted'
-          }`}
-        >
-          <Ionicons name="arrow-undo" size={18} color={canUndo ? COLORS.ink : COLORS.inkMuted} />
-          <Text className={`text-base font-semibold ${canUndo ? 'text-ink' : 'text-ink-muted'}`}>
-            Undo
-          </Text>
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          onPress={onDone}
-          className="min-h-touch flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-brand-strong"
-        >
-          <Ionicons name="checkmark" size={18} color={ON_FILL} />
-          <Text className="text-base font-semibold text-white">Done</Text>
-        </Pressable>
-      </View>
+        </>
+      ) : (
+        <>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Undo last formation change"
+            accessibilityState={{ disabled: !canUndo }}
+            disabled={!canUndo}
+            onPress={onUndo}
+            // Disabled is muted but still readable (a 40% fade washed out on the cream bar). Both
+            // states set every class; only the values change (no Android ghosting).
+            className={`min-h-touch flex-row items-center gap-1.5 rounded-full border px-3 ${
+              canUndo
+                ? 'border-line-strong bg-surface active:bg-muted'
+                : 'border-line bg-muted active:bg-muted'
+            }`}
+          >
+            <Ionicons name="arrow-undo" size={18} color={canUndo ? COLORS.ink : COLORS.inkMuted} />
+            <Text className={`text-base font-semibold ${canUndo ? 'text-ink' : 'text-ink-muted'}`}>
+              Undo
+            </Text>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={onDone}
+            className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-brand-strong"
+          >
+            <Ionicons name="checkmark" size={18} color={ON_FILL} />
+            <Text className="text-base font-semibold text-white">Done</Text>
+          </Pressable>
+        </>
+      )}
     </View>
   );
 }

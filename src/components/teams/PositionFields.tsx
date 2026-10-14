@@ -83,7 +83,7 @@ export function PositionFields({
               >
                 <Text
                   className={`text-sm font-semibold ${
-                    selected ? 'text-white' : unavailable ? 'text-ink-faint' : 'text-ink'
+                    selected ? 'text-white' : unavailable ? 'text-ink-muted' : 'text-ink'
                   }`}
                 >
                   {position}

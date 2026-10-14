@@ -118,8 +118,8 @@ export function ReorderList<T extends { id: number }>({
     const order = moveToIndex(current, id, current.indexOf(id) + delta);
     if (order.join(',') !== current.join(',') && save(order)) confirmHaptic();
   }, []);
-  // A selection is kept (but not shown) until the drop, so its banner doesn't vanish and
-  // shift every card up under the finger.
+  // A selection is kept (but not shown) until the drop, so the floating hint stays up through
+  // the drag ("Drop it where it should go").
   const dragStarted = useCallback(() => setDragging(true), []);
   const dropped = useCallback((order: number[]) => {
     setDragging(false);
@@ -141,48 +141,65 @@ export function ReorderList<T extends { id: number }>({
   }
 
   return (
-    <ScrollView
-      ref={scrollRef}
-      className="flex-1 bg-canvas"
-      contentContainerClassName="gap-3 p-4 pb-8"
-      scrollEnabled={!dragging}
-    >
-      {header}
+    <View className="flex-1 bg-canvas">
+      <ScrollView
+        ref={scrollRef}
+        className="flex-1"
+        // Room at the bottom so the last card can scroll clear of the floating hint.
+        contentContainerClassName="gap-3 p-4 pb-28"
+        scrollEnabled={!dragging}
+      >
+        {header}
+        <View style={{ height: Math.max(0, items.length * slotHeight - GAP) }}>
+          {byId.map((item) => (
+            <ReorderRow
+              key={item.id}
+              id={item.id}
+              label={accessibilityLabel(item)}
+              name={name(item)}
+              borderClass={
+                item.id === activeSelectedId ? 'border-select-strong' : borderClass(item)
+              }
+              isSelected={item.id === activeSelectedId}
+              count={items.length}
+              initialTop={ids.indexOf(item.id) * slotHeight}
+              positions={positions}
+              slot={slot}
+              scrollRef={scrollRef}
+              onMeasure={measured}
+              opensOnPress={activeSelectedId === null}
+              onPress={() => tapped(item)}
+              onHandleTap={handleTapped}
+              onStep={stepped}
+              onDragStart={dragStarted}
+              onDrop={dropped}
+            >
+              {renderBody(item)}
+            </ReorderRow>
+          ))}
+        </View>
+        {footer}
+      </ScrollView>
+      {/* Over the list, not in it: appearing must not push the cards down under the thumb. It
+          has nothing to press, so touches pass through to the cards and scrolling below it. */}
       {selected && (
-        <Text accessibilityLiveRegion="polite" className="text-base font-medium text-ink">
-          {dragging
-            ? 'Drop it where it should go.'
-            : `Tap where ${name(selected)} should go, or tap it again to cancel.`}
-        </Text>
-      )}
-      <View style={{ height: Math.max(0, items.length * slotHeight - GAP) }}>
-        {byId.map((item) => (
-          <ReorderRow
-            key={item.id}
-            id={item.id}
-            label={accessibilityLabel(item)}
-            name={name(item)}
-            borderClass={item.id === activeSelectedId ? 'border-yellow-400' : borderClass(item)}
-            isSelected={item.id === activeSelectedId}
-            count={items.length}
-            initialTop={ids.indexOf(item.id) * slotHeight}
-            positions={positions}
-            slot={slot}
-            scrollRef={scrollRef}
-            onMeasure={measured}
-            opensOnPress={activeSelectedId === null}
-            onPress={() => tapped(item)}
-            onHandleTap={handleTapped}
-            onStep={stepped}
-            onDragStart={dragStarted}
-            onDrop={dropped}
+        <View
+          pointerEvents="none"
+          className="absolute right-4 bottom-4 left-4 min-h-touch-lg justify-center rounded-xl border-2 border-select-strong bg-select-tint px-4 py-2"
+        >
+          <Text
+            accessibilityLiveRegion="polite"
+            numberOfLines={2}
+            maxFontSizeMultiplier={1.15}
+            className="text-base font-medium text-ink"
           >
-            {renderBody(item)}
-          </ReorderRow>
-        ))}
-      </View>
-      {footer}
-    </ScrollView>
+            {dragging
+              ? 'Drop it where it should go.'
+              : `Tap where ${name(selected)} should go, or tap it again to cancel.`}
+          </Text>
+        </View>
+      )}
+    </View>
   );
 }
 
