@@ -257,6 +257,15 @@ export function periodName(periodNumber: number, periodCount: number): string {
   return `Period ${periodNumber}`;
 }
 
+/**
+ * The button that starts the next period. "2nd half" and "Period 3" read as the action, but a
+ * bare "Q2" doesn't, so quarters get a verb: "Start Q2".
+ */
+export function startPeriodLabel(periodNumber: number, periodCount: number): string {
+  const name = periodName(periodNumber, periodCount);
+  return periodCount === 4 ? `Start ${name}` : name;
+}
+
 /** What to call the break after a period ends. */
 export function breakName(periodNumber: number, periodCount: number): string {
   if (periodNumber >= periodCount) return 'Full time';

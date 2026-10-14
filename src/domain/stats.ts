@@ -153,3 +153,20 @@ export function sortSeasonTotals<T extends SeasonPlayerTotals>(
   const sign = direction === 'desc' ? -1 : 1;
   return [...rows].sort((a, b) => sign * (a[key] - b[key]));
 }
+
+export type ScorerCount = { playerId: number; goals: number };
+
+/**
+ * Players who scored, most goals first; ties keep the map's order (first goal first for
+ * `playerMatchStats`). Works for one match or a season's totals.
+ */
+export function topScorers(
+  stats: ReadonlyMap<number, Pick<PlayerMatchStats, 'goals'>>,
+  limit = Infinity,
+): ScorerCount[] {
+  return [...stats]
+    .filter(([, s]) => s.goals > 0)
+    .map(([playerId, s]) => ({ playerId, goals: s.goals }))
+    .sort((a, b) => b.goals - a.goals)
+    .slice(0, limit);
+}

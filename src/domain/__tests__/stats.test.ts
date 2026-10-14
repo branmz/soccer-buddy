@@ -5,6 +5,7 @@ import {
   playerMatchStats,
   seasonStats,
   sortSeasonTotals,
+  topScorers,
   type SeasonPlayerTotals,
 } from '../stats';
 import type { StartingLineup } from '../types';
@@ -164,5 +165,40 @@ describe('sortSeasonTotals', () => {
   it('does not mutate the input', () => {
     sortSeasonTotals(rows, 'goals');
     expect(rows.map((r) => r.playerId)).toEqual([1, 2, 3]);
+  });
+});
+
+describe('topScorers', () => {
+  const goals = (n: number) => ({ goals: n });
+
+  it('lists scorers, most goals first, ties in first-goal order', () => {
+    const stats = new Map([
+      [4, goals(1)],
+      [7, goals(0)],
+      [2, goals(2)],
+      [9, goals(1)],
+    ]);
+    expect(topScorers(stats)).toEqual([
+      { playerId: 2, goals: 2 },
+      { playerId: 4, goals: 1 },
+      { playerId: 9, goals: 1 },
+    ]);
+  });
+
+  it('keeps the top few', () => {
+    const stats = new Map([
+      [1, goals(3)],
+      [2, goals(2)],
+      [3, goals(1)],
+    ]);
+    expect(topScorers(stats, 2).map((s) => s.playerId)).toEqual([1, 2]);
+  });
+
+  it('works from a match log', () => {
+    const scored = (playerId: number) => event(10, { eventType: 'goal', playerId });
+    expect(topScorers(playerMatchStats([scored(5), scored(8), scored(8)]))).toEqual([
+      { playerId: 8, goals: 2 },
+      { playerId: 5, goals: 1 },
+    ]);
   });
 });
