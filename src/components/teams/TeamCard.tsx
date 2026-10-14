@@ -23,12 +23,12 @@ export function TeamCardBody({ team, isActive }: { team: TeamSummary; isActive: 
   return (
     <>
       <View className="flex-row items-center gap-2">
-        <Text numberOfLines={1} className="shrink text-2xl font-bold text-gray-900">
+        <Text numberOfLines={1} className="shrink text-2xl font-bold text-ink">
           {team.name}
         </Text>
         {isActive && (
-          <View className="rounded-full bg-green-100 px-2.5 py-0.5">
-            <Text className="text-sm font-semibold text-pitch-dark">Active</Text>
+          <View className="rounded-full bg-brand-tint-strong px-2.5 py-0.5">
+            <Text className="text-sm font-semibold text-brand-strong">Active</Text>
           </View>
         )}
       </View>
@@ -39,7 +39,7 @@ export function TeamCardBody({ team, isActive }: { team: TeamSummary; isActive: 
             {team.awayColor && <ColorSwatch color={team.awayColor} size={20} />}
           </View>
         )}
-        <Text className="text-base text-gray-600">
+        <Text className="text-base text-ink-soft">
           {team.fieldSize}v{team.fieldSize} · {team.activePlayerCount} {playerLabel}
         </Text>
       </View>

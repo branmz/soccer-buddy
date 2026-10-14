@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
-import { BRAND } from '@/constants/colors';
+import { COLORS } from '@/constants/colors';
 import { userMessage } from '@/db/repositories/errors';
 import { createPreset, deletePreset, updatePreset } from '@/db/repositories/presets';
 import type { Player } from '@/db/schema';
@@ -123,9 +123,9 @@ function PresetForm({
         />
       )}
       {pairs.map((pair, index) => (
-        <View key={index} className="gap-2 rounded-xl border border-gray-200 p-3">
+        <View key={index} className="gap-2 rounded-xl border border-line p-3">
           <View className="flex-row items-center gap-2">
-            <Text className="flex-1 text-sm font-semibold text-gray-500 uppercase">
+            <Text className="flex-1 text-sm font-semibold text-ink-muted uppercase">
               Sub {index + 1}
             </Text>
             {pairs.length > 1 && (
@@ -137,9 +137,9 @@ function PresetForm({
                   setPairs((list) => list.filter((_, i) => i !== index));
                   setPicking(null);
                 }}
-                className="h-9 w-9 items-center justify-center rounded-full active:bg-red-50"
+                className="h-9 w-9 items-center justify-center rounded-full active:bg-danger-tint"
               >
-                <Ionicons name="trash-outline" size={20} color="#dc2626" />
+                <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
               </Pressable>
             )}
           </View>
@@ -155,17 +155,17 @@ function PresetForm({
                   accessibilityState={{ expanded: active }}
                   onPress={() => setPicking(active ? null : { index, side })}
                   className={`min-h-12 flex-1 flex-row items-center gap-2 rounded-xl border px-2 ${
-                    active ? 'border-brand bg-green-50' : 'border-gray-300 bg-white'
+                    active ? 'border-brand bg-brand-tint' : 'border-line-strong bg-surface'
                   }`}
                 >
                   <Ionicons
                     name={side === 'out' ? 'arrow-down-circle' : 'arrow-up-circle'}
                     size={22}
-                    color={side === 'out' ? '#dc2626' : BRAND}
+                    color={side === 'out' ? COLORS.danger : COLORS.brand}
                   />
                   <Text
                     numberOfLines={1}
-                    className={`flex-1 text-base ${player ? 'font-semibold text-gray-900' : 'text-gray-500'}`}
+                    className={`flex-1 text-base ${player ? 'font-semibold text-ink' : 'text-ink-muted'}`}
                   >
                     {player?.name ?? (side === 'out' ? 'Off' : 'On')}
                   </Text>
@@ -182,10 +182,10 @@ function PresetForm({
                     key={p.id}
                     accessibilityRole="button"
                     onPress={() => setPlayer(index, picking.side, p.id)}
-                    className="min-h-11 flex-row items-center gap-1.5 rounded-full border border-gray-200 bg-white py-1 pr-3 pl-1 active:bg-gray-100"
+                    className="min-h-11 flex-row items-center gap-1.5 rounded-full border border-line bg-surface py-1 pr-3 pl-1 active:bg-muted"
                   >
                     <JerseyBadge number={p.jerseyNumber} kitColor={kitColor} size={30} />
-                    <Text className="text-sm font-semibold text-gray-900">{p.name}</Text>
+                    <Text className="text-sm font-semibold text-ink">{p.name}</Text>
                   </Pressable>
                 ))}
             </View>
@@ -202,7 +202,7 @@ function PresetForm({
         }}
       />
       {error && (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-red-600">
+        <Text accessibilityLiveRegion="polite" className="text-sm text-danger">
           {error}
         </Text>
       )}

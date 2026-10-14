@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { KitShirt } from '@/components/teams/KitShirt';
+import { COLORS } from '@/constants/colors';
 import { eventsQuery } from '@/db/repositories/events';
 import { matchPeriodsQuery } from '@/db/repositories/matches';
 import { matchEvents, matchPeriods, type Match } from '@/db/schema';
@@ -24,11 +25,11 @@ const CARD = {
     soft: 'text-green-100',
     strong: 'text-white',
     pill: 'bg-white',
-    pillText: 'text-pitch-dark',
-    pillIcon: '#1b5e20',
+    pillText: 'text-brand-strong',
+    pillIcon: COLORS.brandStrong,
   },
   paused: {
-    box: 'bg-amber-400',
+    box: 'bg-paused',
     soft: 'text-gray-800',
     strong: 'text-gray-950',
     pill: 'bg-gray-950',

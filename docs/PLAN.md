@@ -21,7 +21,8 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | UX review 1: contrast, paused state, red-card confirm, Teams polish       | ✅ merged    | #17       |
 | —   | UX review 2: kit color off controls, History, live press feedback         | ✅ merged    | #18       |
 | —   | UX review 3: thumb-zone clock, quick-sub preview, buzz, ghosting, rings   | ✅ merged    | #19       |
-| —   | UX review 4: Game Day season snapshot, Delete buttons, ⋮, Start Q2        | 🚧 in review | —         |
+| —   | UX review 4: Game Day season snapshot, Delete buttons, ⋮, Start Q2        | ✅ merged    | #20       |
+| —   | Theme tokens: colors from `global.css` + `COLORS`, not literal classes    | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -188,8 +189,13 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
   `useMatchClock` (re-renders; call `refresh()` after a clock write), `usePressScale`;
   `appStore`, `boardStore` (formation editor and match lineup editor); `src/lib/haptics.ts`
   (`confirmHaptic`, `rejectHaptic`, `tapHaptic`, `periodEndHaptic`).
-- **Theme:** tokens in `src/global.css` (`brand` `#15803d`, `select` / `select-strong` cyan,
-  pitch greens); `src/constants/colors.ts` (`BRAND` for icon props);
+- **Theme:** every app color is a semantic token in `src/global.css`: surfaces (`canvas`,
+  `surface`, `muted`), `line`s, `ink` text, `brand`, `danger`, `warning`, `paused`, `select`,
+  pitch greens. `src/constants/colors.ts` mirrors them as `COLORS` (plus `ON_FILL`) for icon
+  and switch props, and `colors.test.ts` fails if the two drift. Literal palette classes are
+  left only where the color is fixed by what it sits on (text on solid fills, the pitch,
+  referee cards). Set up so colors change in one place, and as the base for a dark mode
+  (not planned: dark screens glare in sunlight; if added, as an opt-in setting).
   `src/constants/navigation.ts` (`STACK_OPTIONS`: slide transitions).
 - **Pitch** (`src/components/pitch`): `FormationBoard`, `Pitch`, `PitchMarkings`,
   `PlayerToken` (+ minutes badge, booked, locked, highlight rings, `ContributionMarks`),

@@ -76,7 +76,7 @@ export default function HistoryScreen() {
 
   if (results.length === 0) {
     return (
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1 bg-canvas">
         <EmptyState
           icon="time-outline"
           title="No finished matches"
@@ -99,11 +99,11 @@ export default function HistoryScreen() {
 
   if (tab === 'season') {
     return (
-      <ScrollView className="flex-1 bg-gray-50" contentContainerClassName="gap-3 p-4 pb-8">
+      <ScrollView className="flex-1 bg-canvas" contentContainerClassName="gap-3 p-4 pb-8">
         {tabs}
         <SeasonRecordCard record={stats.record} />
         {/* Above the table, where the abbreviations are read (it was below the fold). */}
-        <Text className="px-1 text-sm text-gray-500">
+        <Text className="px-1 text-sm text-ink-muted">
           Apps: matches played in. St: starts. Min: minutes on the pitch. Tap a column to sort.
         </Text>
         <SeasonTable
@@ -116,7 +116,7 @@ export default function HistoryScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-canvas">
       <FlatList
         data={results}
         keyExtractor={(item) => String(item.match.id)}

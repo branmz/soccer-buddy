@@ -8,6 +8,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { ON_FILL } from '@/constants/colors';
 import { breakName, periodName, type ClockState, type EndClockAction } from '@/domain/clock';
 import type { Score } from '@/domain/stats';
 import { capitalizeWords } from '@/domain/text';
@@ -57,11 +58,11 @@ const BAR = {
     soft: 'text-green-100',
     subs: 'text-green-200',
     strong: 'text-white',
-    icon: '#ffffff',
+    icon: ON_FILL,
     press: 'active:bg-white/10',
   },
   paused: {
-    box: 'bg-amber-400',
+    box: 'bg-paused',
     soft: 'text-gray-900',
     subs: 'text-gray-900',
     strong: 'text-gray-950',
@@ -98,7 +99,7 @@ export function ClockBar({
   // Every state sets the same classes (no Android ghosting); only the values change.
   const subsClass =
     subsLeft !== null && subsLeft <= 0
-      ? 'rounded bg-red-600 px-1.5 text-white'
+      ? 'rounded bg-danger px-1.5 text-white'
       : subsLeft === 1
         ? 'rounded bg-white px-1.5 text-amber-800'
         : `rounded bg-transparent px-0 ${bar.subs}`;
@@ -208,7 +209,7 @@ const TONE = {
   outline: {
     box: 'border-white/60 bg-transparent active:bg-white/10',
     text: 'text-white',
-    icon: '#ffffff',
+    icon: ON_FILL,
   },
   outlineDark: {
     box: 'border-gray-900/60 bg-transparent active:bg-black/10',

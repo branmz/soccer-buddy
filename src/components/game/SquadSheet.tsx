@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { Sheet } from '@/components/ui/Sheet';
-import { BRAND } from '@/constants/colors';
+import { COLORS } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 
 type SquadSheetProps = {
@@ -28,7 +28,7 @@ export function SquadSheet({
   const here = roster.filter((p) => squad.has(p.id)).length;
   return (
     <Sheet visible={visible} title={`Who's here? ${here} of ${roster.length}`} onClose={onClose}>
-      <Text className="text-base text-gray-600">
+      <Text className="text-base text-ink-soft">
         Tap a player to mark them absent. Absent players leave the lineup and quick subs skip them.
         If they turn up late, add them from the live match&apos;s ⋮ menu.
       </Text>
@@ -41,7 +41,7 @@ export function SquadSheet({
               accessibilityRole="checkbox"
               accessibilityState={{ checked: isHere }}
               onPress={() => onToggle(player.id)}
-              className="min-h-14 flex-row items-center gap-3 border-b border-gray-100 active:bg-gray-50"
+              className="min-h-14 flex-row items-center gap-3 border-b border-muted active:bg-canvas"
             >
               <JerseyBadge
                 number={player.jerseyNumber}
@@ -51,17 +51,17 @@ export function SquadSheet({
               />
               <Text
                 numberOfLines={1}
-                className={`flex-1 text-base font-semibold ${isHere ? 'text-gray-900' : 'text-gray-500'}`}
+                className={`flex-1 text-base font-semibold ${isHere ? 'text-ink' : 'text-ink-muted'}`}
               >
                 {player.name}
               </Text>
-              <Text className={`text-sm ${isHere ? 'text-brand' : 'text-gray-500'}`}>
+              <Text className={`text-sm ${isHere ? 'text-brand' : 'text-ink-muted'}`}>
                 {isHere ? 'Here' : 'Absent'}
               </Text>
               <Ionicons
                 name={isHere ? 'checkbox' : 'square-outline'}
                 size={26}
-                color={isHere ? BRAND : '#6b7280'}
+                color={isHere ? COLORS.brand : COLORS.inkMuted}
               />
             </Pressable>
           );

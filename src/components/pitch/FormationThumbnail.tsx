@@ -1,11 +1,12 @@
 import Svg, { Circle, Line, Rect } from 'react-native-svg';
 
+import { COLORS, ON_FILL } from '@/constants/colors';
 import type { FormationSlot } from '@/domain/types';
 
 import { PITCH_ASPECT } from './PitchMarkings';
 
-const GRASS = '#2e7d32';
-const LINE = '#e8f5e9';
+const GRASS = COLORS.pitch;
+const LINE = COLORS.pitchLine;
 const DOT_RADIUS = 0.055;
 
 type FormationThumbnailProps = {
@@ -26,8 +27,8 @@ export function FormationThumbnail({ slots, height = 56 }: FormationThumbnailPro
           cx={slot.x * PITCH_ASPECT}
           cy={slot.y}
           r={DOT_RADIUS}
-          fill={slot.playerId === undefined ? 'none' : '#ffffff'}
-          stroke="#ffffff"
+          fill={slot.playerId === undefined ? 'none' : ON_FILL}
+          stroke={ON_FILL}
           strokeWidth={0.02}
         />
       ))}

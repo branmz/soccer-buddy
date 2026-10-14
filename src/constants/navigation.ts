@@ -1,5 +1,7 @@
 import type { NativeStackNavigationOptions } from 'expo-router';
 
+import { COLORS } from '@/constants/colors';
+
 /**
  * Screen options shared by every tab's stack.
  *
@@ -10,6 +12,6 @@ import type { NativeStackNavigationOptions } from 'expo-router';
  * compiling and silently doing nothing.
  */
 export const STACK_OPTIONS = {
-  headerTintColor: '#1b5e20',
+  headerTintColor: COLORS.brandStrong,
   animation: 'slide_from_right',
 } as const satisfies NativeStackNavigationOptions;

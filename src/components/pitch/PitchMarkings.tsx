@@ -1,5 +1,7 @@
 import Svg, { Circle, Line, Path, Rect } from 'react-native-svg';
 
+import { COLORS } from '@/constants/colors';
+
 // Drawn in metres on a 68 × 105 m pitch, own goal at the bottom, then stretched to fit.
 const W = 68;
 const H = 105;
@@ -10,9 +12,9 @@ const SIX_YARD = { width: 18.3, depth: 5.5 };
 const SPOT_DISTANCE = 11;
 const CIRCLE_RADIUS = 9.15;
 
-const GRASS = '#2e7d32';
-const GRASS_LIGHT = '#338a37';
-const LINE = '#e8f5e9';
+const GRASS = COLORS.pitch;
+const GRASS_LIGHT = COLORS.pitchStripe;
+const LINE = COLORS.pitchLine;
 
 /** Width ÷ height of a real pitch; the board keeps this so circles stay round. */
 export const PITCH_ASPECT = W / H;

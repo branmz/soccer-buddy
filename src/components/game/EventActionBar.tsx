@@ -3,6 +3,7 @@ import type { ComponentProps, ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
+import { COLORS, ON_FILL } from '@/constants/colors';
 import type { MainClockAction } from '@/domain/clock';
 import { capitalizeWords } from '@/domain/text';
 import { usePressScale } from '@/hooks/usePressScale';
@@ -59,7 +60,7 @@ export function EventActionBar({
 }: EventActionBarProps) {
   return (
     <View
-      className="flex-row gap-1.5 border-t border-gray-200 bg-white px-2 pt-2"
+      className="flex-row gap-1.5 border-t border-line bg-surface px-2 pt-2"
       style={{ paddingBottom: Math.max(insetBottom, 8) }}
     >
       <ActionButton
@@ -111,14 +112,14 @@ function noop() {}
 // Each tone sets its border width too: the clock button switches tones as it's pressed.
 const TONE = {
   green: {
-    box: 'border border-brand bg-brand active:bg-pitch-dark',
+    box: 'border border-brand bg-brand active:bg-brand-strong',
     text: 'text-white',
-    icon: '#ffffff',
+    icon: ON_FILL,
   },
   dark: {
     box: 'border border-gray-900 bg-gray-900 active:bg-gray-700',
     text: 'text-white',
-    icon: '#ffffff',
+    icon: ON_FILL,
   },
   amber: {
     box: 'border border-amber-300 bg-amber-100 active:bg-amber-200',
@@ -126,27 +127,27 @@ const TONE = {
     icon: '#b45309',
   },
   gray: {
-    box: 'border border-gray-300 bg-white active:bg-gray-100',
-    text: 'text-gray-900',
-    icon: '#111827',
+    box: 'border border-line-strong bg-surface active:bg-muted',
+    text: 'text-ink',
+    icon: COLORS.ink,
   },
   /** Pause: a heavy dark outline, so it doesn't read like the plain white Undo. */
   pause: {
-    box: 'border-2 border-gray-900 bg-white active:bg-gray-100',
+    box: 'border-2 border-gray-900 bg-surface active:bg-muted',
     text: 'text-gray-950',
     icon: '#030712',
   },
   /** Resume, next period, end match: solid amber, like the paused clock bar. */
   go: {
-    box: 'border-2 border-amber-500 bg-amber-400 active:bg-amber-500',
+    box: 'border-2 border-paused-strong bg-paused active:bg-paused-strong',
     text: 'text-gray-950',
     icon: '#030712',
   },
   /** Any button while disabled: muted but readable, not a 40% fade. */
   disabled: {
-    box: 'border border-gray-200 bg-gray-100 active:bg-gray-100',
-    text: 'text-gray-500',
-    icon: '#6b7280',
+    box: 'border border-line bg-muted active:bg-muted',
+    text: 'text-ink-muted',
+    icon: COLORS.inkMuted,
   },
 } as const;
 

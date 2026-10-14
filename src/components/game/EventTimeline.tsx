@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Text, View } from 'react-native';
 
-import { BRAND } from '@/constants/colors';
+import { COLORS } from '@/constants/colors';
 import type { TimelineEntry, TimelineKind } from '@/domain/timeline';
 
 import { RefereeCardIcon } from './RefereeCardIcon';
@@ -13,11 +13,11 @@ const KIND_ICON: Record<
   Exclude<TimelineKind, 'yellow' | 'red'>,
   { name: IconName; color: string }
 > = {
-  goal: { name: 'football', color: BRAND },
-  opponentGoal: { name: 'football-outline', color: '#6b7280' },
-  sub: { name: 'swap-vertical', color: '#1b5e20' },
-  swap: { name: 'shuffle', color: '#6b7280' },
-  arrival: { name: 'person-add', color: '#1b5e20' },
+  goal: { name: 'football', color: COLORS.brand },
+  opponentGoal: { name: 'football-outline', color: COLORS.inkMuted },
+  sub: { name: 'swap-vertical', color: COLORS.brandStrong },
+  swap: { name: 'shuffle', color: COLORS.inkMuted },
+  arrival: { name: 'person-add', color: COLORS.brandStrong },
 };
 
 /** The match log, newest first. */
@@ -29,7 +29,7 @@ export function EventTimeline({
   emptyText?: string;
 }) {
   if (entries.length === 0) {
-    return <Text className="text-base text-gray-500">{emptyText}</Text>;
+    return <Text className="text-base text-ink-muted">{emptyText}</Text>;
   }
   return (
     <View>
@@ -37,10 +37,10 @@ export function EventTimeline({
         <View
           key={entry.key}
           accessible
-          className="min-h-12 flex-row items-center gap-3 border-b border-gray-100 py-2"
+          className="min-h-12 flex-row items-center gap-3 border-b border-muted py-2"
         >
           <Text
-            className="w-14 text-right text-base font-bold text-gray-500"
+            className="w-14 text-right text-base font-bold text-ink-muted"
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {entry.minute}
@@ -54,7 +54,7 @@ export function EventTimeline({
               color={KIND_ICON[entry.kind].color}
             />
           )}
-          <Text className="flex-1 text-base text-gray-900">{entry.text}</Text>
+          <Text className="flex-1 text-base text-ink">{entry.text}</Text>
         </View>
       ))}
     </View>

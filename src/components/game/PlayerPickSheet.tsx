@@ -46,15 +46,15 @@ export function PlayerPickSheet({
               accessibilityRole="button"
               accessibilityLabel={[player.name, note].filter(Boolean).join(', ')}
               onPress={() => onPick(player.id)}
-              className="min-h-14 w-[48%] flex-row items-center gap-2 rounded-xl border border-gray-200 bg-white px-2 active:bg-gray-100"
+              className="min-h-14 w-[48%] flex-row items-center gap-2 rounded-xl border border-line bg-surface px-2 active:bg-muted"
             >
               <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={36} />
               <View className="flex-1">
-                <Text numberOfLines={1} className="text-base font-semibold text-gray-900">
+                <Text numberOfLines={1} className="text-base font-semibold text-ink">
                   {player.name}
                 </Text>
                 {note && (
-                  <Text numberOfLines={1} className="text-xs text-gray-500">
+                  <Text numberOfLines={1} className="text-xs text-ink-muted">
                     {note}
                   </Text>
                 )}
@@ -63,14 +63,14 @@ export function PlayerPickSheet({
           );
         })}
       </View>
-      {players.length === 0 && <Text className="text-base text-gray-500">{emptyText}</Text>}
+      {players.length === 0 && <Text className="text-base text-ink-muted">{emptyText}</Text>}
       {noneLabel && (
         <Pressable
           accessibilityRole="button"
           onPress={() => onPick(null)}
-          className="min-h-12 items-center justify-center rounded-xl border border-gray-300 bg-white active:bg-gray-100"
+          className="min-h-12 items-center justify-center rounded-xl border border-line-strong bg-surface active:bg-muted"
         >
-          <Text className="text-base font-semibold text-gray-700">{noneLabel}</Text>
+          <Text className="text-base font-semibold text-ink-soft">{noneLabel}</Text>
         </Pressable>
       )}
     </Sheet>

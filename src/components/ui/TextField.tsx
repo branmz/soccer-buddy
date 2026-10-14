@@ -1,6 +1,7 @@
 import type { Ref } from 'react';
 import { Text, TextInput, View, type TextInputProps } from 'react-native';
 
+import { COLORS } from '@/constants/colors';
 import { capitalizeWords } from '@/domain/text';
 
 type TextFieldProps = Omit<TextInputProps, 'className'> & {
@@ -14,23 +15,27 @@ type TextFieldProps = Omit<TextInputProps, 'className'> & {
 };
 
 export function TextField({ label, error, warning, ...inputProps }: TextFieldProps) {
-  const borderClass = error ? 'border-red-500' : warning ? 'border-amber-500' : 'border-gray-300';
+  const borderClass = error
+    ? 'border-danger'
+    : warning
+      ? 'border-warning-edge'
+      : 'border-line-strong';
   return (
     <View className="gap-1">
-      <Text className="text-sm font-medium text-gray-700">{capitalizeWords(label)}</Text>
+      <Text className="text-sm font-medium text-ink-soft">{capitalizeWords(label)}</Text>
       <TextInput
         accessibilityLabel={label}
         // gray-500: gray-400 placeholders wash out in sunlight.
-        placeholderTextColor="#6b7280"
-        className={`min-h-12 rounded-xl border bg-white px-3 text-base text-gray-900 ${borderClass}`}
+        placeholderTextColor={COLORS.inkMuted}
+        className={`min-h-12 rounded-xl border bg-surface px-3 text-base text-ink ${borderClass}`}
         {...inputProps}
       />
       {error ? (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-red-600">
+        <Text accessibilityLiveRegion="polite" className="text-sm text-danger">
           {error}
         </Text>
       ) : warning ? (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-amber-700">
+        <Text accessibilityLiveRegion="polite" className="text-sm text-warning">
           {warning}
         </Text>
       ) : null}

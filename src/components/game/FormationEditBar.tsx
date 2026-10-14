@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
+import { COLORS, ON_FILL } from '@/constants/colors';
 import { positionOptionsFor } from '@/domain/board';
 import type { FormationSlot } from '@/domain/types';
 
@@ -13,28 +14,28 @@ type FormationBarProps = {
 /** Above the live pitch: the formation (tap to switch it) and the way into editing its shape. */
 export function FormationBar({ formationName, onSwitch, onEdit }: FormationBarProps) {
   return (
-    <View className="min-h-12 flex-row items-center gap-2 border-b border-gray-200 bg-white px-3 py-1">
+    <View className="min-h-12 flex-row items-center gap-2 border-b border-line bg-surface px-3 py-1">
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Formation ${formationName ?? ''}. Switch formation`}
         onPress={onSwitch}
-        className="min-h-12 shrink flex-row items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 active:bg-gray-100"
+        className="min-h-12 shrink flex-row items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
       >
-        <Ionicons name="grid-outline" size={18} color="#374151" />
-        <Text numberOfLines={1} className="shrink text-base font-bold text-gray-900">
+        <Ionicons name="grid-outline" size={18} color={COLORS.inkSoft} />
+        <Text numberOfLines={1} className="shrink text-base font-bold text-ink">
           {formationName ?? 'Formation'}
         </Text>
-        <Ionicons name="chevron-down" size={18} color="#374151" />
+        <Ionicons name="chevron-down" size={18} color={COLORS.inkSoft} />
       </Pressable>
       <View className="flex-1" />
       <Pressable
         accessibilityRole="button"
         accessibilityHint="Move spots or change their positions during the match"
         onPress={onEdit}
-        className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-green-200 bg-green-50 px-4 active:bg-green-100"
+        className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-brand-edge bg-brand-tint px-4 active:bg-brand-tint-strong"
       >
-        <Ionicons name="move" size={18} color="#1b5e20" />
-        <Text className="text-base font-semibold text-pitch-dark">Edit Formation</Text>
+        <Ionicons name="move" size={18} color={COLORS.brandStrong} />
+        <Text className="text-base font-semibold text-brand-strong">Edit Formation</Text>
       </Pressable>
     </View>
   );
@@ -70,7 +71,7 @@ export function FormationEditBar({
         <Text
           accessibilityLiveRegion="polite"
           numberOfLines={2}
-          className="flex-1 text-base font-medium text-gray-900"
+          className="flex-1 text-base font-medium text-ink"
         >
           {hint}
         </Text>
@@ -79,10 +80,10 @@ export function FormationEditBar({
             accessibilityRole="button"
             accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
             onPress={() => onChangePosition(selectedSlot)}
-            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-white px-3 active:bg-green-50"
+            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
           >
-            <Text className="text-lg font-bold text-pitch-dark">{selectedSlot.label}</Text>
-            <Ionicons name="chevron-down" size={18} color="#1b5e20" />
+            <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
+            <Ionicons name="chevron-down" size={18} color={COLORS.brandStrong} />
           </Pressable>
         )}
       </View>
@@ -98,23 +99,21 @@ export function FormationEditBar({
           // states set every class; only the values change (no Android ghosting).
           className={`min-h-12 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border px-3 ${
             canUndo
-              ? 'border-gray-300 bg-white active:bg-gray-100'
-              : 'border-gray-200 bg-gray-100 active:bg-gray-100'
+              ? 'border-line-strong bg-surface active:bg-muted'
+              : 'border-line bg-muted active:bg-muted'
           }`}
         >
-          <Ionicons name="arrow-undo" size={18} color={canUndo ? '#111827' : '#6b7280'} />
-          <Text
-            className={`text-base font-semibold ${canUndo ? 'text-gray-900' : 'text-gray-500'}`}
-          >
+          <Ionicons name="arrow-undo" size={18} color={canUndo ? COLORS.ink : COLORS.inkMuted} />
+          <Text className={`text-base font-semibold ${canUndo ? 'text-ink' : 'text-ink-muted'}`}>
             Undo
           </Text>
         </Pressable>
         <Pressable
           accessibilityRole="button"
           onPress={onDone}
-          className="min-h-12 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-pitch-dark"
+          className="min-h-12 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-brand-strong"
         >
-          <Ionicons name="checkmark" size={18} color="#ffffff" />
+          <Ionicons name="checkmark" size={18} color={ON_FILL} />
           <Text className="text-base font-semibold text-white">Done</Text>
         </Pressable>
       </View>

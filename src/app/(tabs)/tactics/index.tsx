@@ -91,7 +91,7 @@ export default function TacticsScreen() {
         <>
           <SectionTitle>Saved · {saved.length}</SectionTitle>
           {saved.length === 0 && (
-            <Text className="text-base text-gray-500">
+            <Text className="text-base text-ink-muted">
               No saved formations for {team.name} yet. Pick a preset below to start one.
             </Text>
           )}
@@ -108,7 +108,7 @@ export default function TacticsScreen() {
               accessibilityRole="button"
               accessibilityLabel={`${row.name}, ${formationDetail(row, fieldSize)}`}
               onPress={() => openPreset(row)}
-              className="min-h-24 justify-center rounded-2xl border-2 border-gray-200 bg-white px-5 py-5 active:bg-gray-50"
+              className="min-h-24 justify-center rounded-2xl border-2 border-line bg-surface px-5 py-5 active:bg-canvas"
             >
               <FormationRowBody row={row} fieldSize={fieldSize} />
             </Pressable>
@@ -120,7 +120,7 @@ export default function TacticsScreen() {
 }
 
 function SectionTitle({ children }: { children: ReactNode }) {
-  return <Text className="pt-2 text-sm font-semibold text-gray-500 uppercase">{children}</Text>;
+  return <Text className="pt-2 text-sm font-semibold text-ink-muted uppercase">{children}</Text>;
 }
 
 function formationDetail(row: SavedRow | PresetRow, fieldSize: number): string {
@@ -135,10 +135,10 @@ function FormationRowBody({ row, fieldSize }: { row: SavedRow | PresetRow; field
     <View className="flex-row items-center gap-4">
       <FormationThumbnail slots={row.slots} height={72} />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={1} className="text-2xl font-bold text-gray-900">
+        <Text numberOfLines={1} className="text-2xl font-bold text-ink">
           {row.name}
         </Text>
-        <Text className="text-base text-gray-600">{formationDetail(row, fieldSize)}</Text>
+        <Text className="text-base text-ink-soft">{formationDetail(row, fieldSize)}</Text>
       </View>
     </View>
   );

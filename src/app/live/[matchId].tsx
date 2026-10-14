@@ -519,7 +519,7 @@ export default function LiveMatchScreen() {
         return {
           title: 'Who just arrived?',
           header: (
-            <Text className="text-base text-gray-600">They join the bench, ready to come on.</Text>
+            <Text className="text-base text-ink-soft">They join the bench, ready to come on.</Text>
           ),
           players: notHere,
           noteFor: (player: Player) => formatPositions(player) || null,
@@ -552,13 +552,13 @@ export default function LiveMatchScreen() {
                   value: 'yellow',
                   icon: <RefereeCardIcon color="yellow" size={20} />,
                   selectedClassName: 'border-yellow-500 bg-yellow-300',
-                  selectedTextClassName: 'text-gray-900',
+                  selectedTextClassName: 'text-ink',
                 },
                 {
                   label: 'Red',
                   value: 'red',
                   icon: <RefereeCardIcon color="red" size={20} />,
-                  selectedClassName: 'border-red-700 bg-red-600',
+                  selectedClassName: 'border-danger-strong bg-danger',
                   selectedTextClassName: 'text-white',
                 },
               ]}
@@ -618,7 +618,7 @@ export default function LiveMatchScreen() {
           };
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className="flex-1 bg-muted">
       {/* The clock bar runs under the status bar: dark green, or amber while paused. */}
       <StatusBar style={clock.isPaused ? 'dark' : 'light'} />
       <KeepScreenAwake />
@@ -718,7 +718,7 @@ export default function LiveMatchScreen() {
         title="Second yellow"
         onClose={() => setSecondYellow((s) => ({ ...s, open: false }))}
       >
-        <Text className="text-base text-gray-700">
+        <Text className="text-base text-ink-soft">
           {secondYellow.playerId === null ? '' : nameOf(secondYellow.playerId)} already has a yellow
           card. A second yellow is a red: they leave the pitch and can&apos;t be replaced.
         </Text>
@@ -765,18 +765,18 @@ export default function LiveMatchScreen() {
         title={quickSub.preset?.presetName ?? 'Quick sub'}
         onClose={() => setQuickSub((q) => ({ ...q, open: false }))}
       >
-        <Text className="text-base text-gray-700">
+        <Text className="text-base text-ink-soft">
           {quickAllOk
             ? 'Call these players over, then make the subs.'
             : "Some of these subs can't be made now:"}
         </Text>
         {quickPairs.map((pair, i) => (
-          <View key={i} className="gap-0.5 border-b border-gray-100 pb-2">
-            <Text className="text-base font-semibold text-gray-900">
+          <View key={i} className="gap-0.5 border-b border-muted pb-2">
+            <Text className="text-base font-semibold text-ink">
               {nameOf(pair.inPlayerId)} on for {nameOf(pair.outPlayerId)}
             </Text>
             {!quickAllOk && (
-              <Text className={`text-sm ${quickSub.errors[i] ? 'text-red-600' : 'text-green-700'}`}>
+              <Text className={`text-sm ${quickSub.errors[i] ? 'text-danger' : 'text-brand'}`}>
                 {quickSub.errors[i] ?? 'OK'}
               </Text>
             )}

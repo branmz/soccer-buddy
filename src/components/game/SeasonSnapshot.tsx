@@ -19,17 +19,17 @@ type SeasonSnapshotProps = {
 export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps) {
   const { played, wins, draws, losses, goalsFor, goalsAgainst } = record;
   return (
-    <View className="gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3">
+    <View className="gap-3 rounded-2xl border border-line bg-surface px-4 py-3">
       <Line label="Record">
         <View
           accessible
           accessibilityLabel={`Won ${wins}, drawn ${draws}, lost ${losses}. ${played} played, ${goalsFor} goals for, ${goalsAgainst} against`}
           className="gap-0.5"
         >
-          <Text className="text-lg font-bold text-gray-900">
+          <Text className="text-lg font-bold text-ink">
             Won {wins} · Drawn {draws} · Lost {losses}
           </Text>
-          <Text className="text-sm text-gray-500">
+          <Text className="text-sm text-ink-muted">
             {played} played · GF–GA {goalsFor}–{goalsAgainst}
           </Text>
         </View>
@@ -43,11 +43,11 @@ export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps
           {form.map((result, i) => (
             <ResultBadge key={i} result={result} size="sm" />
           ))}
-          <Text className="pl-1 text-sm text-gray-500">newest first</Text>
+          <Text className="pl-1 text-sm text-ink-muted">newest first</Text>
         </View>
       </Line>
       <Line label="Top scorers">
-        <Text className="text-base text-gray-900">{topScorers ?? 'No goals yet'}</Text>
+        <Text className="text-base text-ink">{topScorers ?? 'No goals yet'}</Text>
       </Line>
     </View>
   );
@@ -56,7 +56,7 @@ export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps
 function Line({ label, children }: { label: string; children: ReactNode }) {
   return (
     <View className="gap-1">
-      <Text className="text-xs font-semibold text-gray-500 uppercase">{label}</Text>
+      <Text className="text-xs font-semibold text-ink-muted uppercase">{label}</Text>
       {children}
     </View>
   );

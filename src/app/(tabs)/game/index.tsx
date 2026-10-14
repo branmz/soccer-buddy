@@ -118,7 +118,7 @@ export default function GameDayScreen() {
   // Nothing to list yet: a centred prompt, like the other tabs' empty states.
   if (!live && drafts.length === 0 && !last) {
     return (
-      <View className="flex-1 bg-gray-50">
+      <View className="flex-1 bg-canvas">
         <EmptyState
           icon="stopwatch-outline"
           title="No matches set up"
@@ -131,7 +131,7 @@ export default function GameDayScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-canvas">
       <FlatList
         data={drafts}
         keyExtractor={(m) => String(m.id)}
@@ -148,7 +148,7 @@ export default function GameDayScreen() {
             )}
             <Button label="New match" icon="add" onPress={() => setNewOpen(true)} />
             {drafts.length > 0 && (
-              <Text className="pt-3 text-sm font-semibold text-gray-500 uppercase">
+              <Text className="pt-3 text-sm font-semibold text-ink-muted uppercase">
                 Not kicked off yet · {drafts.length}
               </Text>
             )}
@@ -157,7 +157,7 @@ export default function GameDayScreen() {
         ListFooterComponent={
           last && (
             <View className="gap-3">
-              <Text className="pt-3 text-sm font-semibold text-gray-500 uppercase">
+              <Text className="pt-3 text-sm font-semibold text-ink-muted uppercase">
                 Last result
               </Text>
               <MatchResultRow
@@ -171,7 +171,7 @@ export default function GameDayScreen() {
                   )
                 }
               />
-              <Text className="pt-3 text-sm font-semibold text-gray-500 uppercase">Season</Text>
+              <Text className="pt-3 text-sm font-semibold text-ink-muted uppercase">Season</Text>
               <SeasonSnapshot
                 record={snapshot.record}
                 form={snapshot.form}
@@ -190,13 +190,13 @@ export default function GameDayScreen() {
           <Pressable
             accessibilityRole="button"
             onPress={() => openSetup(item)}
-            className="min-h-16 flex-row items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 active:bg-gray-50"
+            className="min-h-16 flex-row items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 active:bg-canvas"
           >
             <View className="flex-1 gap-0.5">
-              <Text numberOfLines={1} className="text-lg font-bold text-gray-900">
+              <Text numberOfLines={1} className="text-lg font-bold text-ink">
                 vs {item.opponentName}
               </Text>
-              <Text className="text-sm text-gray-500">
+              <Text className="text-sm text-ink-muted">
                 {item.isHome ? 'Home' : 'Away'}
                 {item.formationName ? ` · ${item.formationName}` : ''} · {item.periodCount} ×{' '}
                 {item.periodLengthMinutes} min

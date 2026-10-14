@@ -40,7 +40,7 @@ export default function TeamsScreen() {
   const isActive = (team: TeamSummary) => team.id === activeTeam?.id;
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-canvas">
       <Stack.Screen
         options={{
           headerRight: () => (
@@ -68,7 +68,7 @@ export default function TeamsScreen() {
           name={(team) => team.name}
           accessibilityLabel={(team) => teamCardLabel(team, isActive(team))}
           renderBody={(team) => <TeamCardBody team={team} isActive={isActive(team)} />}
-          borderClass={(team) => (isActive(team) ? 'border-brand' : 'border-gray-200')}
+          borderClass={(team) => (isActive(team) ? 'border-brand' : 'border-line')}
           onOpen={openRoster}
           onReorder={saveOrder}
         />

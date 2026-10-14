@@ -53,7 +53,7 @@ function DeleteTeamForm({ team, onClose, onDeleted }: DeleteTeamFormProps) {
 
   return (
     <>
-      <Text className="text-base text-gray-700">
+      <Text className="text-base text-ink-soft">
         This permanently deletes <Text className="font-bold">{team.name}</Text> with its roster,
         formations, matches and stats. This can&apos;t be undone.
       </Text>

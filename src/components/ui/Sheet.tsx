@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { COLORS } from '@/constants/colors';
 import { capitalizeWords } from '@/domain/text';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 
@@ -94,7 +95,7 @@ export function Sheet({ visible, title, onClose, children }: SheetProps) {
           className="absolute inset-0 bg-black/40"
         />
         <View
-          className="rounded-t-3xl bg-white"
+          className="rounded-t-3xl bg-surface"
           // Sit on top of the keyboard. Android reports the keyboard height minus the navigation
           // bar (ReactRootView: ime.bottom - systemBars.bottom), so adding the bottom inset puts
           // the content flush with the keyboard's top edge. The height cap
@@ -114,14 +115,14 @@ export function Sheet({ visible, title, onClose, children }: SheetProps) {
           }}
         >
           <View className="flex-row items-center justify-between py-2 pr-2 pl-5">
-            <Text accessibilityRole="header" className="text-lg font-bold text-gray-900">
+            <Text accessibilityRole="header" className="text-lg font-bold text-ink">
               {capitalizeWords(title)}
             </Text>
-            <IconButton icon="close" label="Close" onPress={requestClose} color="#6b7280" />
+            <IconButton icon="close" label="Close" onPress={requestClose} color={COLORS.inkMuted} />
           </View>
           {confirming && (
             <View className="gap-4 px-5">
-              <Text accessibilityLiveRegion="polite" className="text-base text-gray-700">
+              <Text accessibilityLiveRegion="polite" className="text-base text-ink-soft">
                 Close without saving? Your changes will be lost.
               </Text>
               <Button

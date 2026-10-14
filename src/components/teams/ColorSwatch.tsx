@@ -16,7 +16,7 @@ export function ColorSwatch({ color, size = 20 }: ColorSwatchProps) {
       accessible={false}
       // Every state sets width, color and style (no class removed when the color changes,
       // which left a one-frame ghost outline on Android).
-      className={`rounded-full border ${outlined ? 'border-gray-300' : 'border-transparent'} ${
+      className={`rounded-full border ${outlined ? 'border-line-strong' : 'border-transparent'} ${
         color === null ? 'border-dashed' : 'border-solid'
       }`}
       // Kit colors are user data, so they can't be Tailwind classes.

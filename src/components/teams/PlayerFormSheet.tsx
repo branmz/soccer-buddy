@@ -5,7 +5,7 @@ import { PositionFields } from '@/components/teams/PositionFields';
 import { Button } from '@/components/ui/Button';
 import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
-import { BRAND } from '@/constants/colors';
+import { COLORS, ON_FILL } from '@/constants/colors';
 import { userMessage } from '@/db/repositories/errors';
 import { addPlayer, playerHasMatchHistory, updatePlayer } from '@/db/repositories/players';
 import type { Player } from '@/db/schema';
@@ -156,8 +156,8 @@ function PlayerForm({
       {player && (
         <View className="flex-row items-center justify-between">
           <View className="flex-1 pr-4">
-            <Text className="text-base font-medium text-gray-900">Active</Text>
-            <Text className="text-sm text-gray-500">
+            <Text className="text-base font-medium text-ink">Active</Text>
+            <Text className="text-sm text-ink-muted">
               Inactive players are hidden from formations and match day.
             </Text>
           </View>
@@ -169,8 +169,8 @@ function PlayerForm({
               setIsActive(value);
             }}
             // Android's default thumb is blue: white on our green, light on grey when off.
-            thumbColor={isActive ? '#ffffff' : '#f3f4f6'}
-            trackColor={{ false: '#9ca3af', true: BRAND }}
+            thumbColor={isActive ? ON_FILL : COLORS.muted}
+            trackColor={{ false: COLORS.inkFaint, true: COLORS.brand }}
           />
         </View>
       )}
@@ -191,7 +191,7 @@ function PlayerForm({
       )}
       {player &&
         (hasHistory ? (
-          <Text className="text-center text-sm text-gray-500">
+          <Text className="text-center text-sm text-ink-muted">
             {player.name} has match history, so they can&apos;t be deleted. Mark them inactive
             instead.
           </Text>

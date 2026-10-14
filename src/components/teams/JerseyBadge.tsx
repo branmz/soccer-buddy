@@ -1,10 +1,11 @@
 import { Text, View } from 'react-native';
 
+import { COLORS } from '@/constants/colors';
 import { needsOutline, readableTextColor } from '@/domain/colors';
 
 /** Used when the team has no home color. */
-const DEFAULT_KIT = '#2e7d32';
-const INACTIVE_KIT = '#d1d5db';
+const DEFAULT_KIT = COLORS.pitch;
+const INACTIVE_KIT = COLORS.lineStrong;
 
 type JerseyBadgeProps = {
   number: number | null;
@@ -26,7 +27,7 @@ type JerseyBadgeProps = {
 function outlineClass(background: string, inactive: boolean, onPitch: boolean): string {
   if (onPitch) return 'border-2 border-white';
   return needsOutline(background) && !inactive
-    ? 'border border-gray-300'
+    ? 'border border-line-strong'
     : 'border border-transparent';
 }
 

@@ -34,9 +34,9 @@ export function ConfirmSheet({
 }: ConfirmSheetProps) {
   return (
     <Sheet visible={visible} title={title} onClose={onClose}>
-      <Text className="text-base text-gray-700">{message}</Text>
+      <Text className="text-base text-ink-soft">{message}</Text>
       {error && (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-red-600">
+        <Text accessibilityLiveRegion="polite" className="text-sm text-danger">
           {error}
         </Text>
       )}

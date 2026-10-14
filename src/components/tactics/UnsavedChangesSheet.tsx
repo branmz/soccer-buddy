@@ -24,11 +24,11 @@ export function UnsavedChangesSheet({
 }: UnsavedChangesSheetProps) {
   return (
     <Sheet visible={visible} title="Save changes?" onClose={onClose}>
-      <Text className="text-base text-gray-700">
+      <Text className="text-base text-ink-soft">
         Your changes to <Text className="font-bold">{name}</Text> haven&apos;t been saved.
       </Text>
       {error && (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-red-600">
+        <Text accessibilityLiveRegion="polite" className="text-sm text-danger">
           {error}
         </Text>
       )}

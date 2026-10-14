@@ -2,6 +2,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Pressable } from 'react-native';
 
+import { COLORS } from '@/constants/colors';
+
 type IconButtonProps = {
   icon: ComponentProps<typeof Ionicons>['name'];
   /** Screen-reader label; required because the button has no visible text. */
@@ -16,7 +18,7 @@ export function IconButton({
   icon,
   label,
   onPress,
-  color = '#1b5e20',
+  color = COLORS.brandStrong,
   size = 24,
 }: IconButtonProps) {
   return (
@@ -25,7 +27,7 @@ export function IconButton({
       accessibilityLabel={label}
       hitSlop={8}
       onPress={onPress}
-      className="h-11 w-11 items-center justify-center rounded-full active:bg-gray-100"
+      className="h-11 w-11 items-center justify-center rounded-full active:bg-muted"
     >
       <Ionicons name={icon} size={size} color={color} />
     </Pressable>
