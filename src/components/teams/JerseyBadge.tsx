@@ -19,9 +19,15 @@ type JerseyBadgeProps = {
   onPitch?: boolean;
 };
 
+/**
+ * Always a border with a color, never none: toggling `inactive` (who's here, a locked bench)
+ * removed the class on light kits and left a one-frame ghost outline on Android.
+ */
 function outlineClass(background: string, inactive: boolean, onPitch: boolean): string {
   if (onPitch) return 'border-2 border-white';
-  return needsOutline(background) && !inactive ? 'border border-gray-300' : '';
+  return needsOutline(background) && !inactive
+    ? 'border border-gray-300'
+    : 'border border-transparent';
 }
 
 /** Circular jersey-number badge in the team's kit color, with a readable number. */

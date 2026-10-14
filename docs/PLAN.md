@@ -1,21 +1,26 @@
 # Soccer Buddy: Build Plan & Status
 
-The living plan for this app. Read it with `CLAUDE.md`, which has the stack, commands,
-architecture rules and git conventions. Update the **Status** section when a milestone merges.
+The living plan for this app. Read it with `CLAUDE.md`, which has the stack, commands and git
+conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `UI_RULES.md`
+(all in `docs/`). Update the **Status** section when a milestone merges.
 
-## Status (as of 2026-10-07)
+## Status (as of 2026-10-09)
 
-| #   | Milestone                                                   | State     | PR     |
-| --- | ----------------------------------------------------------- | --------- | ------ |
-| 1   | Scaffold, tooling, lint hook                                | ✅ merged | #1     |
-| 2   | DB layer: schema, migrations, repositories                  | ✅ merged | #2     |
-| —   | Claude code-review workflow + `code-reviewer` agent         | ✅ merged | #3, #4 |
-| 3   | Teams & roster (+ positions, kit colors, sort)              | ✅ merged | #5     |
-| 4   | Pitch & Tactics board                                       | ✅ merged | #7     |
-| 5   | Domain logic: clock, lineup, sub rules, playing time, stats | ✅ merged | #9     |
-| 6   | Game Day: setup, quick-sub presets, live match              | ✅ merged | #10    |
-| 7   | History & stats                                             | ✅ merged | #11    |
-| 8   | Polish & EAS preview APK                                    | ✅ merged | #12    |
+| #   | Milestone                                                                 | State        | PR        |
+| --- | ------------------------------------------------------------------------- | ------------ | --------- |
+| 1   | Scaffold, tooling, lint hook                                              | ✅ merged    | #1        |
+| 2   | DB layer: schema, migrations, repositories                                | ✅ merged    | #2        |
+| —   | Claude code-review workflow + `code-reviewer` agent                       | ✅ merged    | #3, #4    |
+| 3   | Teams & roster (+ positions, kit colors, sort)                            | ✅ merged    | #5        |
+| 4   | Pitch & Tactics board                                                     | ✅ merged    | #7        |
+| 5   | Domain logic: clock, lineup, sub rules, playing time, stats               | ✅ merged    | #9        |
+| 6   | Game Day: setup, quick-sub presets, live match                            | ✅ merged    | #10       |
+| 7   | History & stats                                                           | ✅ merged    | #11       |
+| 8   | Polish & EAS preview APK                                                  | ✅ merged    | #12, #13  |
+| —   | Device fixes: status bar, outdoor token contrast, bench drags, root route | ✅ merged    | #14 – #16 |
+| —   | UX review 1: contrast, paused state, red-card confirm, Teams polish       | ✅ merged    | #17       |
+| —   | UX review 2: kit color off controls, History, live press feedback         | ✅ merged    | #18       |
+| —   | UX review 3: thumb-zone clock, quick-sub preview, buzz, ghosting, rings   | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -52,7 +57,9 @@ architecture rules and git conventions. Update the **Status** section when a mil
   - **Exactly one GK:** the GK spot can't change position and no other spot can become GK.
   - **Undo** (bottom toolbar) steps back any spot or player change; renames aren't undone.
   - Picking up a bench player highlights open spots for their main (solid yellow) and second
-    (dashed) position, falling back to the same line when no exact spot is free.
+    (dashed) position, falling back to the same line when no exact spot is free. When no open
+    spot suits them (e.g. a full lineup), the taken spots that do get a yellow ring: dropping
+    them there swaps them in.
   - Bench players drag on a **sideways swipe** or after a short hold; vertical moves scroll.
   - Filled spots show the position chip above the badge and the name below.
   - The name in the editor header has a pencil and opens a **rename-only** sheet; **More**
@@ -69,10 +76,24 @@ architecture rules and git conventions. Update the **Status** section when a mil
     via **⋮ → Add late arrival** (a `late_arrival` event: onto the bench, undoable).
   - **Subs are made on the board**: drag (or tap, tap) a bench player onto a player, or onto
     an empty spot (filling one is free, not counted against max subs). There is no Sub
-    button; the bottom bar is **Goal · Their goal · Card · Log · Undo** (Their goal is dark, so
-    it can't pass for the green Goal). Quick subs are one tap.
-    A sub's incoming player must be on the bench (quick subs naming absent players fail
-    per pair).
+    button; the bottom bar is **Card · Goal · ⏸ Pause · Their goal · Undo** (UX review, phase
+    3). The clock's main control (`clockControls` in `src/domain/clock.ts`: pause / resume /
+    next period, or End match at full time) sits in the middle, in thumb reach, and keeps the
+    two goal buttons apart: white with a dark outline to pause, solid amber to get play going
+    again. Starting the next period asks first (at half-time that spot held Pause all half, and
+    clock writes can't be undone). Ending a period stays top right (rare, confirmed). Log left
+    the bar: the score
+    (with a list icon) and **⋮ → Match log** open it. Their goal is dark, so it can't pass
+    for the green Goal.
+  - **Quick subs preview first** (phase 3): a tap shows the preset's pairs ("Call these
+    players over…") and one **Make 2 Subs** confirms. A sub's incoming player must be on the
+    bench (quick subs naming absent players fail per pair; the OK ones can still be made).
+  - **Regulation time up buzzes** (phase 3): when a period runs into stoppage, three strong
+    haptic pulses, once per period (`periodEndHaptic`; no VIBRATE permission, so no long
+    buzz). Only while the live screen is open (it keeps the screen awake).
+  - The formation bar **stays** above the pitch (not moved to ⋮): the live pitch is limited by
+    its width beside the bench, so the row gives the pitch nothing, and the selection hint
+    takes its place without moving the pitch.
   - Recording is immediate with a toast + Undo; undoing shows a distinct "Undone" toast with
     no button. Toasts are solid (white/red), never translucent, and stop at the bench. They sit
     at the **bottom** of the pitch (thumb reach) and last 7s.
@@ -102,8 +123,12 @@ architecture rules and git conventions. Update the **Status** section when a mil
     how-to only while there's a spot to fill.
   - Tokens show minutes played, a yellow card mark, and **goal (ball) / assist (boot)
     markers** with a count bubble.
-  - Picking up a bench player highlights spots for their main (solid ring) and second
-    (dashed ring) position, filled or empty.
+  - Picking up a bench player highlights spots for their main and second position, filled or
+    empty. **Rings on filled spots** (both boards, `PlayerToken`): a yellow band with a
+    near-black outer edge, clear of the badge's white border (a light band alone merged with
+    it): thick and slowly pulsing for the main position (off with Reduce Motion), thin and
+    still for the second (dashed circles this small showed as faint dots on Android). The
+    cyan "selected" ring has the same dark edge, without the pulse.
   - **Formation mid-match:** tap the formation pill to **switch** formations (players fit to
     the new shape: GK stays, then same position, line, distance), or **Edit formation** to
     move/relabel spots. Neither records events; the kickoff snapshot never changes.
@@ -113,7 +138,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
   - **No leave confirmation** on the live screen: back just leaves. The match and clock keep
     going, and the coach returns from Game Day (decided while testing milestone 7).
 
-## What exists now (milestones 1–8)
+## What exists now (milestones 1–8, then the UX review)
 
 - **Schema** (`src/db/schema.ts`, migrations `0000_init`, `0001_player_positions`,
   `0002_team_kit_colors`, `0003_match_venue_and_formation`, `0004_team_sort_order`,
@@ -146,9 +171,11 @@ architecture rules and git conventions. Update the **Status** section when a mil
   (partial), `setMatchFormation`, `setMatchSquad`, `setMatchLineup`, `matchLineup`,
   `matchLiveLayout`, `matchPeriodsQuery`) and **liveMatch** (`kickoff`, `applyClockAction`,
   `recordLiveAction`, `undoLastAction`, `setLiveLayout`, `switchLiveFormation`).
-- **Domain** (`src/domain`, tested): types, formations, validation, roster, positions, colors,
-  board (Tactics transforms + `suggestAmong`), clock (+ `availableClockActions`,
-  `clockTransition`, `periodName`, `breakName`), lineup (+ `late_arrival`, red-card lock
+- **Domain** (`src/domain`, tested): types, formations, validation, roster (+ `distinctNames`,
+  `findNameConflict`), positions, colors (+ `isLightKit`), board (Tactics transforms +
+  `suggestAmong`, `suggestedSlots` with the full-lineup fallback), clock (+
+  `availableClockActions`, `clockControls`, `clockTransition`, `periodName`, `breakName`),
+  history (+ `formatMinutesPlayed`), lineup (+ `late_arrival`, red-card lock
   moves), subRules (+ `checkPresetPairs`), playingTime, stats, **matchEvents** (`LiveAction` →
   validated event drafts, `eventStamp`), **liveBoard** (drag/tap → action,
   `suggestedLiveSlots`), **matchSetup** (defaults, `lineupFromFormation`, `setSquad`,
@@ -157,8 +184,12 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Presets:** `src/constants/presetFormations.ts` (11v11 4-4-2, 4-3-3, 3-5-2, 4-2-3-1; 9v9
   3-3-2, 3-2-3; 7v7 2-3-1, 3-2-1; 5v5 2-2, 1-2-1), each validated by a test.
 - **Hooks/stores/lib:** `useLiveData`, `useActiveTeam`, `useKeyboardHeight`, `useOpenCount`,
-  `useMatchClock` (re-renders; call `refresh()` after a clock write); `appStore`, `boardStore`
-  (formation editor and match lineup editor); `src/lib/haptics.ts`.
+  `useMatchClock` (re-renders; call `refresh()` after a clock write), `usePressScale`;
+  `appStore`, `boardStore` (formation editor and match lineup editor); `src/lib/haptics.ts`
+  (`confirmHaptic`, `rejectHaptic`, `tapHaptic`, `periodEndHaptic`).
+- **Theme:** tokens in `src/global.css` (`brand` `#15803d`, `select` / `select-strong` cyan,
+  pitch greens); `src/constants/colors.ts` (`BRAND` for icon props);
+  `src/constants/navigation.ts` (`STACK_OPTIONS`: slide transitions).
 - **Pitch** (`src/components/pitch`): `FormationBoard`, `Pitch`, `PitchMarkings`,
   `PlayerToken` (+ minutes badge, booked, locked, highlight rings, `ContributionMarks`),
   `BenchSidebar` (+ notes, stats), `BoardDragContext` + `DragLayer`, `SlotPositionSheet`,
@@ -173,7 +204,7 @@ architecture rules and git conventions. Update the **Status** section when a mil
   **lineup editor** (`game/lineup/[matchId]`), **live match** (`live/[matchId]`, full screen
   above the tabs; reopens on launch if a match is live; no leave confirmation; keep-awake; full-time
   summary). **History** (milestone 7, below).
-- **Tests:** 388 (domain, presets, boardStore, repositories over real SQLite via
+- **Tests:** 438 (domain, presets, boardStore, repositories over real SQLite via
   `createTestDb`, migrations incl. an upgrade test run inside a transaction like the device
   migrator).
 
@@ -201,7 +232,8 @@ architecture rules and git conventions. Update the **Status** section when a mil
 - **Lineup replay is in recorded (id) order**, not game time; events are validated by
   `src/domain` before they're recorded because replay skips events that don't apply.
 - The live screen is a root route (`live/[matchId]`), not inside the Game Day tab stack.
-- **No Sub button** (replaced by Log); subs happen on the board and via quick subs.
+- **No Sub button**: subs happen on the board and via quick subs. (Its spot went to Log, which
+  in phase 3 gave way to the clock's pause / resume; the log opens from the score or ⋮.)
 - `matches.live_layout_json` holds a `LiveLayout` (shape + switched-to formation), not a
   `FormationLayout`.
 
@@ -258,6 +290,37 @@ Was branch `feature/polish-eas-preview`. EAS project `@buranapple/coach-buddy` (
 - **Icon:** coach + ball art on `#0754BE`. Adaptive foreground and splash use the art at ~59%
   on a transparent canvas, so circle masks never clip it. The themed-icon `monochromeImage` is
   a cutout of the art (coach + ball panels + trail), padded the same way.
+
+## UX review (October 2026: #17, #18, phase 3)
+
+A hard sideline-usability review (bright sun, one thumb) of the device screenshots and the
+code. Its rules now live in `docs/UI_RULES.md`; the product decisions above record what
+changed on each screen.
+
+- **Phase 1 (#17):** contrast (brand green, gray-500 floor, Resume), amber paused bar, cyan
+  selection, red-card confirm, ≥48dp targets, bottom toast (7s), solid token labels,
+  `distinctNames`, "Their goal". Teams: sort pill, no chevrons, delete-player sheet,
+  duplicate-name warning, readable disabled fields.
+- **Phase 2 (#18):** kit color off controls and cards (`KitShirt`); History (collapsed full
+  log, `<1'`, GF–GA, legend first); press scale + tap haptic, score bump, subs chip; Tactics
+  status line.
+- **Phase 3:** clock control in the bottom bar (`clockControls`; starting a period confirms),
+  quick-sub preview, period-end buzz; slide transitions and class-removal fixes (no ghosting);
+  full-lineup highlights; rings with a dark edge (pulsing for the main position); Tactics hint
+  legend ("Tap a spot. Bold yellow: CDM; light or thin ring: CB.") in a cyan bar while a player
+  is selected. Board hints are capped at two lines, so the bar never grows and moves the pitch.
+
+**Decided against, or deferred:**
+
+- Formation bar into ⋮: rejected. The live pitch is limited by its width beside the bench, so
+  the row gives it nothing, and without it the selection hint would move the pitch.
+- Rings are partly hidden under the position chip and the name label: accepted (moving the
+  labels out would crowd the pitch).
+- A long period-end vibration needs the VIBRATE permission; for now it's three haptic pulses.
+- "Q2" as the between-quarters button label (4 periods): check on the phone; may need a verb.
+- Still open: Game Day's empty space under the live card (show the last result); bare trash
+  icons in the match setup and match detail headers (vs labelled buttons); the formation
+  editor's crowded header (title, pencil, More, Save).
 
 ## Later milestones (from the original plan)
 

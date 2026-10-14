@@ -62,7 +62,8 @@ export function BenchSidebar({
       {/* Measured on drop to tell whether a token was released over the bench. */}
       <Animated.View ref={benchRef} style={{ flex: 1 }}>
         <View
-          className={`flex-1 border-2 ${isDropTarget ? 'border-dashed border-brand bg-green-50' : 'border-transparent bg-white'}`}
+          // Both states set the border style too (a removed border-dashed lingers on Android).
+          className={`flex-1 border-2 ${isDropTarget ? 'border-dashed border-brand bg-green-50' : 'border-solid border-transparent bg-white'}`}
         >
           {/* Locked (while spots move): a lock and grey badges say so, but the text stays
               readable. Fading the whole column to 40% made it illegible. */}

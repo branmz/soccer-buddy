@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ClockBar } from '@/components/game/ClockBar';
 import { FormationBar, FormationEditBar } from '@/components/game/FormationEditBar';
 import { FormationPickerSheet, type FormationChoice } from '@/components/game/FormationPickerSheet';
-import { EventActionBar } from '@/components/game/EventActionBar';
+import { EventActionBar, type ClockControl } from '@/components/game/EventActionBar';
 import { EventTimeline } from '@/components/game/EventTimeline';
 import {
   FinishedSummary,
@@ -62,7 +62,13 @@ import {
   type DropTarget,
   type TapTarget,
 } from '@/domain/board';
-import { availableClockActions, periodName, type ClockAction } from '@/domain/clock';
+import {
+  availableClockActions,
+  clockControls,
+  periodName,
+  type ClockAction,
+  type MainClockAction,
+} from '@/domain/clock';
 import {
   deriveLineup,
   findPlayerSlot,
@@ -84,7 +90,7 @@ import { keyMoments, timelineEntries } from '@/domain/timeline';
 import type { FormationSlot } from '@/domain/types';
 import { useLiveData } from '@/hooks/useLiveData';
 import { useMatchClock } from '@/hooks/useMatchClock';
-import { confirmHaptic, rejectHaptic } from '@/lib/haptics';
+import { confirmHaptic, periodEndHaptic, rejectHaptic, tapHaptic } from '@/lib/haptics';
 
 const MS_PER_MINUTE = 60_000;
 /** Minute badges only need to move every few seconds; the board re-renders on these steps. */
@@ -180,6 +186,16 @@ export default function LiveMatchScreen() {
     const timer = setTimeout(() => setToast(null), TOAST_MS);
     return () => clearTimeout(timer);
   }, [toast]);
+
+  // Regulation time is up: buzz once per period, so a coach watching play (not the clock)
+  // notices. A period already into stoppage when the screen opens doesn't buzz again.
+  const buzzedPeriod = useRef(clock.isStoppage ? clock.currentPeriod : null);
+  useEffect(() => {
+    if (clock.phase !== 'running' || !clock.isStoppage) return;
+    if (buzzedPeriod.current === clock.currentPeriod) return;
+    buzzedPeriod.current = clock.currentPeriod;
+    periodEndHaptic();
+  }, [clock.phase, clock.isStoppage, clock.currentPeriod]);
 
   // Derived from SQLite on every change: the lineup is replayed from the events.
   const startingJson = match?.startingLineupJson ?? null;
@@ -429,6 +445,26 @@ export default function LiveMatchScreen() {
   const squad = [...onPitch, ...bench];
   const hint = liveHint(selection, nameOf, lineup);
   const actions = availableClockActions(clock, match.periodCount);
+  const controls = clockControls(clock, match.periodCount);
+  const nextPeriod = periodName(clock.currentPeriod + 1, match.periodCount);
+  const clockLabels: Record<MainClockAction, { label: string; spoken: string }> = {
+    pause: { label: 'Pause', spoken: 'Pause the clock' },
+    resume: { label: 'Resume', spoken: 'Resume the clock' },
+    startNextPeriod: { label: nextPeriod, spoken: `Start ${nextPeriod}` },
+    finish: { label: 'End match', spoken: 'End the match' },
+  };
+  const clockControl: ClockControl | null =
+    controls.main === null ? null : { action: controls.main, ...clockLabels[controls.main] };
+
+  /**
+   * Starting or ending a period, or the match, asks first: clock writes can't be undone, and at
+   * half-time the thumb-zone spot that held Pause all half becomes "2nd half", so a habit tap
+   * mustn't start the clock. Pause and resume don't ask.
+   */
+  function onClockAction(action: ClockAction) {
+    if (action === 'pause' || action === 'resume') runClock(action);
+    else setClockConfirm({ open: true, action });
+  }
 
   function openPick(step: PickStep) {
     setSelection(null);
@@ -538,19 +574,26 @@ export default function LiveMatchScreen() {
     }
   }
 
+  /**
+   * A quick sub always shows its pairs first, then one confirm: the coach needs the names to
+   * call players over, and one stray tap no longer swaps several players at once.
+   */
   function runQuickSub(preset: PresetWithPairs, current: LiveLineup, maxSubs: number | null) {
     setSelection(null);
     const check = canSubstitute(current, maxSubs, preset.substitutions);
     if (check.ok) {
-      record({ kind: 'subs', pairs: preset.substitutions });
+      tapHaptic();
+      setQuickSub({ open: true, preset, errors: preset.substitutions.map(() => null) });
       return;
     }
     rejectHaptic();
     setQuickSub({ open: true, preset, errors: check.errors });
   }
 
-  const quickValid =
-    quickSub.preset?.substitutions.filter((_, i) => quickSub.errors[i] === null) ?? [];
+  const quickPairs = quickSub.preset?.substitutions ?? [];
+  const quickValid = quickPairs.filter((_, i) => quickSub.errors[i] === null);
+  const quickAllOk = quickValid.length === quickPairs.length;
+  const subsCount = (n: number) => `${n} ${n === 1 ? 'sub' : 'subs'}`;
   const clockConfirmText =
     clockConfirm.action === 'finish'
       ? {
@@ -558,11 +601,17 @@ export default function LiveMatchScreen() {
           message: `Full time against ${match.opponentName}. The clock stops and the match moves to History.`,
           confirm: 'End match',
         }
-      : {
-          title: `End ${periodName(clock.currentPeriod, match.periodCount)}?`,
-          message: 'The clock stops until you start the next period.',
-          confirm: `End ${periodName(clock.currentPeriod, match.periodCount)}`,
-        };
+      : clockConfirm.action === 'startNextPeriod'
+        ? {
+            title: `Start ${nextPeriod}?`,
+            message: 'The clock starts running.',
+            confirm: `Start ${nextPeriod}`,
+          }
+        : {
+            title: `End ${periodName(clock.currentPeriod, match.periodCount)}?`,
+            message: 'The clock stops until you start the next period.',
+            confirm: `End ${periodName(clock.currentPeriod, match.periodCount)}`,
+          };
 
   return (
     <View className="flex-1 bg-gray-100">
@@ -577,14 +626,8 @@ export default function LiveMatchScreen() {
         periodCount={match.periodCount}
         subsUsed={lineup.subsUsed}
         maxSubs={match.maxSubs}
-        actions={actions}
-        onAction={(action) => {
-          if (action === 'endPeriod' || action === 'finish') {
-            setClockConfirm({ open: true, action });
-          } else {
-            runClock(action);
-          }
-        }}
+        endAction={controls.end}
+        onEnd={onClockAction}
         onBack={() => navigation.goBack()}
         onMore={() => setMoreOpen(true)}
         onScorePress={() => setLogOpen(true)}
@@ -652,7 +695,8 @@ export default function LiveMatchScreen() {
         onGoal={() => openPick({ kind: 'scorer' })}
         onOpponentGoal={() => record({ kind: 'opponentGoal' })}
         onCard={() => openPick({ kind: 'card', color: 'yellow' })}
-        onLog={() => setLogOpen(true)}
+        clock={clockControl}
+        onClockAction={onClockAction}
         onUndo={() => setUndoOpen(true)}
         canUndo={events.length > 0}
         insetBottom={insets.bottom}
@@ -717,20 +761,31 @@ export default function LiveMatchScreen() {
         title={quickSub.preset?.presetName ?? 'Quick sub'}
         onClose={() => setQuickSub((q) => ({ ...q, open: false }))}
       >
-        <Text className="text-base text-gray-700">Some of these subs can&apos;t be made now:</Text>
-        {quickSub.preset?.substitutions.map((pair, i) => (
+        <Text className="text-base text-gray-700">
+          {quickAllOk
+            ? 'Call these players over, then make the subs.'
+            : "Some of these subs can't be made now:"}
+        </Text>
+        {quickPairs.map((pair, i) => (
           <View key={i} className="gap-0.5 border-b border-gray-100 pb-2">
             <Text className="text-base font-semibold text-gray-900">
               {nameOf(pair.inPlayerId)} on for {nameOf(pair.outPlayerId)}
             </Text>
-            <Text className={`text-sm ${quickSub.errors[i] ? 'text-red-600' : 'text-green-700'}`}>
-              {quickSub.errors[i] ?? 'OK'}
-            </Text>
+            {!quickAllOk && (
+              <Text className={`text-sm ${quickSub.errors[i] ? 'text-red-600' : 'text-green-700'}`}>
+                {quickSub.errors[i] ?? 'OK'}
+              </Text>
+            )}
           </View>
         ))}
         {quickValid.length > 0 && (
           <Button
-            label={`Make the ${quickValid.length} OK ${quickValid.length === 1 ? 'sub' : 'subs'}`}
+            label={
+              quickAllOk
+                ? `Make ${subsCount(quickValid.length)}`
+                : `Make the ${quickValid.length} OK ${quickValid.length === 1 ? 'sub' : 'subs'}`
+            }
+            icon="swap-vertical"
             onPress={() => {
               setQuickSub((q) => ({ ...q, open: false }));
               record({ kind: 'subs', pairs: quickValid });
@@ -793,6 +848,16 @@ export default function LiveMatchScreen() {
         <EventTimeline entries={entries} />
       </Sheet>
       <Sheet visible={moreOpen} title="Match options" onClose={() => setMoreOpen(false)}>
+        {/* The log also opens from the score; Log left the bottom bar for pause / resume. */}
+        <Button
+          label="Match log"
+          icon="list"
+          variant="secondary"
+          onPress={() => {
+            setMoreOpen(false);
+            setLogOpen(true);
+          }}
+        />
         <Button
           label="Add late arrival"
           icon="person-add"

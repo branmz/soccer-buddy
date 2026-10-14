@@ -270,16 +270,22 @@ export function suggestForRole<T extends PlayerPositions>(
 }
 
 /**
- * Open spots that suit a player, for highlighting on the pitch: spots labelled with their
- * main or second position. If none of those are free, any open spot on those positions'
- * lines (e.g. LB for a CB). Spots with a player already in them are never suggested.
+ * Spots that suit a bench player, for highlighting on the pitch while building a lineup.
+ * Open spots first, to fill the lineup: those labelled with their main or second position,
+ * else any open spot on those positions' lines (e.g. LB for a CB). When no open spot suits
+ * them (a full lineup, say), the taken spots that do: putting them there swaps them in.
  */
 export function suggestedSlots(
   slots: readonly FormationSlot[],
   positions: PlayerPositions,
 ): Map<string, Exclude<SlotFit, null>> {
-  return suggestAmong(
+  const open = suggestAmong(
     slots.filter((s) => s.playerId === undefined),
+    positions,
+  );
+  if (open.size > 0) return open;
+  return suggestAmong(
+    slots.filter((s) => s.playerId !== undefined),
     positions,
   );
 }

@@ -16,8 +16,10 @@ export default function RootLayout() {
         <DatabaseGate>
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(tabs)" />
-            {/* Full screen, above the tabs: every pixel goes to the pitch during a match. */}
-            <Stack.Screen name="live/[matchId]" />
+            {/* Full screen, above the tabs: every pixel goes to the pitch during a match. It
+                slides up like a mode you enter and leave (Android's default scale-and-fade
+                ghosted a see-through copy of the old screen behind it). */}
+            <Stack.Screen name="live/[matchId]" options={{ animation: 'slide_from_bottom' }} />
           </Stack>
         </DatabaseGate>
       </SafeAreaProvider>

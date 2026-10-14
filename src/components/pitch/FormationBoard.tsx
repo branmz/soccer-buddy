@@ -19,6 +19,7 @@ import {
   type DropPoint,
   type TapTarget,
 } from '@/domain/board';
+import { distinctNames } from '@/domain/roster';
 import type { FormationSlot } from '@/domain/types';
 import { confirmHaptic } from '@/lib/haptics';
 import { useBoardStore } from '@/stores/boardStore';
@@ -70,6 +71,8 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
   }>({ open: false, slot: null });
 
   const playersById = new Map(roster.map((p) => [p.id, p]));
+  // Names in the hint's plain text: "Michael #3" / "Michael #6" when names clash.
+  const namesById = distinctNames(roster);
   const playerFor = (slot: FormationSlot) =>
     slot.playerId === undefined ? null : (playersById.get(slot.playerId) ?? null);
 
@@ -81,6 +84,14 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
       : selectedSlot && playerFor(selectedSlot);
   const bench = benchPlayers(roster, slots);
   const orderedBench = selectedSlot ? suggestForRole(bench, selectedSlot.role) : bench;
+
+  // The hint bar's look: yellow while moving spots (a mode), cyan while a player is selected
+  // (like their ring and the live board's hint), plain otherwise. Each sets every value.
+  const hintBar = movingSpots
+    ? { box: 'border-yellow-300 bg-yellow-50', press: 'active:bg-yellow-100' }
+    : selection
+      ? { box: 'border-select-strong bg-cyan-50', press: 'active:bg-cyan-100' }
+      : { box: 'border-gray-200 bg-white', press: 'active:bg-gray-100' };
 
   const pitchSize = area && fitPitch(area);
   const tokenSize = tokenSizeFor(pitchSize?.width ?? 0);
@@ -114,21 +125,27 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
 
   return (
     <View className="flex-1">
-      <View
-        className={`min-h-14 flex-row items-center gap-2 border-b px-4 py-1 ${
-          movingSpots ? 'border-yellow-300 bg-yellow-50' : 'border-gray-200 bg-white'
-        }`}
-      >
+      <View className={`min-h-14 flex-row items-center gap-2 border-b px-4 py-1 ${hintBar.box}`}>
+        {/* Two lines at most, even at a large font size: a third would grow the bar and
+            move the pitch between taps. */}
         <Text
           accessibilityLiveRegion="polite"
+          numberOfLines={2}
           className="flex-1 text-base font-medium text-gray-900"
         >
-          {hintText(mode, selection, selectedSlot, selectedPlayer?.name, {
-            // Shown players only: a deactivated player's spot is drawn empty.
-            filled: slots.filter((s) => playerFor(s) !== null).length,
-            spots: slots.length,
-            bench: bench.length,
-          })}
+          {hintText(
+            mode,
+            selection,
+            selectedSlot,
+            selectedPlayer ?? undefined,
+            selectedPlayer ? namesById.get(selectedPlayer.id) : undefined,
+            {
+              // Shown players only: a deactivated player's spot is drawn empty.
+              filled: slots.filter((s) => playerFor(s) !== null).length,
+              spots: slots.length,
+              bench: bench.length,
+            },
+          )}
         </Text>
         {movingSpots && selectedSlot && positionOptionsFor(selectedSlot).length > 0 && (
           <Pressable
@@ -146,7 +163,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           <Pressable
             accessibilityRole="button"
             onPress={clearSelection}
-            className="min-h-12 justify-center rounded-full px-3 active:bg-gray-100"
+            className={`min-h-12 justify-center rounded-full px-3 ${hintBar.press}`}
           >
             <Text className="text-base font-semibold text-brand">Cancel</Text>
           </Pressable>
@@ -256,19 +273,25 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
   );
 }
 
+/**
+ * The line in the bar above the board. Every message fits two lines beside Cancel (and the
+ * Position chip): the bar has room for exactly two, and a third line would grow it and move
+ * the pitch between the coach's first and second tap. `name` is the player's display name
+ * (`distinctNames`), so two Michaels read apart.
+ */
 function hintText(
   mode: BoardMode,
   selection: BoardItem | null,
   slot: FormationSlot | undefined,
-  playerName: string | undefined,
+  player: Player | undefined,
+  name: string | undefined,
   counts: { filled: number; spots: number; bench: number },
 ): string {
   if (mode === 'positions') {
-    if (slot?.role === 'GK') {
-      return "Tap the grass to move the goalkeeper. The GK spot can't change position.";
-    }
-    if (slot) return `Tap the grass to move ${slot.label}, or tap its chip to change position.`;
-    return 'Drag spots to move them. Tap a spot to change its position (e.g. ST to CAM).';
+    // The Position chip beside it says the rest.
+    if (slot?.role === 'GK') return 'Tap the grass to move the GK (it stays GK).';
+    if (slot) return `Tap the grass to move ${slot.label}.`;
+    return 'Drag spots to move them. Tap a spot to change its position.';
   }
   if (selection === null) {
     // Idle: a status line, with how-to only while there's a spot to fill. (A permanent
@@ -280,9 +303,16 @@ function hintText(
     return `${filled === spots ? `All ${spots}` : `${filled} of ${spots}`} spots filled · ${bench} on the bench`;
   }
   if (selection.kind === 'bench') {
-    return `Tap a spot for ${playerName ?? 'them'}. Yellow spots suit their positions.`;
+    // What the highlights mean, by position. No name: their bench tile is highlighted, and a
+    // long name pushed this to three lines. Bold yellow = a solid fill (empty spot) or a thick
+    // ring (taken spot); light = a light fill or a thin ring.
+    const main = player?.primaryPosition;
+    const second = player?.secondaryPosition;
+    if (!main) return 'Tap a spot to put them there.';
+    if (!second) return `Tap a spot. Yellow spots suit ${main}.`;
+    return `Tap a spot. Bold yellow: ${main}; light or thin ring: ${second}.`;
   }
-  if (playerName) return `${playerName}: tap another spot to swap, or the bench.`;
+  if (name) return `${name}: tap another spot to swap, or the bench.`;
   return `${slot?.label ?? 'Spot'}: tap a bench player to put them here.`;
 }
 
@@ -311,7 +341,8 @@ function PitchWithTokens({
   onGrassPress,
 }: PitchWithTokensProps) {
   const { pitchRef, dragging } = useBoardDrag();
-  // Highlight open spots for the bench player being placed (tapped or dragged).
+  // Highlight spots for the bench player being placed (tapped or dragged): open ones that suit
+  // them (filled yellow), or with none open, taken ones they'd swap into (yellow ring).
   const pickedUp = !showSuggestions
     ? null
     : dragging?.kind === 'bench'

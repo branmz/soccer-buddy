@@ -44,6 +44,8 @@ what to build next. Update its Status section when a milestone's PR merges.
   a route, if `tsc` rejects its href, run `CI=1 timeout 40 npx expo start --port 8090` once
 - Expo needs port 8081; a stale `expo start` from a closed terminal can hold it. Find it with
   `Get-NetTCPConnection -LocalPort 8081` and stop that process
+- CLI globs don't match route folders like `(tabs)`: pass Prettier/ESLint explicit quoted paths
+- The coach's device screenshots are in `screenshots/` (git-ignored); read them when asked
 
 ## Project Layout
 
@@ -56,58 +58,33 @@ what to build next. Update its Status section when a milestone's PR merges.
   `db.transaction` callbacks must be sync). Reads are exported as `xxxQuery()` builders;
   writes validate via `src/domain` and throw `ValidationError` (show it with `userMessage(e)`)
 - `src/hooks/` — `useLiveData` (reactive DB reads), `useActiveTeam` (active team, self-healing),
-  `useMatchClock` (re-renders only; call `refresh()` after a clock write)
+  `useMatchClock` (re-renders only; call `refresh()` after a clock write), `usePressScale`
 - `src/db/testing/createTestDb.ts` — test-only: Drizzle's expo driver over `node:sqlite`
 - `src/domain/` — pure TS logic (clock, lineup replay, sub rules, playing time, stats,
   formation JSON parsing). No React, no DB imports. Unit tested in `src/domain/__tests__/`
-- `src/constants/presetFormations.ts` — built-in formations per field size (5/7/9/11)
+- `src/constants/` — `presetFormations.ts` (built-in formations per field size 5/7/9/11),
+  `colors.ts` (`BRAND` for icon/switch props, mirrors `--color-brand`), `navigation.ts`
+  (`STACK_OPTIONS`, used by every tab's Stack)
 - `src/stores/` — Zustand: `appStore` (activeTeamId, persisted via expo-sqlite/kv-store),
   `boardStore` (formation editor and match lineup editor). Live-screen UI state is local state
 - `src/components/pitch/` — shared Pitch, PlayerToken, BenchSidebar, DragLayer
 - `src/components/game/` — setup sheets (formation, squad, quick-sub presets), live screen
   (ClockBar, LiveBoard, QuickSubBar, EventActionBar, EventTimeline, FinishedSummary)
-- `src/lib/haptics.ts` — `confirmHaptic` / `rejectHaptic` (Android haptics engine)
-- `src/components/ui/` — generic primitives (Button, IconButton, TextField, Sheet,
-  SegmentedControl, EmptyState); `src/components/teams/` — team/player forms, TeamSwitcher
+- `src/lib/haptics.ts` — `confirmHaptic` / `rejectHaptic` / `tapHaptic` / `periodEndHaptic`
+  (Android haptics engine, no VIBRATE permission)
+- `src/components/ui/` — generic primitives (Button, IconButton, TextField, Sheet, ConfirmSheet,
+  SegmentedControl, EmptyState); `src/components/teams/` — team/player forms, TeamSwitcher,
+  JerseyBadge, ColorSwatch, KitShirt
 
-## Architecture Rules
+## Rules (open the matching page before you change code)
 
-- **SQLite is the source of truth.** Read with
-  `useLiveData(() => xxxQuery(arg).all(), [arg], [tableA, tableB])`, listing every table the
-  query touches (joins too); write via repositories. Don't use Drizzle's `useLiveQuery`: it only
-  watches the main table and ignores changed inputs. Multi-row writes use `db.transaction`.
-  Don't mirror DB data in Zustand.
-- **Match clock is timestamp-derived.** Never count ticks. Elapsed =
-  (paused_at ?? ended_at ?? now) − started_at − paused_total_ms, per `match_periods` row.
-  Every start/pause/resume/end is persisted immediately. UI intervals only trigger re-renders.
-- **Live lineup is event-sourced.** `deriveLineup(starting_lineup_json, events)` replays
-  `substitution`, `position_swap`, `red_card`. Never store the current lineup separately.
-  Undo = delete the latest event `group_id`.
-- **Coordinates are normalized 0–1** (`y = 1` = own goal line). Convert to pixels only in
-  `Pitch` using measured layout.
-- `starting_lineup_json` is a snapshot — editing a formation never rewrites match history.
-- Players referenced by events can't be hard-deleted; deactivate them (`is_active = false`).
-  Event→player FKs are `NO ACTION`, not `RESTRICT`: RESTRICT fires mid-cascade and would block
-  deleting a whole team.
-- Schema change → edit `schema.ts`, run `npx drizzle-kit generate --name <change>`, commit the
-  generated files. Never edit a migration that has shipped; add a new one. Read the generated
-  SQL: if it rebuilds a table (`__new_<table>` + `DROP TABLE`), redesign — adding a CHECK or
-  FK to an existing table does this, and dropping `players`/`matches` cascades into history.
-  Validate in `src/domain` instead. Add an upgrade case to `migrations.test.ts`.
-- Keep `src/domain` pure and covered by tests; put new business rules there, not in screens.
-- Gestures: use `Gesture.Pan()` + shared values; hop to JS with `runOnJS` only on drop.
-  Every drag action must also have a tap-to-select fallback.
-
-## Code Style
-
-- TypeScript strict; no `any` (use `unknown` + parse helpers for JSON columns)
-- Function components + hooks; named exports (except expo-router route files)
-- Styling via NativeWind `className`; inline `style` only for animated/measured values and
-  user-chosen colors (kit colors). Use `readableTextColor`/`needsOutline` from `domain/colors`
-- Files: components `PascalCase.tsx`, everything else `camelCase.ts`
-- Formatting is owned by Prettier — don't hand-format
-- A PostToolUse hook (`.claude/hooks/lint-changed-file.mjs`) runs Prettier + ESLint on every
-  edited file; fix any reported errors before moving on
+- `docs/ARCHITECTURE.md` — **before touching data access, the match clock, the live lineup,
+  the pitch, the schema or `src/domain`**: SQLite as the source of truth, the timestamp clock,
+  the event-sourced lineup, migrations, gestures
+- `docs/CODE_STYLE.md` — **before writing code**: TypeScript, exports, styling, file names,
+  the lint hook
+- `docs/UI_RULES.md` — **before any screen, component or `className` change**: Android
+  ghosting, contrast and touch targets, what each color means, feedback, confirms
 
 ## Testing
 

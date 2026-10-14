@@ -1,6 +1,7 @@
 import {
   availableClockActions,
   breakName,
+  clockControls,
   clockTransition,
   formatClock,
   formatMatchMinute,
@@ -233,6 +234,61 @@ describe('availableClockActions', () => {
     const p1 = period({ periodNumber: 1, endedAt: T0 + MIN });
     expect(availableClockActions(at([p1]), 2)).toEqual(['startNextPeriod', 'finish']);
     expect(availableClockActions(at([p1]), 1)).toEqual(['finish']);
+  });
+});
+
+describe('clockControls', () => {
+  const at = (periods: ClockPeriod[]) => getClockState(periods, HALF, T0 + 10 * MIN);
+  const p1Ended = period({ periodNumber: 1, endedAt: T0 + MIN });
+
+  it('has nothing before kickoff', () => {
+    expect(clockControls(at([]), 2)).toEqual({ main: null, end: null });
+  });
+
+  it('puts pause or resume in the thumb zone and ending the period up top', () => {
+    expect(clockControls(at([period({ periodNumber: 1 })]), 2)).toEqual({
+      main: 'pause',
+      end: 'endPeriod',
+    });
+    const paused = period({ periodNumber: 1, pausedAt: T0 + 5 * MIN });
+    expect(clockControls(at([paused]), 2)).toEqual({ main: 'resume', end: 'endPeriod' });
+  });
+
+  it('ends the match up top in the last period, running or paused', () => {
+    const p2 = period({ periodNumber: 2, startedAt: T0 + 2 * MIN });
+    expect(clockControls(at([p1Ended, p2]), 2)).toEqual({ main: 'pause', end: 'finish' });
+    const p2Paused = { ...p2, pausedAt: T0 + 3 * MIN };
+    expect(clockControls(at([p1Ended, p2Paused]), 2)).toEqual({
+      main: 'resume',
+      end: 'finish',
+    });
+  });
+
+  it('ends quarters until the last one, which ends the match (four periods)', () => {
+    const ended = (n: number) =>
+      period({ periodNumber: n, startedAt: T0 + n * MIN, endedAt: T0 + n * MIN + 30_000 });
+    const running = (n: number) => period({ periodNumber: n, startedAt: T0 + n * MIN });
+    expect(clockControls(at([running(1)]), 4)).toEqual({ main: 'pause', end: 'endPeriod' });
+    expect(clockControls(at([ended(1), ended(2)]), 4)).toEqual({
+      main: 'startNextPeriod',
+      end: null,
+    });
+    expect(clockControls(at([ended(1), ended(2), running(3)]), 4)).toEqual({
+      main: 'pause',
+      end: 'endPeriod',
+    });
+    expect(clockControls(at([ended(1), ended(2), ended(3), running(4)]), 4)).toEqual({
+      main: 'pause',
+      end: 'finish',
+    });
+  });
+
+  it('starts the next period from the thumb zone at half-time, with nothing up top', () => {
+    expect(clockControls(at([p1Ended]), 2)).toEqual({ main: 'startNextPeriod', end: null });
+  });
+
+  it('makes ending the match the main control at full time', () => {
+    expect(clockControls(at([p1Ended]), 1)).toEqual({ main: 'finish', end: null });
   });
 });
 
