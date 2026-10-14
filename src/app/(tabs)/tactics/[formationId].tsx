@@ -178,7 +178,7 @@ export default function FormationEditorScreen() {
               accessibilityRole="button"
               accessibilityLabel={`Formation name: ${children}. Rename`}
               onPress={() => setRenameOpen(true)}
-              className="min-h-12 max-w-52 flex-row items-center gap-2 rounded-full px-2 active:bg-brand-tint"
+              className="min-h-touch max-w-52 flex-row items-center gap-2 rounded-full px-2 active:bg-brand-tint"
             >
               <Text numberOfLines={1} className="shrink text-xl font-bold text-brand-strong">
                 {children}

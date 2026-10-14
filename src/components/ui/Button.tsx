@@ -65,7 +65,7 @@ export function Button({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={`min-h-12 flex-row items-center justify-center gap-2 rounded-xl px-4 ${
+      className={`min-h-touch flex-row items-center justify-center gap-2 rounded-xl px-4 ${
         disabled ? DISABLED.container : containerClass[variant]
       } ${className}`}
     >

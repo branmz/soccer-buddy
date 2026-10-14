@@ -29,7 +29,7 @@ export function TeamSwitcher() {
         accessibilityRole="button"
         accessibilityLabel={team ? `Active team: ${team.name}. Switch team` : 'Choose a team'}
         onPress={() => (teams.length === 0 ? manageTeams() : setOpen(true))}
-        className="min-h-12 max-w-52 flex-row items-center gap-2 rounded-full border border-line-strong bg-surface px-4 active:bg-muted"
+        className="min-h-touch max-w-52 flex-row items-center gap-2 rounded-full border border-line-strong bg-surface px-4 active:bg-muted"
       >
         {kit && <ColorSwatch color={kit} size={16} />}
         <Text numberOfLines={1} className="shrink text-lg font-semibold text-ink">

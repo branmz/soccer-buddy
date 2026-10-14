@@ -79,7 +79,7 @@ export function FinishedSummary({
           className="border-t border-line bg-surface px-4 pt-3"
           style={{ paddingBottom: Math.max(done.insetBottom, 12) }}
         >
-          <Button label="Done" icon="checkmark" onPress={done.onPress} className="min-h-14" />
+          <Button label="Done" icon="checkmark" onPress={done.onPress} className="min-h-touch-lg" />
         </View>
       )}
     </View>
@@ -112,7 +112,7 @@ export function TimelineCard({
   return (
     <Card flush className="gap-1 px-4 pt-2 pb-2">
       {/* The title stays a heading (for screen-reader navigation) beside a separate toggle. */}
-      <View className="min-h-12 flex-row items-center gap-2">
+      <View className="min-h-touch flex-row items-center gap-2">
         <Text accessibilityRole="header" className="flex-1 text-lg font-bold text-ink">
           {capitalizeWords(title)}
         </Text>
@@ -123,7 +123,7 @@ export function TimelineCard({
             entries.length === 1 ? 'event' : 'events'
           }`}
           onPress={() => setOpen((o) => !o)}
-          className="min-h-12 flex-row items-center gap-1 rounded-full px-2 active:bg-brand-tint"
+          className="min-h-touch flex-row items-center gap-1 rounded-full px-2 active:bg-brand-tint"
         >
           <Text className="text-base font-semibold text-brand-strong">
             {open ? 'Hide' : `Show All ${entries.length}`}

@@ -42,7 +42,7 @@ function QuickSubChip({ preset, onPress }: { preset: PresetWithPairs; onPress: (
         onPressIn={press.onPressIn}
         onPressOut={press.onPressOut}
         onPress={onPress}
-        className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-brand-edge bg-brand-tint px-3 active:bg-brand-tint-strong"
+        className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-brand-edge bg-brand-tint px-3 active:bg-brand-tint-strong"
       >
         <Ionicons name="swap-vertical" size={18} color={COLORS.brandStrong} />
         <Text numberOfLines={1} className="max-w-40 text-base font-semibold text-brand-strong">

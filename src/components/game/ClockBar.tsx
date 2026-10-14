@@ -129,7 +129,7 @@ export function ClockBar({
           accessibilityLabel="Back to Game Day"
           hitSlop={8}
           onPress={onBack}
-          className={`h-11 w-11 items-center justify-center rounded-full ${bar.press}`}
+          className={`h-touch w-touch items-center justify-center rounded-full ${bar.press}`}
         >
           <Ionicons name="chevron-back" size={26} color={bar.icon} />
         </Pressable>
@@ -137,7 +137,7 @@ export function ClockBar({
           accessibilityRole="button"
           accessibilityLabel={`${teamName} ${score.us}, ${opponentName} ${score.them}. Open match log`}
           onPress={onScorePress}
-          className={`flex-1 flex-row items-center justify-center gap-3 rounded-xl py-1 ${bar.press}`}
+          className={`min-h-touch flex-1 flex-row items-center justify-center gap-3 rounded-xl py-1 ${bar.press}`}
         >
           <Text
             numberOfLines={1}
@@ -161,7 +161,7 @@ export function ClockBar({
           accessibilityLabel="More match options"
           hitSlop={8}
           onPress={onMore}
-          className={`h-11 w-11 items-center justify-center rounded-full ${bar.press}`}
+          className={`h-touch w-touch items-center justify-center rounded-full ${bar.press}`}
         >
           <Ionicons name="ellipsis-vertical" size={24} color={bar.icon} />
         </Pressable>
@@ -239,7 +239,7 @@ function EndButton({ label, icon, tone, onPress }: EndButtonProps) {
           tapHaptic();
           onPress();
         }}
-        className={`min-h-12 min-w-36 flex-row items-center justify-center gap-1.5 rounded-xl border px-3 ${style.box}`}
+        className={`min-h-touch min-w-36 flex-row items-center justify-center gap-1.5 rounded-xl border px-3 ${style.box}`}
       >
         <Ionicons name={icon} size={20} color={style.icon} />
         <Text className={`text-base font-bold ${style.text}`}>{capitalizeWords(label)}</Text>

@@ -27,7 +27,7 @@ export function IconButton({
       accessibilityLabel={label}
       hitSlop={8}
       onPress={onPress}
-      className="h-11 w-11 items-center justify-center rounded-full active:bg-muted"
+      className="h-touch w-touch items-center justify-center rounded-full active:bg-muted"
     >
       <Ionicons name={icon} size={size} color={color} />
     </Pressable>

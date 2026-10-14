@@ -62,8 +62,8 @@ export function HeaderButton({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      className={`min-h-12 flex-row items-center justify-center gap-1.5 rounded-full border ${
-        hideLabel ? 'w-12' : 'px-3'
+      className={`min-h-touch flex-row items-center justify-center gap-1.5 rounded-full border ${
+        hideLabel ? 'w-touch' : 'px-3'
       } ${style.box}`}
     >
       <Ionicons name={icon} size={hideLabel ? 24 : 20} color={style.icon} />

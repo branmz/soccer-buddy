@@ -73,7 +73,7 @@ export function PositionFields({
                 accessibilityState={{ checked: selected, disabled: unavailable }}
                 disabled={unavailable}
                 onPress={() => pick(position)}
-                className={`min-h-10 min-w-13 items-center justify-center rounded-full border px-2 ${
+                className={`min-h-touch min-w-touch items-center justify-center rounded-full border px-2 ${
                   selected
                     ? 'border-brand bg-brand'
                     : unavailable

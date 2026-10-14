@@ -78,7 +78,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
           accessibilityRole="button"
           accessibilityLabel={`Sort by name${sort.key === 'name' ? `, sorted ${sortLabel}` : ''}`}
           onPress={() => onSort('name')}
-          className="min-h-11 flex-1 flex-row items-center gap-1"
+          className="min-h-touch flex-1 flex-row items-center gap-1"
         >
           <Text
             className={`text-sm font-bold ${sort.key === 'name' ? 'text-brand-strong' : 'text-ink-muted'}`}
@@ -95,7 +95,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
               accessibilityRole="button"
               accessibilityLabel={`Sort by ${column.label.toLowerCase()}${active ? `, sorted ${sortLabel}` : ''}`}
               onPress={() => onSort(column.key)}
-              className={`min-h-11 items-center justify-center rounded-md ${active ? 'bg-brand-tint' : 'bg-transparent'}`}
+              className={`min-h-touch items-center justify-center rounded-md ${active ? 'bg-brand-tint' : 'bg-transparent'}`}
               style={{ width: column.width }}
             >
               {typeof column.header === 'string' ? (

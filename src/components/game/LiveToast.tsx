@@ -55,7 +55,7 @@ export function LiveToast({ toast, onUndo }: LiveToastProps) {
         <Pressable
           accessibilityRole="button"
           onPress={onUndo}
-          className="min-h-12 flex-row items-center gap-1 rounded-lg border border-line-strong bg-surface px-4 active:bg-muted"
+          className="min-h-touch flex-row items-center gap-1 rounded-lg border border-line-strong bg-surface px-4 active:bg-muted"
         >
           <Ionicons name="arrow-undo" size={18} color={COLORS.ink} />
           <Text className="text-base font-bold text-ink">Undo</Text>

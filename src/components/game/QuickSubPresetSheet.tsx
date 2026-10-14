@@ -136,7 +136,7 @@ function PresetForm({
                   setPairs((list) => list.filter((_, i) => i !== index));
                   setPicking(null);
                 }}
-                className="h-9 w-9 items-center justify-center rounded-full active:bg-danger-tint"
+                className="h-touch w-touch items-center justify-center rounded-full active:bg-danger-tint"
               >
                 <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
               </Pressable>
@@ -153,7 +153,7 @@ function PresetForm({
                   accessibilityLabel={`${side === 'out' ? 'Off' : 'On'}: ${player?.name ?? 'not picked'}`}
                   accessibilityState={{ expanded: active }}
                   onPress={() => setPicking(active ? null : { index, side })}
-                  className={`min-h-12 flex-1 flex-row items-center gap-2 rounded-xl border px-2 ${
+                  className={`min-h-touch flex-1 flex-row items-center gap-2 rounded-xl border px-2 ${
                     active ? 'border-brand bg-brand-tint' : 'border-line-strong bg-surface'
                   }`}
                 >
@@ -181,7 +181,7 @@ function PresetForm({
                     key={p.id}
                     accessibilityRole="button"
                     onPress={() => setPlayer(index, picking.side, p.id)}
-                    className="min-h-11 flex-row items-center gap-1.5 rounded-full border border-line bg-surface py-1 pr-3 pl-1 active:bg-muted"
+                    className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-line bg-surface py-1 pr-3 pl-1 active:bg-muted"
                   >
                     <JerseyBadge number={p.jerseyNumber} kitColor={kitColor} size={30} />
                     <Text className="text-sm font-semibold text-ink">{p.name}</Text>

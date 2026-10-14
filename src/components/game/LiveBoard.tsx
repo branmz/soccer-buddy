@@ -328,14 +328,19 @@ export function liveHint(
 /** What the selection will do, in cyan like the selected player's ring. */
 export function LiveHint({ text, onCancel }: { text: string; onCancel: () => void }) {
   return (
-    <View className="min-h-12 flex-row items-center gap-2 border-b border-select-strong bg-select-tint px-3">
-      <Text accessibilityLiveRegion="polite" className="flex-1 py-1 text-base font-medium text-ink">
+    <View className="min-h-touch-lg flex-row items-center gap-2 border-b border-select-strong bg-select-tint px-3 py-1">
+      {/* Two lines at most, like the Tactics hint: a third would grow the bar and move the pitch. */}
+      <Text
+        accessibilityLiveRegion="polite"
+        numberOfLines={2}
+        className="flex-1 py-1 text-base font-medium text-ink"
+      >
         {text}
       </Text>
       <Pressable
         accessibilityRole="button"
         onPress={onCancel}
-        className="min-h-12 justify-center rounded-full px-3 active:bg-select-tint-strong"
+        className="min-h-touch justify-center rounded-full px-3 active:bg-select-tint-strong"
       >
         <Text className="text-base font-semibold text-brand">Cancel</Text>
       </Pressable>

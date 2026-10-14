@@ -14,12 +14,12 @@ type FormationBarProps = {
 /** Above the live pitch: the formation (tap to switch it) and the way into editing its shape. */
 export function FormationBar({ formationName, onSwitch, onEdit }: FormationBarProps) {
   return (
-    <View className="min-h-12 flex-row items-center gap-2 border-b border-line bg-surface px-3 py-1">
+    <View className="min-h-touch-lg flex-row items-center gap-2 border-b border-line bg-surface px-3 py-1">
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`Formation ${formationName ?? ''}. Switch formation`}
         onPress={onSwitch}
-        className="min-h-12 shrink flex-row items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
+        className="min-h-touch shrink flex-row items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
       >
         <Ionicons name="grid-outline" size={18} color={COLORS.inkSoft} />
         <Text numberOfLines={1} className="shrink text-base font-bold text-ink">
@@ -32,7 +32,7 @@ export function FormationBar({ formationName, onSwitch, onEdit }: FormationBarPr
         accessibilityRole="button"
         accessibilityHint="Move spots or change their positions during the match"
         onPress={onEdit}
-        className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-brand-edge bg-brand-tint px-4 active:bg-brand-tint-strong"
+        className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-brand-edge bg-brand-tint px-4 active:bg-brand-tint-strong"
       >
         <Ionicons name="move" size={18} color={COLORS.brandStrong} />
         <Text className="text-base font-semibold text-brand-strong">Edit Formation</Text>
@@ -67,7 +67,7 @@ export function FormationEditBar({
     <View className="gap-2 border-b border-yellow-300 bg-yellow-50 px-3 py-2">
       {/* At most two lines next to a 48dp pill: the row keeps one height as the hint changes,
           so the pitch below never jumps while the coach is tapping it. */}
-      <View className="min-h-12 flex-row items-center gap-2">
+      <View className="min-h-touch flex-row items-center gap-2">
         <Text
           accessibilityLiveRegion="polite"
           numberOfLines={2}
@@ -80,7 +80,7 @@ export function FormationEditBar({
             accessibilityRole="button"
             accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
             onPress={() => onChangePosition(selectedSlot)}
-            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
+            className="min-h-touch flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
           >
             <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
             <Ionicons name="chevron-down" size={18} color={COLORS.brandStrong} />
@@ -97,7 +97,7 @@ export function FormationEditBar({
           onPress={onUndo}
           // Disabled is muted but still readable (a 40% fade washed out on the cream bar). Both
           // states set every class; only the values change (no Android ghosting).
-          className={`min-h-12 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border px-3 ${
+          className={`min-h-touch flex-1 flex-row items-center justify-center gap-1.5 rounded-full border px-3 ${
             canUndo
               ? 'border-line-strong bg-surface active:bg-muted'
               : 'border-line bg-muted active:bg-muted'
@@ -111,7 +111,7 @@ export function FormationEditBar({
         <Pressable
           accessibilityRole="button"
           onPress={onDone}
-          className="min-h-12 flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-brand-strong"
+          className="min-h-touch flex-1 flex-row items-center justify-center gap-1.5 rounded-full border border-brand bg-brand px-4 active:bg-brand-strong"
         >
           <Ionicons name="checkmark" size={18} color={ON_FILL} />
           <Text className="text-base font-semibold text-white">Done</Text>
