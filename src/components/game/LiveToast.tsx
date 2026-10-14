@@ -1,7 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
-import { BRAND } from '@/constants/colors';
+import { COLORS, ON_FILL } from '@/constants/colors';
 
 /** `success`: something was recorded (offers Undo). `undone`: an undo happened (no button,
  *  so it can't be mistaken for a redo). `error`: something was refused. */
@@ -9,22 +9,22 @@ export type Toast = { id: number; text: string; tone: 'success' | 'undone' | 'er
 
 const TONE = {
   success: {
-    box: 'border-brand bg-white',
-    text: 'text-gray-900',
+    box: 'border-brand bg-surface',
+    text: 'text-ink',
     icon: 'checkmark-circle',
-    iconColor: BRAND,
+    iconColor: COLORS.brand,
   },
   undone: {
-    box: 'border-gray-400 bg-white',
-    text: 'text-gray-900',
+    box: 'border-ink-faint bg-surface',
+    text: 'text-ink',
     icon: 'arrow-undo-circle',
-    iconColor: '#4b5563',
+    iconColor: COLORS.inkSoft,
   },
   error: {
-    box: 'border-red-800 bg-red-700',
+    box: 'border-red-800 bg-danger-strong',
     text: 'text-white',
     icon: 'alert-circle',
-    iconColor: '#ffffff',
+    iconColor: ON_FILL,
   },
 } as const;
 
@@ -55,10 +55,10 @@ export function LiveToast({ toast, onUndo }: LiveToastProps) {
         <Pressable
           accessibilityRole="button"
           onPress={onUndo}
-          className="min-h-12 flex-row items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 active:bg-gray-100"
+          className="min-h-12 flex-row items-center gap-1 rounded-lg border border-line-strong bg-surface px-4 active:bg-muted"
         >
-          <Ionicons name="arrow-undo" size={18} color="#111827" />
-          <Text className="text-base font-bold text-gray-900">Undo</Text>
+          <Ionicons name="arrow-undo" size={18} color={COLORS.ink} />
+          <Text className="text-base font-bold text-ink">Undo</Text>
         </Pressable>
       )}
     </View>

@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Pressable, Text } from 'react-native';
 
+import { COLORS, ON_FILL } from '@/constants/colors';
 import { capitalizeWords } from '@/domain/text';
 
 type Variant = 'primary' | 'secondary' | 'danger';
@@ -27,19 +28,19 @@ type HeaderButtonProps = {
 
 const VARIANT: Record<Variant, { box: string; text: string; icon: string }> = {
   primary: {
-    box: 'border-brand bg-brand active:bg-pitch-dark',
+    box: 'border-brand bg-brand active:bg-brand-strong',
     text: 'text-white',
-    icon: '#ffffff',
+    icon: ON_FILL,
   },
   secondary: {
-    box: 'border-green-200 bg-green-50 active:bg-green-100',
-    text: 'text-pitch-dark',
-    icon: '#1b5e20',
+    box: 'border-brand-edge bg-brand-tint active:bg-brand-tint-strong',
+    text: 'text-brand-strong',
+    icon: COLORS.brandStrong,
   },
   danger: {
-    box: 'border-red-200 bg-red-50 active:bg-red-100',
-    text: 'text-red-700',
-    icon: '#b91c1c',
+    box: 'border-danger-edge bg-danger-tint active:bg-danger-tint-strong',
+    text: 'text-danger-strong',
+    icon: COLORS.dangerStrong,
   },
 };
 

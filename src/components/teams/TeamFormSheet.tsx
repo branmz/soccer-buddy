@@ -99,7 +99,7 @@ function TeamForm({ team, onClose, onSaved, onDeletePress }: Omit<TeamFormSheetP
         onChangeAway={setAwayColor}
       />
       {sizeChanged && (
-        <Text className="text-sm text-amber-700">
+        <Text className="text-sm text-warning">
           Saved formations for {team.fieldSize}v{team.fieldSize} stay saved but are hidden until you
           switch back.
         </Text>
@@ -111,7 +111,7 @@ function TeamForm({ team, onClose, onSaved, onDeletePress }: Omit<TeamFormSheetP
       />
       {team && onDeletePress && (
         // Set apart from Save by a divider: destructive shouldn't look like the main action.
-        <View className="mt-2 border-t border-gray-200 pt-4">
+        <View className="mt-2 border-t border-line pt-4">
           <Button
             label="Delete team"
             variant="dangerOutline"

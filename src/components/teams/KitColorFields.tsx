@@ -56,7 +56,7 @@ export function KitColorFields({ home, away, onChangeHome, onChangeAway }: KitCo
         <View
           accessibilityRole="radiogroup"
           accessibilityLabel={editing === 'home' ? 'Home kit color' : 'Away kit color'}
-          className="flex-row flex-wrap gap-3 rounded-xl bg-gray-50 p-3"
+          className="flex-row flex-wrap gap-3 rounded-xl bg-canvas p-3"
         >
           {KIT_COLORS.map(({ name, hex }) => {
             const selected = hex === value;

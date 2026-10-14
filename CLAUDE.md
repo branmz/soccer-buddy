@@ -63,7 +63,8 @@ what to build next. Update its Status section when a milestone's PR merges.
 - `src/domain/` — pure TS logic (clock, lineup replay, sub rules, playing time, stats,
   formation JSON parsing). No React, no DB imports. Unit tested in `src/domain/__tests__/`
 - `src/constants/` — `presetFormations.ts` (built-in formations per field size 5/7/9/11),
-  `colors.ts` (`BRAND` for icon/switch props, mirrors `--color-brand`), `navigation.ts`
+  `colors.ts` (`COLORS` / `ON_FILL` for icon/switch props, mirrors the `src/global.css`
+  theme tokens; a test checks they match), `navigation.ts`
   (`STACK_OPTIONS`, used by every tab's Stack)
 - `src/stores/` — Zustand: `appStore` (activeTeamId, persisted via expo-sqlite/kv-store),
   `boardStore` (formation editor and match lineup editor). Live-screen UI state is local state

@@ -4,14 +4,67 @@
 
 @import 'nativewind/theme';
 
+/*
+ * The app's theme: change a color here and every screen follows. Each token works with any
+ * color utility (bg-surface, text-ink, border-line, active:bg-muted…). Icons, switches and SVGs
+ * take a value, not a class: they use COLORS in src/constants/colors.ts, which mirrors these
+ * values (a test keeps the two in sync).
+ *
+ * Colors fixed by what they sit on stay literal Tailwind classes: text on solid fills (white on
+ * green, gray-950 on amber), the pitch's token labels and rings, referee cards and kit colors.
+ */
 @theme {
-  --color-pitch: #2e7d32;
-  --color-pitch-dark: #1b5e20;
-  --color-pitch-line: #e8f5e9;
-  /* Dark enough for white text in sunlight (5:1). Mirrored as BRAND in src/constants/colors.ts. */
+  /* Surfaces: page background, cards and bars, quiet fills (pressed rows, disabled). */
+  --color-canvas: #f9fafb;
+  --color-surface: #ffffff;
+  --color-muted: #f3f4f6;
+
+  /* Borders and dividers. */
+  --color-line: #e5e7eb;
+  --color-line-strong: #d1d5dc;
+
+  /* Text and icons on surfaces. Readable text is never lighter than ink-muted (sunlight);
+     ink-faint is for placeholders and decoration only. */
+  --color-ink: #101828;
+  --color-ink-soft: #364153;
+  --color-ink-muted: #6a7282;
+  --color-ink-faint: #99a1af;
+
+  /* Brand green. `brand` is dark enough for white text in sunlight (5:1); `brand-strong` is
+     green text on light surfaces and a pressed brand button. */
   --color-brand: #15803d;
+  --color-brand-strong: #1b5e20;
+  --color-brand-tint: #f0fdf4;
+  --color-brand-tint-strong: #dcfce7;
+  --color-brand-edge: #b9f8cf;
+
+  /* Destructive actions and errors. */
+  --color-danger: #e7000b;
+  --color-danger-strong: #c10007;
+  --color-danger-tint: #fef2f2;
+  --color-danger-tint-strong: #ffe2e2;
+  --color-danger-edge: #ffa2a2;
+
+  /* Warnings (duplicate jersey, no players yet). */
+  --color-warning: #bb4d00;
+  --color-warning-strong: #973c00;
+  --color-warning-tint: #fffbeb;
+  --color-warning-edge: #fd9a00;
+
+  /* Clock stopped: the paused clock bar, live card and the button that gets play going. */
+  --color-paused: #ffba00;
+  --color-paused-strong: #fd9a00;
+
   /* "Selected" is cyan (no kit color is): yellow is kept for cards and position fit.
      Light on the grass (cyan-300, 3.5:1), dark on white surfaces (cyan-700, 5.4:1). */
   --color-select: #67e8f9;
   --color-select-strong: #0e7490;
+  --color-select-tint: #ecfeff;
+  --color-select-tint-strong: #cefafe;
+
+  /* The pitch, and the dark green clock bar / live card. */
+  --color-pitch: #2e7d32;
+  --color-pitch-dark: #1b5e20;
+  --color-pitch-line: #e8f5e9;
+  --color-pitch-stripe: #338a37;
 }

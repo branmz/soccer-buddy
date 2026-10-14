@@ -6,6 +6,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { KitShirt } from '@/components/teams/KitShirt';
 import { Button } from '@/components/ui/Button';
+import { COLORS } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 import { formatMinutesPlayed } from '@/domain/history';
 import { matchResult, type MatchResult, type PlayerMatchStats, type Score } from '@/domain/stats';
@@ -45,7 +46,7 @@ export function FinishedSummary({
 }: FinishedSummaryProps) {
   const result = RESULT_LABEL[matchResult(score)];
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-canvas">
       <View
         className="items-center gap-1 bg-pitch-dark px-4 pb-5"
         style={{ paddingTop: insetTop + 12 }}
@@ -74,7 +75,7 @@ export function FinishedSummary({
       </ScrollView>
       {done && (
         <View
-          className="border-t border-gray-200 bg-white px-4 pt-3"
+          className="border-t border-line bg-surface px-4 pt-3"
           style={{ paddingBottom: Math.max(done.insetBottom, 12) }}
         >
           <Button label="Done" icon="checkmark" onPress={done.onPress} className="min-h-14" />
@@ -87,8 +88,8 @@ export function FinishedSummary({
 /** A white card with a heading, for the summary's sections. */
 export function SummaryCard({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <View className="gap-1 rounded-2xl border border-gray-200 bg-white p-4">
-      <Text accessibilityRole="header" className="pb-1 text-lg font-bold text-gray-900">
+    <View className="gap-1 rounded-2xl border border-line bg-surface p-4">
+      <Text accessibilityRole="header" className="pb-1 text-lg font-bold text-ink">
         {capitalizeWords(title)}
       </Text>
       {children}
@@ -120,10 +121,10 @@ export function TimelineCard({
     );
   }
   return (
-    <View className="gap-1 rounded-2xl border border-gray-200 bg-white px-4 pt-2 pb-2">
+    <View className="gap-1 rounded-2xl border border-line bg-surface px-4 pt-2 pb-2">
       {/* The title stays a heading (for screen-reader navigation) beside a separate toggle. */}
       <View className="min-h-12 flex-row items-center gap-2">
-        <Text accessibilityRole="header" className="flex-1 text-lg font-bold text-gray-900">
+        <Text accessibilityRole="header" className="flex-1 text-lg font-bold text-ink">
           {capitalizeWords(title)}
         </Text>
         <Pressable
@@ -133,12 +134,16 @@ export function TimelineCard({
             entries.length === 1 ? 'event' : 'events'
           }`}
           onPress={() => setOpen((o) => !o)}
-          className="min-h-12 flex-row items-center gap-1 rounded-full px-2 active:bg-green-50"
+          className="min-h-12 flex-row items-center gap-1 rounded-full px-2 active:bg-brand-tint"
         >
-          <Text className="text-base font-semibold text-pitch-dark">
+          <Text className="text-base font-semibold text-brand-strong">
             {open ? 'Hide' : `Show All ${entries.length}`}
           </Text>
-          <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#1b5e20" />
+          <Ionicons
+            name={open ? 'chevron-up' : 'chevron-down'}
+            size={18}
+            color={COLORS.brandStrong}
+          />
         </Pressable>
       </View>
       {open && <EventTimeline entries={entries} emptyText={emptyText} />}
@@ -161,15 +166,15 @@ export function MinutesPlayedCard({ minutes, stats, kitColor }: MinutesPlayedCar
         <View
           key={player.id}
           accessible
-          className="min-h-11 flex-row items-center gap-3 border-b border-gray-100"
+          className="min-h-11 flex-row items-center gap-3 border-b border-muted"
         >
           <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={30} />
-          <Text numberOfLines={1} className="flex-1 text-base text-gray-900">
+          <Text numberOfLines={1} className="flex-1 text-base text-ink">
             {player.name}
           </Text>
           <StatMarks stats={stats.get(player.id)} />
           <Text
-            className="w-10 text-right text-base font-bold text-gray-900"
+            className="w-10 text-right text-base font-bold text-ink"
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {formatMinutesPlayed(played)}
@@ -187,13 +192,13 @@ function StatMarks({ stats }: { stats: PlayerMatchStats | undefined }) {
     {
       key: 'goals',
       count: stats.goals,
-      icon: <Ionicons name="football" size={18} color="#111827" />,
+      icon: <Ionicons name="football" size={18} color={COLORS.ink} />,
       label: 'goal',
     },
     {
       key: 'assists',
       count: stats.assists,
-      icon: <MaterialCommunityIcons name="shoe-cleat" size={18} color="#111827" />,
+      icon: <MaterialCommunityIcons name="shoe-cleat" size={18} color={COLORS.ink} />,
       label: 'assist',
     },
     {
@@ -221,7 +226,7 @@ function StatMarks({ stats }: { stats: PlayerMatchStats | undefined }) {
       {shown.map((m) => (
         <View key={m.key} className="flex-row items-center">
           {m.icon}
-          {m.count > 1 && <Text className="text-sm font-bold text-gray-700">×{m.count}</Text>}
+          {m.count > 1 && <Text className="text-sm font-bold text-ink-soft">×{m.count}</Text>}
         </View>
       ))}
     </View>

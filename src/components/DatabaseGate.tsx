@@ -18,9 +18,9 @@ export function DatabaseGate({ children }: { children: ReactNode }) {
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center gap-2 bg-white px-6">
-        <Text className="text-xl font-bold text-red-700">Could not open your data</Text>
-        <Text className="text-center text-base text-gray-600">{error.message}</Text>
+      <View className="flex-1 items-center justify-center gap-2 bg-surface px-6">
+        <Text className="text-xl font-bold text-danger-strong">Could not open your data</Text>
+        <Text className="text-center text-base text-ink-soft">{error.message}</Text>
       </View>
     );
   }

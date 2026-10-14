@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { KitShirt } from '@/components/teams/KitShirt';
+import { COLORS } from '@/constants/colors';
 import type { FinishedMatch } from '@/db/repositories/history';
 import { kitColorName } from '@/domain/colors';
 
@@ -29,29 +30,29 @@ export function MatchResultRow({ item, kitColor, scorers, onPress }: MatchResult
       accessibilityRole="button"
       accessibilityLabel={`${resultLabel(result)} against ${match.opponentName}, ${score.us} to ${score.them}. ${date}, ${venue}${kit}${scored}`}
       onPress={onPress}
-      className="min-h-16 flex-row items-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 active:bg-gray-50"
+      className="min-h-16 flex-row items-center gap-3 rounded-2xl border border-line bg-surface px-4 py-3 active:bg-canvas"
     >
       <ResultBadge result={result} />
       <View className="flex-1 gap-0.5">
-        <Text numberOfLines={1} className="text-lg font-bold text-gray-900">
+        <Text numberOfLines={1} className="text-lg font-bold text-ink">
           vs {match.opponentName}
         </Text>
         <View className="flex-row items-center gap-1.5">
-          <Text numberOfLines={1} className="shrink text-sm text-gray-500">
+          <Text numberOfLines={1} className="shrink text-sm text-ink-muted">
             {date} · {venue}
           </Text>
           {kitColor && <KitShirt color={kitColor} size={14} />}
         </View>
         {scorers && (
           <View className="flex-row items-center gap-1.5">
-            <Ionicons name="football" size={14} color="#374151" />
-            <Text numberOfLines={2} className="shrink text-sm text-gray-700">
+            <Ionicons name="football" size={14} color={COLORS.inkSoft} />
+            <Text numberOfLines={2} className="shrink text-sm text-ink-soft">
               {scorers}
             </Text>
           </View>
         )}
       </View>
-      <Text className="text-2xl font-black text-gray-900" style={{ fontVariant: ['tabular-nums'] }}>
+      <Text className="text-2xl font-black text-ink" style={{ fontVariant: ['tabular-nums'] }}>
         {score.us}–{score.them}
       </Text>
     </Pressable>

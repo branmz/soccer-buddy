@@ -5,6 +5,7 @@ import { GestureDetector, ScrollView } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
+import { COLORS, ON_FILL } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 import { sameItem, type BoardItem, type SlotFit } from '@/domain/board';
 import { formatPositions } from '@/domain/positions';
@@ -58,21 +59,21 @@ export function BenchSidebar({
 
   // A fixed narrow column: every dp it gives up goes to the pitch and its tokens.
   return (
-    <View className="w-[88px] border-l border-gray-200 bg-white">
+    <View className="w-[88px] border-l border-line bg-surface">
       {/* Measured on drop to tell whether a token was released over the bench. */}
       <Animated.View ref={benchRef} style={{ flex: 1 }}>
         <View
           // Both states set the border style too (a removed border-dashed lingers on Android).
-          className={`flex-1 border-2 ${isDropTarget ? 'border-dashed border-brand bg-green-50' : 'border-solid border-transparent bg-white'}`}
+          className={`flex-1 border-2 ${isDropTarget ? 'border-dashed border-brand bg-brand-tint' : 'border-solid border-transparent bg-surface'}`}
         >
           {/* Locked (while spots move): a lock and grey badges say so, but the text stays
               readable. Fading the whole column to 40% made it illegible. */}
           <View className="flex-row items-center justify-center gap-1 px-2 pt-2 pb-1">
-            {disabled && <Ionicons name="lock-closed" size={11} color="#6b7280" />}
+            {disabled && <Ionicons name="lock-closed" size={11} color={COLORS.inkMuted} />}
             <Text
               accessibilityRole="header"
               accessibilityLabel={`Bench, ${players.length}${disabled ? ', locked while editing spots' : ''}`}
-              className="text-center text-xs font-semibold text-gray-500 uppercase"
+              className="text-center text-xs font-semibold text-ink-muted uppercase"
             >
               Bench · {players.length}
             </Text>
@@ -82,9 +83,9 @@ export function BenchSidebar({
               accessibilityRole="button"
               accessibilityLabel="Move the selected player to the bench"
               onPress={onBenchZonePress}
-              className="mx-1 mb-1 min-h-12 items-center justify-center rounded-xl bg-brand px-1 active:bg-pitch-dark"
+              className="mx-1 mb-1 min-h-12 items-center justify-center rounded-xl bg-brand px-1 active:bg-brand-strong"
             >
-              <Ionicons name="arrow-down" size={16} color="#ffffff" />
+              <Ionicons name="arrow-down" size={16} color={ON_FILL} />
               <Text className="text-center text-xs font-semibold text-white">Move To Bench</Text>
             </Pressable>
           )}
@@ -109,7 +110,7 @@ export function BenchSidebar({
                 />
               ))}
               {players.length === 0 && (
-                <Text className="px-1 pt-2 text-center text-xs text-gray-500">
+                <Text className="px-1 pt-2 text-center text-xs text-ink-muted">
                   Everyone is on the pitch
                 </Text>
               )}
@@ -172,7 +173,7 @@ function BenchPlayer({
       >
         <View
           className={`items-center gap-0.5 rounded-xl border-2 px-1 py-1.5 ${
-            selected ? 'border-select-strong bg-cyan-50' : 'border-transparent bg-transparent'
+            selected ? 'border-select-strong bg-select-tint' : 'border-transparent bg-transparent'
           } ${isDragged ? 'opacity-30' : 'opacity-100'}`}
         >
           <View>
@@ -186,7 +187,7 @@ function BenchPlayer({
           </View>
           <Text
             numberOfLines={1}
-            className={`text-xs font-semibold ${disabled ? 'text-gray-500' : 'text-gray-900'}`}
+            className={`text-xs font-semibold ${disabled ? 'text-ink-muted' : 'text-ink'}`}
           >
             {player.name}
           </Text>
@@ -194,7 +195,7 @@ function BenchPlayer({
             <Text
               numberOfLines={1}
               className={`text-[11px] font-semibold ${
-                disabled ? 'text-gray-500' : fit ? 'text-brand' : 'text-gray-600'
+                disabled ? 'text-ink-muted' : fit ? 'text-brand' : 'text-ink-soft'
               }`}
             >
               {fit ? '★ ' : ''}
@@ -204,7 +205,7 @@ function BenchPlayer({
           {note !== null && (
             <Text
               numberOfLines={1}
-              className={`text-[11px] font-semibold ${disabled ? 'text-gray-500' : 'text-gray-600'}`}
+              className={`text-[11px] font-semibold ${disabled ? 'text-ink-muted' : 'text-ink-soft'}`}
             >
               {note}
             </Text>

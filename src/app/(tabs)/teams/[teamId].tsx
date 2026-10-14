@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { HeaderButton } from '@/components/ui/HeaderButton';
+import { COLORS } from '@/constants/colors';
 import { userMessage } from '@/db/repositories/errors';
 import { deletePlayer, playersQuery } from '@/db/repositories/players';
 import { getTeam } from '@/db/repositories/teams';
@@ -94,7 +95,7 @@ export default function RosterScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-canvas">
       <Stack.Screen
         options={{
           title: team.name,
@@ -146,19 +147,19 @@ export default function RosterScreen() {
                 onPress={() => setShowInactive((v) => !v)}
                 className="min-h-12 flex-row items-center gap-1 px-4 pt-4"
               >
-                <Text className="text-sm font-semibold text-gray-500 uppercase">
+                <Text className="text-sm font-semibold text-ink-muted uppercase">
                   {section.title}
                 </Text>
                 <Ionicons
                   name={showInactive ? 'chevron-up' : 'chevron-down'}
                   size={16}
-                  color="#6b7280"
+                  color={COLORS.inkMuted}
                 />
               </Pressable>
             ) : (
               // The sort rides on the first header: rarely changed, so it shouldn't cost a row.
               <View className="flex-row items-center justify-between px-4 pt-3 pb-1">
-                <Text className="text-sm font-semibold text-gray-500 uppercase">
+                <Text className="text-sm font-semibold text-ink-muted uppercase">
                   {section.title}
                 </Text>
                 <Pressable
@@ -166,12 +167,10 @@ export default function RosterScreen() {
                   accessibilityLabel={`Sorted by ${SORT_LABEL[rosterSort].toLowerCase()}`}
                   accessibilityHint={`Sorts by ${SORT_LABEL[nextSort(rosterSort)].toLowerCase()}`}
                   onPress={() => setRosterSort(nextSort(rosterSort))}
-                  className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-gray-300 bg-white px-3 active:bg-gray-100"
+                  className="min-h-12 flex-row items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
                 >
-                  <Ionicons name="swap-vertical" size={16} color="#374151" />
-                  <Text className="text-base font-semibold text-gray-800">
-                    {SORT_LABEL[rosterSort]}
-                  </Text>
+                  <Ionicons name="swap-vertical" size={16} color={COLORS.inkSoft} />
+                  <Text className="text-base font-semibold text-ink">{SORT_LABEL[rosterSort]}</Text>
                 </Pressable>
               </View>
             )
@@ -254,25 +253,25 @@ function PlayerRow({ player, kitColor, duplicateJersey, onPress }: PlayerRowProp
       accessibilityRole="button"
       accessibilityLabel={label}
       onPress={onPress}
-      className="min-h-14 flex-row items-center gap-3 border-b border-gray-100 bg-white px-4 active:bg-gray-50"
+      className="min-h-14 flex-row items-center gap-3 border-b border-muted bg-surface px-4 active:bg-canvas"
     >
       <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} inactive={!player.isActive} />
       <Text
         numberOfLines={1}
-        className={`flex-1 text-base font-semibold ${player.isActive ? 'text-gray-900' : 'text-gray-500'}`}
+        className={`flex-1 text-base font-semibold ${player.isActive ? 'text-ink' : 'text-ink-muted'}`}
       >
         {player.name}
       </Text>
       {/* Main position stands out; the second one is secondary. Sibling Texts, not nested. */}
       {player.primaryPosition && (
         <View className="flex-row items-center">
-          <Text className="text-sm font-bold text-gray-800">{player.primaryPosition}</Text>
+          <Text className="text-sm font-bold text-ink">{player.primaryPosition}</Text>
           {player.secondaryPosition && (
-            <Text className="text-sm text-gray-500"> / {player.secondaryPosition}</Text>
+            <Text className="text-sm text-ink-muted"> / {player.secondaryPosition}</Text>
           )}
         </View>
       )}
-      {duplicateJersey && <Ionicons name="warning-outline" size={20} color="#b45309" />}
+      {duplicateJersey && <Ionicons name="warning-outline" size={20} color={COLORS.warning} />}
     </Pressable>
   );
 }

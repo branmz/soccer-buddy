@@ -32,12 +32,12 @@ export function SegmentedControl<T extends string | number>({
   return (
     <View className="gap-1">
       {!hideLabel && (
-        <Text className="text-sm font-medium text-gray-700">{capitalizeWords(label)}</Text>
+        <Text className="text-sm font-medium text-ink-soft">{capitalizeWords(label)}</Text>
       )}
       <View
         accessibilityRole="radiogroup"
         accessibilityLabel={label}
-        className="flex-row rounded-xl bg-gray-100 p-1"
+        className="flex-row rounded-xl bg-muted p-1"
       >
         {options.map((option) => {
           const selected = option.value === value;
@@ -55,14 +55,14 @@ export function SegmentedControl<T extends string | number>({
               // "ghost" of the old selection on Android.
               className={`min-h-12 flex-1 flex-row items-center justify-center gap-2 rounded-lg border ${
                 selected
-                  ? (option.selectedClassName ?? 'border-gray-200 bg-white')
+                  ? (option.selectedClassName ?? 'border-line bg-surface')
                   : 'border-transparent bg-transparent'
               }`}
             >
               {option.icon}
               <Text
                 className={`text-base font-semibold ${
-                  selected ? (option.selectedTextClassName ?? 'text-gray-900') : 'text-gray-500'
+                  selected ? (option.selectedTextClassName ?? 'text-ink') : 'text-ink-muted'
                 }`}
               >
                 {capitalizeWords(option.label)}

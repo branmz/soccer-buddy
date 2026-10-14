@@ -81,7 +81,7 @@ export default function MatchDetailScreen() {
   );
 
   // Deleted from here: keep the screen blank while it slides away.
-  if (deleted) return <View className="flex-1 bg-gray-50" />;
+  if (deleted) return <View className="flex-1 bg-canvas" />;
 
   if (!match || !team || match.status !== 'finished' || !starting) {
     return (

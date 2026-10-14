@@ -20,6 +20,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
 
+import { COLORS } from '@/constants/colors';
 import {
   idsInOrder,
   movePosition,
@@ -65,7 +66,7 @@ export function ReorderList<T extends { id: number }>({
   name,
   accessibilityLabel,
   renderBody,
-  borderClass = () => 'border-gray-200',
+  borderClass = () => 'border-line',
   onReorder,
   onOpen,
   header,
@@ -142,13 +143,13 @@ export function ReorderList<T extends { id: number }>({
   return (
     <ScrollView
       ref={scrollRef}
-      className="flex-1 bg-gray-50"
+      className="flex-1 bg-canvas"
       contentContainerClassName="gap-3 p-4 pb-8"
       scrollEnabled={!dragging}
     >
       {header}
       {selected && (
-        <Text accessibilityLiveRegion="polite" className="text-base font-medium text-gray-900">
+        <Text accessibilityLiveRegion="polite" className="text-base font-medium text-ink">
           {dragging
             ? 'Drop it where it should go.'
             : `Tap where ${name(selected)} should go, or tap it again to cancel.`}
@@ -310,7 +311,7 @@ function ReorderRow({
     >
       <View
         // Every state sets its border color: removing a class flickers on Android.
-        className={`min-h-24 flex-row items-center rounded-2xl border-2 bg-white ${borderClass}`}
+        className={`min-h-24 flex-row items-center rounded-2xl border-2 bg-surface ${borderClass}`}
       >
         <Pressable
           accessibilityRole="button"
@@ -324,7 +325,7 @@ function ReorderRow({
                 : 'Moves the selected item here'
           }
           onPress={onPress}
-          className="flex-1 justify-center gap-2 self-stretch rounded-2xl px-5 py-5 active:bg-gray-50"
+          className="flex-1 justify-center gap-2 self-stretch rounded-2xl px-5 py-5 active:bg-canvas"
         >
           {children}
         </Pressable>
@@ -350,7 +351,7 @@ function ReorderRow({
               className="h-16 w-16 items-center justify-center"
             >
               {/* A six-dot grip: three lines (reorder-three) read as a menu. */}
-              <MaterialCommunityIcons name="drag" size={32} color="#6b7280" />
+              <MaterialCommunityIcons name="drag" size={32} color={COLORS.inkMuted} />
             </View>
           </GestureDetector>
         )}

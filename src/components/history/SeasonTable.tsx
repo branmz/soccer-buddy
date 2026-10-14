@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Pressable, Text, View } from 'react-native';
 
 import { RefereeCardIcon } from '@/components/game/RefereeCardIcon';
+import { COLORS } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 import type { SeasonRow, SeasonTableSort, SortDirection } from '@/domain/history';
 import type { SeasonRecord } from '@/domain/stats';
@@ -65,13 +66,13 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
     <Ionicons
       name={sort.direction === 'desc' ? 'caret-down' : 'caret-up'}
       size={10}
-      color="#1b5e20"
+      color={COLORS.brandStrong}
     />
   );
   const sortLabel = sort.direction === 'desc' ? 'descending' : 'ascending';
   return (
-    <View className="rounded-2xl border border-gray-200 bg-white">
-      <View className="flex-row items-center border-b border-gray-200 px-3">
+    <View className="rounded-2xl border border-line bg-surface">
+      <View className="flex-row items-center border-b border-line px-3">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Sort by name${sort.key === 'name' ? `, sorted ${sortLabel}` : ''}`}
@@ -79,7 +80,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
           className="min-h-11 flex-1 flex-row items-center gap-1"
         >
           <Text
-            className={`text-sm font-bold ${sort.key === 'name' ? 'text-pitch-dark' : 'text-gray-500'}`}
+            className={`text-sm font-bold ${sort.key === 'name' ? 'text-brand-strong' : 'text-ink-muted'}`}
           >
             Player
           </Text>
@@ -93,12 +94,12 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
               accessibilityRole="button"
               accessibilityLabel={`Sort by ${column.label.toLowerCase()}${active ? `, sorted ${sortLabel}` : ''}`}
               onPress={() => onSort(column.key)}
-              className={`min-h-11 items-center justify-center rounded-md ${active ? 'bg-green-50' : 'bg-transparent'}`}
+              className={`min-h-11 items-center justify-center rounded-md ${active ? 'bg-brand-tint' : 'bg-transparent'}`}
               style={{ width: column.width }}
             >
               {typeof column.header === 'string' ? (
                 <Text
-                  className={`text-sm font-bold ${active ? 'text-pitch-dark' : 'text-gray-500'}`}
+                  className={`text-sm font-bold ${active ? 'text-brand-strong' : 'text-ink-muted'}`}
                 >
                   {column.header}
                 </Text>
@@ -119,13 +120,13 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
           ).join(', ')}`}
           className={`min-h-11 flex-row items-center px-3 ${
             // Both states set a border color: re-sorting moves rows in and out of last place.
-            i < rows.length - 1 ? 'border-b border-gray-100' : 'border-b border-transparent'
+            i < rows.length - 1 ? 'border-b border-muted' : 'border-b border-transparent'
           }`}
         >
           <View className="flex-1 flex-row items-center gap-1.5 pr-1">
             {row.player.jerseyNumber !== null && (
               <Text
-                className="w-6 text-right text-sm font-semibold text-gray-500"
+                className="w-6 text-right text-sm font-semibold text-ink-muted"
                 style={{ fontVariant: ['tabular-nums'] }}
               >
                 {row.player.jerseyNumber}
@@ -133,7 +134,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
             )}
             <Text
               numberOfLines={1}
-              className={`shrink text-base ${row.player.isActive ? 'text-gray-900' : 'text-gray-500'}`}
+              className={`shrink text-base ${row.player.isActive ? 'text-ink' : 'text-ink-muted'}`}
             >
               {row.player.name}
             </Text>
@@ -146,7 +147,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
                 key={column.key}
                 // Only the color marks the sorted column: a weight change flickers on Android.
                 className={`text-center text-base font-semibold ${
-                  value === 0 ? 'text-gray-300' : active ? 'text-pitch-dark' : 'text-gray-700'
+                  value === 0 ? 'text-line-strong' : active ? 'text-brand-strong' : 'text-ink-soft'
                 }`}
                 style={{ width: column.width, fontVariant: ['tabular-nums'] }}
               >

@@ -11,7 +11,7 @@ import { UnsavedChangesSheet } from '@/components/tactics/UnsavedChangesSheet';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { HeaderButton } from '@/components/ui/HeaderButton';
-import { BRAND } from '@/constants/colors';
+import { COLORS } from '@/constants/colors';
 import { getPresetFormation } from '@/constants/presetFormations';
 import { userMessage } from '@/db/repositories/errors';
 import {
@@ -168,7 +168,7 @@ export default function FormationEditorScreen() {
   const canSave = isNew || dirty;
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className="flex-1 bg-muted">
       <Stack.Screen
         options={{
           title: name || 'Formation',
@@ -178,12 +178,12 @@ export default function FormationEditorScreen() {
               accessibilityRole="button"
               accessibilityLabel={`Formation name: ${children}. Rename`}
               onPress={() => setRenameOpen(true)}
-              className="min-h-12 max-w-52 flex-row items-center gap-2 rounded-full px-2 active:bg-green-50"
+              className="min-h-12 max-w-52 flex-row items-center gap-2 rounded-full px-2 active:bg-brand-tint"
             >
-              <Text numberOfLines={1} className="shrink text-xl font-bold text-pitch-dark">
+              <Text numberOfLines={1} className="shrink text-xl font-bold text-brand-strong">
                 {children}
               </Text>
-              <Ionicons name="create-outline" size={24} color={BRAND} />
+              <Ionicons name="create-outline" size={24} color={COLORS.brand} />
             </Pressable>
           ),
           headerRight: () => (
@@ -210,12 +210,15 @@ export default function FormationEditorScreen() {
       />
 
       {saveError && (
-        <Text accessibilityLiveRegion="polite" className="bg-red-50 px-4 py-2 text-sm text-red-700">
+        <Text
+          accessibilityLiveRegion="polite"
+          className="bg-danger-tint px-4 py-2 text-sm text-danger-strong"
+        >
           {saveError}
         </Text>
       )}
       {roster.length === 0 && (
-        <Text className="bg-amber-50 px-4 py-2 text-sm text-amber-800">
+        <Text className="bg-warning-tint px-4 py-2 text-sm text-warning-strong">
           {team.name} has no active players yet. Add them on the Teams tab, or save the shape now
           and fill it in later.
         </Text>

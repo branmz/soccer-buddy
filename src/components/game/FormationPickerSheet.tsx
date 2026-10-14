@@ -3,7 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { FormationThumbnail } from '@/components/pitch/FormationThumbnail';
 import { Sheet } from '@/components/ui/Sheet';
-import { BRAND } from '@/constants/colors';
+import { COLORS } from '@/constants/colors';
 import { PRESET_FORMATIONS } from '@/constants/presetFormations';
 import { formationsQuery } from '@/db/repositories/formations';
 import { formations } from '@/db/schema';
@@ -57,7 +57,7 @@ export function FormationPickerSheet({
       onClose={onClose}
     >
       {mode === 'live' && (
-        <Text className="text-base text-gray-600">
+        <Text className="text-base text-ink-soft">
           Players move to the closest matching spots in the new shape. You can fine-tune it after.
         </Text>
       )}
@@ -87,7 +87,7 @@ export function FormationPickerSheet({
 }
 
 function SectionTitle({ title }: { title: string }) {
-  return <Text className="-mb-2 text-sm font-semibold text-gray-500 uppercase">{title}</Text>;
+  return <Text className="-mb-2 text-sm font-semibold text-ink-muted uppercase">{title}</Text>;
 }
 
 type ChoiceRowProps = {
@@ -103,16 +103,16 @@ function ChoiceRow({ choice, detail, selected, onPress }: ChoiceRowProps) {
       accessibilityRole="radio"
       accessibilityState={{ checked: selected }}
       onPress={onPress}
-      className="min-h-16 flex-row items-center gap-3 rounded-xl active:bg-gray-50"
+      className="min-h-16 flex-row items-center gap-3 rounded-xl active:bg-canvas"
     >
       <FormationThumbnail slots={choice.slots} height={48} />
       <View className="flex-1">
-        <Text numberOfLines={1} className="text-lg font-bold text-gray-900">
+        <Text numberOfLines={1} className="text-lg font-bold text-ink">
           {choice.name}
         </Text>
-        <Text className="text-sm text-gray-500">{detail}</Text>
+        <Text className="text-sm text-ink-muted">{detail}</Text>
       </View>
-      {selected && <Ionicons name="checkmark-circle" size={24} color={BRAND} />}
+      {selected && <Ionicons name="checkmark-circle" size={24} color={COLORS.brand} />}
     </Pressable>
   );
 }

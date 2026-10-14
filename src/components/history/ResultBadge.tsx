@@ -6,7 +6,7 @@ import type { MatchResult } from '@/domain/stats';
 const RESULT_STYLE: Record<MatchResult, { letter: string; label: string; className: string }> = {
   win: { letter: 'W', label: 'Win', className: 'bg-brand' },
   draw: { letter: 'D', label: 'Draw', className: 'bg-gray-500' },
-  loss: { letter: 'L', label: 'Loss', className: 'bg-red-600' },
+  loss: { letter: 'L', label: 'Loss', className: 'bg-danger' },
 };
 
 /** Spoken name of a result: "Win", "Draw", "Loss". */

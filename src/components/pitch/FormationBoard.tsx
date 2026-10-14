@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
+import { COLORS, ON_FILL } from '@/constants/colors';
 import type { Player } from '@/db/schema';
 import {
   benchPlayers,
@@ -90,8 +91,8 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
   const hintBar = movingSpots
     ? { box: 'border-yellow-300 bg-yellow-50', press: 'active:bg-yellow-100' }
     : selection
-      ? { box: 'border-select-strong bg-cyan-50', press: 'active:bg-cyan-100' }
-      : { box: 'border-gray-200 bg-white', press: 'active:bg-gray-100' };
+      ? { box: 'border-select-strong bg-select-tint', press: 'active:bg-select-tint-strong' }
+      : { box: 'border-line bg-surface', press: 'active:bg-muted' };
 
   const pitchSize = area && fitPitch(area);
   const tokenSize = tokenSizeFor(pitchSize?.width ?? 0);
@@ -131,7 +132,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
         <Text
           accessibilityLiveRegion="polite"
           numberOfLines={2}
-          className="flex-1 text-base font-medium text-gray-900"
+          className="flex-1 text-base font-medium text-ink"
         >
           {hintText(
             mode,
@@ -152,11 +153,11 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
             accessibilityRole="button"
             accessibilityLabel={`Change position, currently ${selectedSlot.label}`}
             onPress={() => setPositionSheet({ open: true, slot: selectedSlot })}
-            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-white px-3 active:bg-green-50"
+            className="min-h-12 flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
           >
-            <Text className="text-base text-pitch-dark">Position</Text>
-            <Text className="text-lg font-bold text-pitch-dark">{selectedSlot.label}</Text>
-            <Ionicons name="chevron-down" size={18} color="#1b5e20" />
+            <Text className="text-base text-brand-strong">Position</Text>
+            <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
+            <Ionicons name="chevron-down" size={18} color={COLORS.brandStrong} />
           </Pressable>
         )}
         {selection && (
@@ -225,7 +226,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
       />
 
       {/* Bottom toolbar: within thumb reach on the sideline. */}
-      <View className="flex-row items-center justify-between gap-3 border-t border-gray-200 bg-white px-4 py-2">
+      <View className="flex-row items-center justify-between gap-3 border-t border-line bg-surface px-4 py-2">
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Undo last change"
@@ -236,12 +237,12 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           // class; only the values change (no Android ghosting).
           className={`min-h-12 flex-row items-center gap-1.5 rounded-full border px-4 ${
             canUndo
-              ? 'border-gray-300 bg-white active:bg-gray-100'
-              : 'border-gray-200 bg-gray-100 active:bg-gray-100'
+              ? 'border-line-strong bg-surface active:bg-muted'
+              : 'border-line bg-muted active:bg-muted'
           }`}
         >
-          <Ionicons name="arrow-undo" size={20} color={canUndo ? '#111827' : '#6b7280'} />
-          <Text className={`text-lg font-semibold ${canUndo ? 'text-gray-900' : 'text-gray-500'}`}>
+          <Ionicons name="arrow-undo" size={20} color={canUndo ? COLORS.ink : COLORS.inkMuted} />
+          <Text className={`text-lg font-semibold ${canUndo ? 'text-ink' : 'text-ink-muted'}`}>
             Undo
           </Text>
         </Pressable>
@@ -253,17 +254,17 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           onPress={() => setMode(movingSpots ? 'players' : 'positions')}
           className={`min-h-12 flex-row items-center gap-1.5 rounded-full border px-4 ${
             movingSpots
-              ? 'border-brand bg-brand active:bg-pitch-dark'
-              : 'border-green-200 bg-green-50 active:bg-green-100'
+              ? 'border-brand bg-brand active:bg-brand-strong'
+              : 'border-brand-edge bg-brand-tint active:bg-brand-tint-strong'
           }`}
         >
           <Ionicons
             name={movingSpots ? 'checkmark' : 'create-outline'}
             size={20}
-            color={movingSpots ? '#ffffff' : '#1b5e20'}
+            color={movingSpots ? ON_FILL : COLORS.brandStrong}
           />
           <Text
-            className={`text-lg font-semibold ${movingSpots ? 'text-white' : 'text-pitch-dark'}`}
+            className={`text-lg font-semibold ${movingSpots ? 'text-white' : 'text-brand-strong'}`}
           >
             {movingSpots ? 'Done Editing' : 'Edit Spots'}
           </Text>

@@ -26,7 +26,7 @@ export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositi
     <Sheet visible={visible} title="Change position" onClose={onClose}>
       {LINES.map(({ role, title }) => (
         <View key={role} className="gap-2">
-          <Text className="text-sm font-semibold text-gray-500 uppercase">{title}</Text>
+          <Text className="text-sm font-semibold text-ink-muted uppercase">{title}</Text>
           <View accessibilityRole="radiogroup" className="flex-row flex-wrap gap-2">
             {options
               .filter((p) => POSITION_LINE[p] === role)
@@ -45,12 +45,10 @@ export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositi
                     className={`min-h-12 min-w-16 items-center justify-center rounded-xl border px-3 ${
                       selected
                         ? 'border-brand bg-brand'
-                        : 'border-gray-300 bg-white active:bg-gray-100'
+                        : 'border-line-strong bg-surface active:bg-muted'
                     }`}
                   >
-                    <Text
-                      className={`text-base font-bold ${selected ? 'text-white' : 'text-gray-900'}`}
-                    >
+                    <Text className={`text-base font-bold ${selected ? 'text-white' : 'text-ink'}`}>
                       {position}
                     </Text>
                   </Pressable>
@@ -59,7 +57,7 @@ export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositi
           </View>
         </View>
       ))}
-      <Text className="text-sm text-gray-500">
+      <Text className="text-sm text-ink-muted">
         A formation has one goalkeeper, so GK can&apos;t be picked here.
       </Text>
     </Sheet>

@@ -78,7 +78,7 @@ export default function MatchLineupScreen() {
   }
 
   return (
-    <View className="flex-1 bg-gray-100">
+    <View className="flex-1 bg-muted">
       <Stack.Screen
         options={{
           title: `Lineup vs ${match.opponentName}`,
@@ -88,7 +88,10 @@ export default function MatchLineupScreen() {
         }}
       />
       {error && (
-        <Text accessibilityLiveRegion="polite" className="bg-red-50 px-4 py-2 text-sm text-red-700">
+        <Text
+          accessibilityLiveRegion="polite"
+          className="bg-danger-tint px-4 py-2 text-sm text-danger-strong"
+        >
           {error}
         </Text>
       )}

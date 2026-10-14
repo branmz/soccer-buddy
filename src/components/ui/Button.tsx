@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ComponentProps } from 'react';
 import { Pressable, Text } from 'react-native';
 
-import { BRAND } from '@/constants/colors';
+import { COLORS, ON_FILL } from '@/constants/colors';
 import { capitalizeWords } from '@/domain/text';
 
 /** `danger` is for the final confirm; `dangerOutline` for the entry point to a destructive flow. */
@@ -12,34 +12,34 @@ type Variant = 'primary' | 'secondary' | 'danger' | 'dangerOutline' | 'ghost';
 // button on or off only changes values: a removed class (the old `opacity-40`) left a
 // one-frame ghost on Android.
 const containerClass: Record<Variant, string> = {
-  primary: 'border border-brand bg-brand active:border-pitch-dark active:bg-pitch-dark',
-  secondary: 'border border-gray-300 bg-white active:bg-gray-100',
-  danger: 'border border-red-600 bg-red-600 active:border-red-700 active:bg-red-700',
-  dangerOutline: 'border border-red-300 bg-white active:bg-red-50',
-  ghost: 'border border-transparent bg-transparent active:bg-gray-100',
+  primary: 'border border-brand bg-brand active:border-brand-strong active:bg-brand-strong',
+  secondary: 'border border-line-strong bg-surface active:bg-muted',
+  danger: 'border border-danger bg-danger active:border-danger-strong active:bg-danger-strong',
+  dangerOutline: 'border border-danger-edge bg-surface active:bg-danger-tint',
+  ghost: 'border border-transparent bg-transparent active:bg-muted',
 };
 
 /** Disabled is muted but readable, never a fade (hard to read in sunlight). */
 const DISABLED = {
-  container: 'border border-gray-200 bg-gray-100 active:bg-gray-100',
-  text: 'text-gray-500',
-  icon: '#6b7280',
+  container: 'border border-line bg-muted active:bg-muted',
+  text: 'text-ink-muted',
+  icon: COLORS.inkMuted,
 };
 
 const textClass: Record<Variant, string> = {
   primary: 'text-white',
-  secondary: 'text-gray-900',
+  secondary: 'text-ink',
   danger: 'text-white',
-  dangerOutline: 'text-red-600',
+  dangerOutline: 'text-danger',
   ghost: 'text-brand',
 };
 
 const iconColor: Record<Variant, string> = {
-  primary: '#ffffff',
-  secondary: '#111827',
-  danger: '#ffffff',
-  dangerOutline: '#dc2626',
-  ghost: BRAND,
+  primary: ON_FILL,
+  secondary: COLORS.ink,
+  danger: ON_FILL,
+  dangerOutline: COLORS.danger,
+  ghost: COLORS.brand,
 };
 
 type ButtonProps = {

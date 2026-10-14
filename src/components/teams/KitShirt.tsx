@@ -1,6 +1,7 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { View } from 'react-native';
 
+import { COLORS } from '@/constants/colors';
 import { isLightKit } from '@/domain/colors';
 
 /**
@@ -16,7 +17,7 @@ export function KitShirt({ color, size = 16 }: { color: string; size?: number })
       // Hidden from screen readers on both platforms (accessible={false} alone isn't on Android).
       importantForAccessibility="no-hide-descendants"
       accessibilityElementsHidden
-      className="rounded-full bg-white p-0.5"
+      className="rounded-full bg-surface p-0.5"
     >
       <View style={{ width: size, height: size }}>
         <Ionicons name="shirt" size={size} color={color} />
@@ -24,7 +25,7 @@ export function KitShirt({ color, size = 16 }: { color: string; size?: number })
           <Ionicons
             name="shirt-outline"
             size={size}
-            color="#6b7280"
+            color={COLORS.inkMuted}
             style={{ position: 'absolute', top: 0, left: 0 }}
           />
         )}

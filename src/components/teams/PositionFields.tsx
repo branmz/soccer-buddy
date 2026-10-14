@@ -59,7 +59,7 @@ export function PositionFields({
         <View
           accessibilityRole="radiogroup"
           accessibilityLabel={editing === 'primary' ? 'Position' : 'Also plays'}
-          className="flex-row flex-wrap gap-2 rounded-xl bg-gray-50 p-2"
+          className="flex-row flex-wrap gap-2 rounded-xl bg-canvas p-2"
         >
           {PLAYER_POSITIONS.map((position) => {
             const selected = position === value;
@@ -77,13 +77,13 @@ export function PositionFields({
                   selected
                     ? 'border-brand bg-brand'
                     : unavailable
-                      ? 'border-gray-200 bg-gray-100'
-                      : 'border-gray-300 bg-white active:bg-gray-100'
+                      ? 'border-line bg-muted'
+                      : 'border-line-strong bg-surface active:bg-muted'
                 }`}
               >
                 <Text
                   className={`text-sm font-semibold ${
-                    selected ? 'text-white' : unavailable ? 'text-gray-400' : 'text-gray-800'
+                    selected ? 'text-white' : unavailable ? 'text-ink-faint' : 'text-ink'
                   }`}
                 >
                   {position}

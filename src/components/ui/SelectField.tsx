@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import type { ReactNode } from 'react';
 import { Keyboard, Pressable, Text, View } from 'react-native';
 
+import { COLORS } from '@/constants/colors';
 import { capitalizeWords } from '@/domain/text';
 
 type SelectFieldProps = {
@@ -32,13 +33,13 @@ export function SelectField({
   // Disabled is a grey field with readable text, not a 40% fade (unreadable in sun). Both
   // states set every class; only the values change (no Android ghosting).
   const boxClass = disabled
-    ? 'border-gray-200 bg-gray-50'
+    ? 'border-line bg-canvas'
     : expanded
-      ? 'border-brand bg-white'
-      : 'border-gray-300 bg-white';
+      ? 'border-brand bg-surface'
+      : 'border-line-strong bg-surface';
   return (
     <View className="flex-1 gap-1">
-      <Text className={`text-sm font-medium ${disabled ? 'text-gray-500' : 'text-gray-700'}`}>
+      <Text className={`text-sm font-medium ${disabled ? 'text-ink-muted' : 'text-ink-soft'}`}>
         {capitalizeWords(label)}
       </Text>
       <Pressable
@@ -56,14 +57,14 @@ export function SelectField({
         {leading}
         <Text
           numberOfLines={1}
-          className={`flex-1 text-base ${valueText ? 'font-semibold text-gray-900' : 'text-gray-500'}`}
+          className={`flex-1 text-base ${valueText ? 'font-semibold text-ink' : 'text-ink-muted'}`}
         >
           {valueText ?? placeholder}
         </Text>
         <Ionicons
           name={expanded ? 'chevron-up' : 'chevron-down'}
           size={18}
-          color={disabled ? '#9ca3af' : '#6b7280'}
+          color={disabled ? COLORS.inkFaint : COLORS.inkMuted}
         />
       </Pressable>
     </View>

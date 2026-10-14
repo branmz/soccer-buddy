@@ -3,7 +3,7 @@ import { router, Tabs } from 'expo-router';
 import { useEffect, type ComponentProps } from 'react';
 import type { ColorValue } from 'react-native';
 
-import { BRAND } from '@/constants/colors';
+import { COLORS } from '@/constants/colors';
 import { liveMatchQuery } from '@/db/repositories/matches';
 
 type IconName = ComponentProps<typeof Ionicons>['name'];
@@ -28,7 +28,7 @@ export default function TabsLayout() {
   }, []);
 
   return (
-    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: BRAND }}>
+    <Tabs screenOptions={{ headerShown: false, tabBarActiveTintColor: COLORS.brand }}>
       <Tabs.Screen name="teams" options={{ title: 'Teams', tabBarIcon: tabIcon('people') }} />
       <Tabs.Screen name="tactics" options={{ title: 'Tactics', tabBarIcon: tabIcon('grid') }} />
       <Tabs.Screen name="game" options={{ title: 'Game Day', tabBarIcon: tabIcon('stopwatch') }} />
