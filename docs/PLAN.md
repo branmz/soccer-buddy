@@ -22,7 +22,8 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | UX review 2: kit color off controls, History, live press feedback         | ✅ merged    | #18       |
 | —   | UX review 3: thumb-zone clock, quick-sub preview, buzz, ghosting, rings   | ✅ merged    | #19       |
 | —   | UX review 4: Game Day season snapshot, Delete buttons, ⋮, Start Q2        | ✅ merged    | #20       |
-| —   | Theme tokens: colors from `global.css` + `COLORS`, not literal classes    | 🚧 in review | —         |
+| —   | Theme tokens: colors from `global.css` + `COLORS`, not literal classes    | ✅ merged    | #21       |
+| —   | Expo 57.0.29 patch upgrade (router, linking, splash screen, jest-expo)    | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
