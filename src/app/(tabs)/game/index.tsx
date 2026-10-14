@@ -1,17 +1,27 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 
 import { LiveMatchCard } from '@/components/game/LiveMatchCard';
 import { NewMatchSheet } from '@/components/game/NewMatchSheet';
+import { SeasonSnapshot } from '@/components/game/SeasonSnapshot';
+import { MatchResultRow } from '@/components/history/MatchResultRow';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { eventsQuery } from '@/db/repositories/events';
+import { NO_HISTORY, teamHistory } from '@/db/repositories/history';
 import { liveMatchQuery, matchesQuery } from '@/db/repositories/matches';
+import { playersQuery } from '@/db/repositories/players';
 import { getTeam } from '@/db/repositories/teams';
-import { matches, teams, type Match } from '@/db/schema';
+import { matchEvents, matches, matchPeriods, players, teams, type Match } from '@/db/schema';
 import { matchKitColor } from '@/domain/matchSetup';
+import { distinctNames } from '@/domain/roster';
+import { playerMatchStats, seasonStats, topScorers } from '@/domain/stats';
 import { useActiveTeam } from '@/hooks/useActiveTeam';
 import { useLiveData } from '@/hooks/useLiveData';
+
+/** How many recent results the form strip shows. */
+const FORM_LENGTH = 5;
 
 function openLive(match: Match) {
   router.push({ pathname: '/live/[matchId]', params: { matchId: String(match.id) } });
@@ -37,6 +47,47 @@ export default function GameDayScreen() {
     [teamId],
     [matches],
   );
+  // The season snapshot fills the page between matches (and the space under the live card).
+  const { results, season } = useLiveData(
+    () => (teamId === null ? NO_HISTORY : teamHistory(teamId)),
+    [teamId],
+    [matches, matchEvents, matchPeriods],
+  );
+  const last = results.at(0);
+  const lastId = last?.match.id ?? null;
+  const lastEvents = useLiveData(
+    () => (lastId === null ? [] : eventsQuery(lastId).all()),
+    [lastId],
+    [matchEvents],
+  );
+  // Inactive players too: their goals still count.
+  const roster = useLiveData(
+    () => (teamId === null ? [] : playersQuery(teamId).all()),
+    [teamId],
+    [players],
+  );
+  const snapshot = useMemo(() => {
+    const names = distinctNames(roster);
+    const nameOf = (id: number) => names.get(id) ?? 'Unknown';
+    const stats = seasonStats(season);
+    const lastScorers = topScorers(playerMatchStats(lastEvents));
+    const seasonScorers = topScorers(stats.players, 3);
+    return {
+      record: stats.record,
+      form: results.slice(0, FORM_LENGTH).map((r) => r.result),
+      // "Maui 2, Diego": one goal needs no count in a single match.
+      lastScorers:
+        lastScorers.length === 0
+          ? undefined
+          : lastScorers
+              .map((s) => (s.goals > 1 ? `${nameOf(s.playerId)} ${s.goals}` : nameOf(s.playerId)))
+              .join(', '),
+      topScorers:
+        seasonScorers.length === 0
+          ? null
+          : seasonScorers.map((s) => `${nameOf(s.playerId)} ${s.goals}`).join(' · '),
+    };
+  }, [roster, lastEvents, season, results]);
   const [newOpen, setNewOpen] = useState(false);
 
   if (!team) {
@@ -65,7 +116,7 @@ export default function GameDayScreen() {
   );
 
   // Nothing to list yet: a centred prompt, like the other tabs' empty states.
-  if (!live && drafts.length === 0) {
+  if (!live && drafts.length === 0 && !last) {
     return (
       <View className="flex-1 bg-gray-50">
         <EmptyState
@@ -102,6 +153,38 @@ export default function GameDayScreen() {
               </Text>
             )}
           </View>
+        }
+        ListFooterComponent={
+          last && (
+            <View className="gap-3">
+              <Text className="pt-3 text-sm font-semibold text-gray-500 uppercase">
+                Last result
+              </Text>
+              <MatchResultRow
+                item={last}
+                kitColor={matchKitColor(team, last.match.isHome)}
+                scorers={snapshot.lastScorers}
+                onPress={() =>
+                  router.navigate(
+                    { pathname: '/history/[matchId]', params: { matchId: String(last.match.id) } },
+                    { withAnchor: true },
+                  )
+                }
+              />
+              <Text className="pt-3 text-sm font-semibold text-gray-500 uppercase">Season</Text>
+              <SeasonSnapshot
+                record={snapshot.record}
+                form={snapshot.form}
+                topScorers={snapshot.topScorers}
+              />
+              <Button
+                label="See all in History"
+                icon="time-outline"
+                variant="secondary"
+                onPress={() => router.navigate('/history')}
+              />
+            </View>
+          )
         }
         renderItem={({ item }) => (
           <Pressable

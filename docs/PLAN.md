@@ -4,7 +4,7 @@ The living plan for this app. Read it with `CLAUDE.md`, which has the stack, com
 conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `UI_RULES.md`
 (all in `docs/`). Update the **Status** section when a milestone merges.
 
-## Status (as of 2026-10-09)
+## Status (as of 2026-10-14)
 
 | #   | Milestone                                                                 | State        | PR        |
 | --- | ------------------------------------------------------------------------- | ------------ | --------- |
@@ -20,7 +20,8 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | Device fixes: status bar, outdoor token contrast, bench drags, root route | ✅ merged    | #14 – #16 |
 | —   | UX review 1: contrast, paused state, red-card confirm, Teams polish       | ✅ merged    | #17       |
 | —   | UX review 2: kit color off controls, History, live press feedback         | ✅ merged    | #18       |
-| —   | UX review 3: thumb-zone clock, quick-sub preview, buzz, ghosting, rings   | 🚧 in review | —         |
+| —   | UX review 3: thumb-zone clock, quick-sub preview, buzz, ghosting, rings   | ✅ merged    | #19       |
+| —   | UX review 4: Game Day season snapshot, Delete buttons, ⋮, Start Q2        | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -62,7 +63,7 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
     them there swaps them in.
   - Bench players drag on a **sideways swipe** or after a short hold; vertical moves scroll.
   - Filled spots show the position chip above the badge and the name below.
-  - The name in the editor header has a pencil and opens a **rename-only** sheet; **More**
+  - The name in the editor header has a pencil and opens a **rename-only** sheet; **⋮**
     holds Clear all players and Delete. Leaving with unsaved changes asks
     **Save / Discard / Keep editing**.
   - The TeamSwitcher pill is large and **neutral (white) with the home kit as a dot**. It used
@@ -291,7 +292,7 @@ Was branch `feature/polish-eas-preview`. EAS project `@buranapple/coach-buddy` (
   on a transparent canvas, so circle masks never clip it. The themed-icon `monochromeImage` is
   a cutout of the art (coach + ball panels + trail), padded the same way.
 
-## UX review (October 2026: #17, #18, phase 3)
+## UX review (October 2026: #17, #18, #19, phase 4)
 
 A hard sideline-usability review (bright sun, one thumb) of the device screenshots and the
 code. Its rules now live in `docs/UI_RULES.md`; the product decisions above record what
@@ -304,11 +305,19 @@ changed on each screen.
 - **Phase 2 (#18):** kit color off controls and cards (`KitShirt`); History (collapsed full
   log, `<1'`, GF–GA, legend first); press scale + tap haptic, score bump, subs chip; Tactics
   status line.
-- **Phase 3:** clock control in the bottom bar (`clockControls`; starting a period confirms),
+- **Phase 3 (#19):** clock control in the bottom bar (`clockControls`; starting a period confirms),
   quick-sub preview, period-end buzz; slide transitions and class-removal fixes (no ghosting);
   full-lineup highlights; rings with a dark edge (pulsing for the main position); Tactics hint
   legend ("Tap a spot. Bold yellow: CDM; light or thin ring: CB.") in a cyan bar while a player
   is selected. Board hints are capped at two lines, so the bar never grows and moves the pitch.
+- **Phase 4:** between matches Game Day felt empty, so under the live card and drafts it shows a
+  **season snapshot**: the last result with its scorers (tap: the match in History, with the
+  list under it for Back), then a white Season card (record, GF–GA, last-5 form newest first,
+  top 3 scorers via `topScorers`) and See All In History. White, not dark green: on Game Day
+  only the live match is dark green. Deletes in the match setup and match detail headers are a
+  labelled red **Delete** pill (`HeaderButton` `danger`), not a bare trash icon; the formation
+  editor's More is an icon-only ⋮ (the room goes to the name); the button between quarters
+  says **Start Q2** (`startPeriodLabel`), since a bare "Q2" isn't an action.
 
 **Decided against, or deferred:**
 
@@ -317,10 +326,7 @@ changed on each screen.
 - Rings are partly hidden under the position chip and the name label: accepted (moving the
   labels out would crowd the pitch).
 - A long period-end vibration needs the VIBRATE permission; for now it's three haptic pulses.
-- "Q2" as the between-quarters button label (4 periods): check on the phone; may need a verb.
-- Still open: Game Day's empty space under the live card (show the last result); bare trash
-  icons in the match setup and match detail headers (vs labelled buttons); the formation
-  editor's crowded header (title, pencil, More, Save).
+- Nothing open from the review: phase 4 closed the last items.
 
 ## Later milestones (from the original plan)
 

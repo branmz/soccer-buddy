@@ -188,10 +188,12 @@ export default function FormationEditorScreen() {
           ),
           headerRight: () => (
             <View className="flex-row items-center gap-1">
+              {/* Icon only (⋮, like the live screen's menu): the room goes to the name. */}
               <HeaderButton
                 label="More"
                 accessibilityLabel="Formation options"
-                icon="ellipsis-horizontal"
+                icon="ellipsis-vertical"
+                hideLabel
                 onPress={() => setOptionsOpen(true)}
               />
               <HeaderButton

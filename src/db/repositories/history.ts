@@ -55,6 +55,9 @@ export type TeamHistory = {
   season: SeasonMatch[];
 };
 
+/** For no team: nothing to read. */
+export const NO_HISTORY: TeamHistory = { results: [], season: [] };
+
 /**
  * The team's finished matches, read once for both the results list and season stats.
  * Reads matches, match_events and match_periods: watch all three.

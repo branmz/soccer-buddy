@@ -2,7 +2,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { FormationPickerSheet } from '@/components/game/FormationPickerSheet';
 import { LineupPreview } from '@/components/game/LineupPreview';
@@ -12,7 +11,7 @@ import { ColorSwatch } from '@/components/teams/ColorSwatch';
 import { Button } from '@/components/ui/Button';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { IconButton } from '@/components/ui/IconButton';
+import { HeaderButton } from '@/components/ui/HeaderButton';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SelectField } from '@/components/ui/SelectField';
 import { TextField } from '@/components/ui/TextField';
@@ -51,7 +50,6 @@ function parseCount(text: string): number | null {
 export default function MatchSetupScreen() {
   const params = useLocalSearchParams<{ matchId: string }>();
   const matchId = Number(params.matchId);
-  const insets = useSafeAreaInsets();
 
   const match = useLiveData(() => getMatch(matchId), [matchId], [matches]);
   const teamId = match?.teamId ?? null;
@@ -167,10 +165,11 @@ export default function MatchSetupScreen() {
         options={{
           title: `vs ${match.opponentName}`,
           headerRight: () => (
-            <IconButton
+            <HeaderButton
+              label="Delete"
+              accessibilityLabel="Delete match"
               icon="trash-outline"
-              label="Delete match"
-              color="#dc2626"
+              variant="danger"
               onPress={() => setDeleteOpen(true)}
             />
           ),
@@ -352,10 +351,8 @@ export default function MatchSetupScreen() {
         </Card>
       </ScrollView>
 
-      <View
-        className="gap-2 border-t border-gray-200 bg-white px-4 pt-3"
-        style={{ paddingBottom: Math.max(insets.bottom, 12) }}
-      >
+      {/* No safe-area padding: the tab bar below already clears the navigation bar. */}
+      <View className="gap-2 border-t border-gray-200 bg-white px-4 py-3">
         {error && (
           <Text accessibilityLiveRegion="polite" className="text-sm text-red-600">
             {error}

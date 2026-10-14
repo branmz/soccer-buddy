@@ -11,7 +11,7 @@ import { formatMatchDate } from '@/components/history/formatMatchDate';
 import { Button } from '@/components/ui/Button';
 import { ConfirmSheet } from '@/components/ui/ConfirmSheet';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { IconButton } from '@/components/ui/IconButton';
+import { HeaderButton } from '@/components/ui/HeaderButton';
 import { eventsQuery } from '@/db/repositories/events';
 import {
   deleteMatch,
@@ -109,10 +109,11 @@ export default function MatchDetailScreen() {
         options={{
           title: `vs ${match.opponentName}`,
           headerRight: () => (
-            <IconButton
+            <HeaderButton
+              label="Delete"
+              accessibilityLabel="Delete match"
               icon="trash-outline"
-              label="Delete match"
-              color="#dc2626"
+              variant="danger"
               onPress={() => setDeleteOpen(true)}
             />
           ),

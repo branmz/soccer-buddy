@@ -9,6 +9,7 @@ import {
   matchMinuteAt,
   periodElapsedMs,
   periodName,
+  startPeriodLabel,
   type ClockAction,
   type ClockPeriod,
 } from '../clock';
@@ -371,5 +372,11 @@ describe('periodName / breakName', () => {
     expect(breakName(1, 2)).toBe('Half-time');
     expect(breakName(2, 2)).toBe('Full time');
     expect(breakName(2, 4)).toBe('End of Q2');
+  });
+
+  it('gives quarters a verb on the start button', () => {
+    expect(startPeriodLabel(2, 4)).toBe('Start Q2');
+    expect(startPeriodLabel(2, 2)).toBe('2nd half');
+    expect(startPeriodLabel(3, 3)).toBe('Period 3');
   });
 });

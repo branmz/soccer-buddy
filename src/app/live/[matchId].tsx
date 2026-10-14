@@ -66,6 +66,7 @@ import {
   availableClockActions,
   clockControls,
   periodName,
+  startPeriodLabel,
   type ClockAction,
   type MainClockAction,
 } from '@/domain/clock';
@@ -450,7 +451,10 @@ export default function LiveMatchScreen() {
   const clockLabels: Record<MainClockAction, { label: string; spoken: string }> = {
     pause: { label: 'Pause', spoken: 'Pause the clock' },
     resume: { label: 'Resume', spoken: 'Resume the clock' },
-    startNextPeriod: { label: nextPeriod, spoken: `Start ${nextPeriod}` },
+    startNextPeriod: {
+      label: startPeriodLabel(clock.currentPeriod + 1, match.periodCount),
+      spoken: `Start ${nextPeriod}`,
+    },
     finish: { label: 'End match', spoken: 'End the match' },
   };
   const clockControl: ClockControl | null =

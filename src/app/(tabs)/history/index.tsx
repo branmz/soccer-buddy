@@ -7,7 +7,7 @@ import { SeasonRecordCard, SeasonTable } from '@/components/history/SeasonTable'
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SegmentedControl } from '@/components/ui/SegmentedControl';
-import { teamHistory, type TeamHistory } from '@/db/repositories/history';
+import { NO_HISTORY, teamHistory } from '@/db/repositories/history';
 import { playersQuery } from '@/db/repositories/players';
 import { matchEvents, matches, matchPeriods, players } from '@/db/schema';
 import {
@@ -24,8 +24,6 @@ import { useActiveTeam } from '@/hooks/useActiveTeam';
 import { useLiveData } from '@/hooks/useLiveData';
 
 type Tab = 'matches' | 'season';
-
-const NO_HISTORY: TeamHistory = { results: [], season: [] };
 
 const TABS = [
   { label: 'Matches', value: 'matches' },
