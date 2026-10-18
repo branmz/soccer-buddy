@@ -46,3 +46,6 @@ example
 
 # Phone screenshots from device testing
 screenshots/
+
+# Google Play service account key (eas submit)
+play-service-account.json
