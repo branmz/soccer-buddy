@@ -45,7 +45,7 @@ example
 /android
 
 # Phone screenshots from device testing
-screenshots/
+/screenshots/
 
 # Google Play service account key (eas submit)
 play-service-account.json
