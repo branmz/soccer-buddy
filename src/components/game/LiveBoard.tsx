@@ -13,6 +13,7 @@ import {
 import { fitPitch, Pitch, tokenSizeFor, type Size } from '@/components/pitch/Pitch';
 import { PlayerToken } from '@/components/pitch/PlayerToken';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { Player } from '@/db/schema';
 import {
   findDropTarget,
@@ -337,7 +338,7 @@ export function LiveHint({ text, onCancel }: { text: string; onCancel: () => voi
         accessibilityLiveRegion="polite"
         numberOfLines={2}
         maxFontSizeMultiplier={1.15}
-        className="flex-1 text-base font-medium text-ink"
+        className="flex-1 text-label text-ink"
       >
         {text}
       </Text>
@@ -348,8 +349,8 @@ export function LiveHint({ text, onCancel }: { text: string; onCancel: () => voi
         // of the hint, not as a button.
         className="min-h-touch flex-row items-center gap-1 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
       >
-        <Ionicons name="close" size={18} color={COLORS.ink} />
-        <Text className="text-base font-semibold text-ink">Cancel</Text>
+        <Ionicons name="close" size={ICON.md} color={COLORS.ink} />
+        <Text className="text-label text-ink">Cancel</Text>
       </Pressable>
     </View>
   );

@@ -115,14 +115,14 @@ export function Sheet({ visible, title, onClose, children }: SheetProps) {
           }}
         >
           <View className="flex-row items-center justify-between py-2 pr-2 pl-5">
-            <Text accessibilityRole="header" className="text-lg font-bold text-ink">
+            <Text accessibilityRole="header" className="text-heading text-ink">
               {capitalizeWords(title)}
             </Text>
             <IconButton icon="close" label="Close" onPress={requestClose} color={COLORS.inkMuted} />
           </View>
           {confirming && (
             <View className="gap-4 px-5">
-              <Text accessibilityLiveRegion="polite" className="text-base text-ink-soft">
+              <Text accessibilityLiveRegion="polite" className="text-body text-ink-soft">
                 Close without saving? Your changes will be lost.
               </Text>
               <Button

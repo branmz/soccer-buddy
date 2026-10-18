@@ -6,6 +6,7 @@ import Animated from 'react-native-reanimated';
 
 import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { COLORS, ON_FILL } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { Player } from '@/db/schema';
 import { sameItem, type BoardItem, type SlotFit } from '@/domain/board';
 import { formatPositions } from '@/domain/positions';
@@ -69,11 +70,11 @@ export function BenchSidebar({
           {/* Locked (while spots move): a lock and grey badges say so, but the text stays
               readable. Fading the whole column to 40% made it illegible. */}
           <View className="flex-row items-center justify-center gap-1 px-2 pt-2 pb-1">
-            {disabled && <Ionicons name="lock-closed" size={11} color={COLORS.inkMuted} />}
+            {disabled && <Ionicons name="lock-closed" size={ICON.xs} color={COLORS.inkMuted} />}
             <Text
               accessibilityRole="header"
               accessibilityLabel={`Bench, ${players.length}${disabled ? ', locked while editing spots' : ''}`}
-              className="text-center text-xs font-semibold text-ink-muted uppercase"
+              className="text-center text-tag text-ink-muted uppercase"
             >
               Bench · {players.length}
             </Text>
@@ -85,8 +86,8 @@ export function BenchSidebar({
               onPress={onBenchZonePress}
               className="mx-1 mb-1 min-h-touch items-center justify-center rounded-xl bg-brand px-1 active:bg-brand-strong"
             >
-              <Ionicons name="arrow-down" size={16} color={ON_FILL} />
-              <Text className="text-center text-xs font-semibold text-white">Move To Bench</Text>
+              <Ionicons name="arrow-down" size={ICON.sm} color={ON_FILL} />
+              <Text className="text-center text-tag text-white">Move To Bench</Text>
             </Pressable>
           )}
           <ScrollView
@@ -110,7 +111,7 @@ export function BenchSidebar({
                 />
               ))}
               {players.length === 0 && (
-                <Text className="px-1 pt-2 text-center text-xs text-ink-muted">
+                <Text className="px-1 pt-2 text-center text-tag text-ink-muted">
                   Everyone is on the pitch
                 </Text>
               )}
@@ -188,14 +189,14 @@ function BenchPlayer({
           {/* 13dp like the names on pitch tokens: it's what the coach reads to pick a sub. */}
           <Text
             numberOfLines={1}
-            className={`text-[13px] font-semibold ${disabled ? 'text-ink-muted' : 'text-ink'}`}
+            className={`text-caption font-semibold ${disabled ? 'text-ink-muted' : 'text-ink'}`}
           >
             {player.name}
           </Text>
           {positions !== '' && (
             <Text
               numberOfLines={1}
-              className={`text-[11px] font-semibold ${
+              className={`text-tag ${
                 disabled ? 'text-ink-muted' : fit ? 'text-brand' : 'text-ink-soft'
               }`}
             >
@@ -206,7 +207,7 @@ function BenchPlayer({
           {note !== null && (
             <Text
               numberOfLines={1}
-              className={`text-[11px] font-semibold ${disabled ? 'text-ink-muted' : 'text-ink-soft'}`}
+              className={`text-tag ${disabled ? 'text-ink-muted' : 'text-ink-soft'}`}
             >
               {note}
             </Text>

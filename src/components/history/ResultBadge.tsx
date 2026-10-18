@@ -18,7 +18,7 @@ export function resultLabel(result: MatchResult): string {
 export function ResultBadge({ result, size = 'md' }: { result: MatchResult; size?: 'sm' | 'md' }) {
   const style = RESULT_STYLE[result];
   const box = size === 'md' ? 'h-9 w-9 rounded-lg' : 'h-7 w-7 rounded-md';
-  const text = size === 'md' ? 'text-lg' : 'text-base';
+  const text = size === 'md' ? 'text-heading' : 'text-body';
   return (
     <View className={`items-center justify-center ${box} ${style.className}`}>
       <Text className={`font-black text-white ${text}`}>{style.letter}</Text>

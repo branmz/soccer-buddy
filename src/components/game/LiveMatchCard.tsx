@@ -3,6 +3,7 @@ import { Pressable, Text, View } from 'react-native';
 
 import { KitShirt } from '@/components/teams/KitShirt';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { eventsQuery } from '@/db/repositories/events';
 import { matchPeriodsQuery } from '@/db/repositories/matches';
 import { matchEvents, matchPeriods, type Match } from '@/db/schema';
@@ -79,18 +80,18 @@ export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchC
       <View className="flex-row items-center gap-2">
         {/* A white ring keeps the red "live" dot crisp on the dark green and the amber card. */}
         <View className="h-3.5 w-3.5 rounded-full border-2 border-white bg-red-500" />
-        <Text className={`flex-1 text-sm font-semibold uppercase ${card.soft}`}>Live now</Text>
-        <Text className={`text-base font-semibold ${card.soft}`}>{status}</Text>
+        <Text className={`flex-1 text-caption font-semibold uppercase ${card.soft}`}>Live now</Text>
+        <Text className={`text-label ${card.soft}`}>{status}</Text>
         {!onBreak && (
           <Text
-            className={`text-xl font-black ${card.strong}`}
+            className={`text-heading font-black ${card.strong}`}
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {clock.display}
           </Text>
         )}
         {clock.isPaused && (
-          <Text className="rounded bg-gray-900 px-1.5 text-sm font-bold text-amber-300">
+          <Text className="rounded bg-gray-900 px-1.5 text-caption font-bold text-amber-300">
             PAUSED
           </Text>
         )}
@@ -98,20 +99,20 @@ export function LiveMatchCard({ match, teamName, kitColor, onPress }: LiveMatchC
       <View className="flex-row items-center gap-3">
         <View className="flex-1 flex-row items-center gap-3">
           {kitColor && <KitShirt color={kitColor} size={16} />}
-          <Text numberOfLines={1} className={`shrink text-lg font-semibold ${card.soft}`}>
+          <Text numberOfLines={1} className={`shrink text-heading font-semibold ${card.soft}`}>
             {teamName}
           </Text>
-          <Text className={`text-3xl font-black ${card.strong}`}>
+          <Text className={`text-score ${card.strong}`}>
             {score.us} – {score.them}
           </Text>
-          <Text numberOfLines={1} className={`shrink text-lg font-semibold ${card.soft}`}>
+          <Text numberOfLines={1} className={`shrink text-heading font-semibold ${card.soft}`}>
             {match.opponentName}
           </Text>
         </View>
         {/* Inverted against the card, so it stands out in both states. */}
         <View className={`min-h-11 flex-row items-center gap-1.5 rounded-full px-4 ${card.pill}`}>
-          <Text className={`text-lg font-semibold ${card.pillText}`}>Open Match</Text>
-          <Ionicons name="arrow-forward" size={18} color={card.pillIcon} />
+          <Text className={`text-heading font-semibold ${card.pillText}`}>Open Match</Text>
+          <Ionicons name="arrow-forward" size={ICON.md} color={card.pillIcon} />
         </View>
       </View>
     </Pressable>

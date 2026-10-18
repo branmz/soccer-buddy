@@ -181,10 +181,10 @@ export function PlayerToken({
           style={{ bottom: size - 1, left: -size, width: size * 3 }}
         >
           <View className="flex-row items-center rounded bg-white px-1">
-            {label !== '' && <Text className="text-xs font-bold text-gray-900">{label}</Text>}
+            {label !== '' && <Text className="text-tag font-bold text-gray-900">{label}</Text>}
             {minutes !== null && (
               <Text
-                className={`text-xs font-bold text-pitch-dark ${label === '' ? 'ml-0' : 'ml-1'}`}
+                className={`text-tag font-bold text-pitch-dark ${label === '' ? 'ml-0' : 'ml-1'}`}
               >
                 {minutes}
               </Text>
@@ -206,7 +206,7 @@ export function PlayerToken({
         >
           <Text
             numberOfLines={1}
-            className="rounded bg-gray-950 px-1 text-[13px] font-semibold text-white"
+            className="rounded bg-gray-950 px-1 text-caption font-semibold text-white"
           >
             {player.name}
           </Text>

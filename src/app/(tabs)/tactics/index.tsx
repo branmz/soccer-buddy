@@ -91,7 +91,7 @@ export default function TacticsScreen() {
         <>
           <SectionHeading className="pt-2">Saved · {saved.length}</SectionHeading>
           {saved.length === 0 && (
-            <Text className="text-base text-ink-muted">
+            <Text className="text-body text-ink-muted">
               No saved formations for {team.name} yet. Pick a preset below to start one.
             </Text>
           )}
@@ -131,10 +131,10 @@ function FormationRowBody({ row, fieldSize }: { row: SavedRow | PresetRow; field
     <View className="flex-row items-center gap-4">
       <FormationThumbnail slots={row.slots} height={72} />
       <View className="flex-1 gap-1">
-        <Text numberOfLines={1} className="text-2xl font-bold text-ink">
+        <Text numberOfLines={1} className="text-title text-ink">
           {row.name}
         </Text>
-        <Text className="text-base text-ink-soft">{formationDetail(row, fieldSize)}</Text>
+        <Text className="text-body text-ink-soft">{formationDetail(row, fieldSize)}</Text>
       </View>
     </View>
   );

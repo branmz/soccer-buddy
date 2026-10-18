@@ -5,6 +5,7 @@ import { FormationThumbnail } from '@/components/pitch/FormationThumbnail';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Sheet } from '@/components/ui/Sheet';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { PRESET_FORMATIONS } from '@/constants/presetFormations';
 import { formationsQuery } from '@/db/repositories/formations';
 import { formations } from '@/db/schema';
@@ -58,7 +59,7 @@ export function FormationPickerSheet({
       onClose={onClose}
     >
       {mode === 'live' && (
-        <Text className="text-base text-ink-soft">
+        <Text className="text-body text-ink-soft">
           Players move to the closest matching spots in the new shape. You can fine-tune it after.
         </Text>
       )}
@@ -104,12 +105,12 @@ function ChoiceRow({ choice, detail, selected, onPress }: ChoiceRowProps) {
     >
       <FormationThumbnail slots={choice.slots} height={48} />
       <View className="flex-1">
-        <Text numberOfLines={1} className="text-lg font-bold text-ink">
+        <Text numberOfLines={1} className="text-heading text-ink">
           {choice.name}
         </Text>
-        <Text className="text-sm text-ink-muted">{detail}</Text>
+        <Text className="text-caption text-ink-muted">{detail}</Text>
       </View>
-      {selected && <Ionicons name="checkmark-circle" size={24} color={COLORS.brand} />}
+      {selected && <Ionicons name="checkmark-circle" size={ICON.lg} color={COLORS.brand} />}
     </Pressable>
   );
 }

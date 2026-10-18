@@ -99,7 +99,7 @@ function TeamForm({ team, onClose, onSaved, onDeletePress }: Omit<TeamFormSheetP
         onChangeAway={setAwayColor}
       />
       {sizeChanged && (
-        <Text className="text-sm text-warning">
+        <Text className="text-caption text-warning">
           Saved formations for {team.fieldSize}v{team.fieldSize} stay saved but are hidden until you
           switch back.
         </Text>

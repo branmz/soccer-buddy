@@ -17,7 +17,7 @@ export function SectionHeading({ children, className = '', header = true }: Sect
   return (
     <Text
       accessibilityRole={header ? 'header' : undefined}
-      className={`text-sm font-semibold text-ink-muted uppercase ${className}`}
+      className={`text-caption font-semibold text-ink-muted uppercase ${className}`}
     >
       {children}
     </Text>

@@ -28,7 +28,8 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | Touch targets: true 48dp (`touch` tokens; `min-h-12` was 42dp)            | ✅ merged    | #24       |
 | —   | UX review 5: amber breaks, one-row live editor, quick-sub delete confirm  | ✅ merged    | #25       |
 | —   | Dev build: `expo-dev-client`, `development` profile, `.dev` package       | ✅ merged    | #26       |
-| —   | Expo 57.0.30 patch upgrade (router, @expo/ui; no native code change)      | 🚧 in review | —         |
+| —   | Expo 57.0.30 patch upgrade (router, @expo/ui; no native code change)      | ✅ merged    | #27       |
+| —   | Type scale: text roles in `global.css`, `ICON` sizes, 13dp floor          | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 

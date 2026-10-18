@@ -1,5 +1,7 @@
 import { View } from 'react-native';
 
+import { ICON } from '@/constants/icons';
+
 const YELLOW = '#facc15';
 const RED = '#dc2626';
 
@@ -11,7 +13,7 @@ type RefereeCardIconProps = {
 };
 
 /** A referee's card: a tilted upright rectangle (Ionicons' "card" is a credit card). */
-export function RefereeCardIcon({ color, size = 24 }: RefereeCardIconProps) {
+export function RefereeCardIcon({ color, size = ICON.lg }: RefereeCardIconProps) {
   const height = size * 0.85;
   const width = height * 0.72;
   const card = (fill: string, rotate: string, left: number) => (

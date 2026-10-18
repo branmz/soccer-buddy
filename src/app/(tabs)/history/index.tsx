@@ -103,7 +103,7 @@ export default function HistoryScreen() {
         {tabs}
         <SeasonRecordCard record={stats.record} />
         {/* Above the table, where the abbreviations are read (it was below the fold). */}
-        <Text className="px-1 text-sm text-ink-muted">
+        <Text className="px-1 text-caption text-ink-muted">
           Apps: matches played in. St: starts. Min: minutes on the pitch. Tap a column to sort.
         </Text>
         <SeasonTable

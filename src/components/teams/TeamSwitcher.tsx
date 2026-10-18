@@ -7,6 +7,7 @@ import { ColorSwatch } from '@/components/teams/ColorSwatch';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { useActiveTeam } from '@/hooks/useActiveTeam';
 
 /** Header control showing the active team; tap to switch teams. */
@@ -36,11 +37,11 @@ export function TeamSwitcher() {
         <Text
           numberOfLines={1}
           ellipsizeMode="middle"
-          className="shrink text-lg font-semibold text-ink"
+          className="shrink text-heading font-semibold text-ink"
         >
           {team?.name ?? 'Add A Team'}
         </Text>
-        <Ionicons name="chevron-down" size={20} color={COLORS.inkSoft} />
+        <Ionicons name="chevron-down" size={ICON.md} color={COLORS.inkSoft} />
       </Pressable>
 
       <Sheet visible={open} title="Switch team" onClose={() => setOpen(false)}>
@@ -61,15 +62,17 @@ export function TeamSwitcher() {
                 <View className="flex-1 flex-row items-center gap-3">
                   {t.homeColor && <ColorSwatch color={t.homeColor} size={24} />}
                   <View className="flex-1">
-                    <Text numberOfLines={1} className="text-base font-semibold text-ink">
+                    <Text numberOfLines={1} className="text-label text-ink">
                       {t.name}
                     </Text>
-                    <Text className="text-sm text-ink-muted">
+                    <Text className="text-caption text-ink-muted">
                       {t.fieldSize}v{t.fieldSize}
                     </Text>
                   </View>
                 </View>
-                {selected && <Ionicons name="checkmark-circle" size={24} color={COLORS.brand} />}
+                {selected && (
+                  <Ionicons name="checkmark-circle" size={ICON.lg} color={COLORS.brand} />
+                )}
               </Pressable>
             );
           })}

@@ -49,7 +49,9 @@ export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositi
                         : 'border-line-strong bg-surface active:bg-muted'
                     }`}
                   >
-                    <Text className={`text-base font-bold ${selected ? 'text-white' : 'text-ink'}`}>
+                    <Text
+                      className={`text-label font-bold ${selected ? 'text-white' : 'text-ink'}`}
+                    >
                       {position}
                     </Text>
                   </Pressable>
@@ -58,7 +60,7 @@ export function SlotPositionSheet({ visible, slot, onPick, onClose }: SlotPositi
           </View>
         </View>
       ))}
-      <Text className="text-sm text-ink-muted">
+      <Text className="text-caption text-ink-muted">
         A formation has one goalkeeper, so GK can&apos;t be picked here.
       </Text>
     </Sheet>

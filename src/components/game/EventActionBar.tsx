@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import Animated from 'react-native-reanimated';
 
 import { COLORS, ON_FILL } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { MainClockAction } from '@/domain/clock';
 import { capitalizeWords } from '@/domain/text';
 import { usePressScale } from '@/hooks/usePressScale';
@@ -65,7 +66,7 @@ export function EventActionBar({
     >
       <ActionButton
         label="Card"
-        icon={<RefereeCardIcon color="both" size={26} />}
+        icon={<RefereeCardIcon color="both" size={ICON.lg} />}
         tone="amber"
         haptic
         onPress={onCard}
@@ -192,11 +193,11 @@ function ActionButton({
         className={`min-h-16 flex-1 items-center justify-center gap-0.5 rounded-xl ${style.box}`}
       >
         {typeof icon === 'string' ? (
-          <Ionicons name={icon as IconName} size={24} color={style.icon} />
+          <Ionicons name={icon as IconName} size={ICON.lg} color={style.icon} />
         ) : (
           icon
         )}
-        <Text numberOfLines={1} className={`text-sm font-semibold ${style.text}`}>
+        <Text numberOfLines={1} className={`text-caption font-semibold ${style.text}`}>
           {capitalizeWords(label)}
         </Text>
       </Pressable>

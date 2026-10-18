@@ -4,6 +4,7 @@ import { Text, View } from 'react-native';
 import { KitShirt } from '@/components/teams/KitShirt';
 import { ListRow } from '@/components/ui/ListRow';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { FinishedMatch } from '@/db/repositories/history';
 import { kitColorName } from '@/domain/colors';
 
@@ -33,25 +34,25 @@ export function MatchResultRow({ item, kitColor, scorers, onPress }: MatchResult
     >
       <ResultBadge result={result} />
       <View className="flex-1 gap-0.5">
-        <Text numberOfLines={1} className="text-lg font-bold text-ink">
+        <Text numberOfLines={1} className="text-heading text-ink">
           vs {match.opponentName}
         </Text>
         <View className="flex-row items-center gap-1.5">
-          <Text numberOfLines={1} className="shrink text-sm text-ink-muted">
+          <Text numberOfLines={1} className="shrink text-caption text-ink-muted">
             {date} · {venue}
           </Text>
           {kitColor && <KitShirt color={kitColor} size={14} />}
         </View>
         {scorers && (
           <View className="flex-row items-center gap-1.5">
-            <Ionicons name="football" size={14} color={COLORS.inkSoft} />
-            <Text numberOfLines={2} className="shrink text-sm text-ink-soft">
+            <Ionicons name="football" size={ICON.sm} color={COLORS.inkSoft} />
+            <Text numberOfLines={2} className="shrink text-caption text-ink-soft">
               {scorers}
             </Text>
           </View>
         )}
       </View>
-      <Text className="text-2xl font-black text-ink" style={{ fontVariant: ['tabular-nums'] }}>
+      <Text className="text-title font-black text-ink" style={{ fontVariant: ['tabular-nums'] }}>
         {score.us}–{score.them}
       </Text>
     </ListRow>

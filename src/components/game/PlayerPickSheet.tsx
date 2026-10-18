@@ -50,11 +50,11 @@ export function PlayerPickSheet({
             >
               <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={36} />
               <View className="flex-1">
-                <Text numberOfLines={1} className="text-base font-semibold text-ink">
+                <Text numberOfLines={1} className="text-label text-ink">
                   {player.name}
                 </Text>
                 {note && (
-                  <Text numberOfLines={1} className="text-xs text-ink-muted">
+                  <Text numberOfLines={1} className="text-caption text-ink-muted">
                     {note}
                   </Text>
                 )}
@@ -63,14 +63,14 @@ export function PlayerPickSheet({
           );
         })}
       </View>
-      {players.length === 0 && <Text className="text-base text-ink-muted">{emptyText}</Text>}
+      {players.length === 0 && <Text className="text-body text-ink-muted">{emptyText}</Text>}
       {noneLabel && (
         <Pressable
           accessibilityRole="button"
           onPress={() => onPick(null)}
           className="min-h-touch items-center justify-center rounded-xl border border-line-strong bg-surface active:bg-muted"
         >
-          <Text className="text-base font-semibold text-ink-soft">{noneLabel}</Text>
+          <Text className="text-label text-ink-soft">{noneLabel}</Text>
         </Pressable>
       )}
     </Sheet>

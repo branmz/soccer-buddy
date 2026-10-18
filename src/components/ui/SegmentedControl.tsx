@@ -32,7 +32,7 @@ export function SegmentedControl<T extends string | number>({
   return (
     <View className="gap-1">
       {!hideLabel && (
-        <Text className="text-sm font-medium text-ink-soft">{capitalizeWords(label)}</Text>
+        <Text className="text-caption font-semibold text-ink-soft">{capitalizeWords(label)}</Text>
       )}
       <View
         accessibilityRole="radiogroup"
@@ -61,7 +61,7 @@ export function SegmentedControl<T extends string | number>({
             >
               {option.icon}
               <Text
-                className={`text-base font-semibold ${
+                className={`text-label ${
                   selected ? (option.selectedTextClassName ?? 'text-ink') : 'text-ink-muted'
                 }`}
               >

@@ -9,6 +9,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { Sheet, useDiscardGuard } from '@/components/ui/Sheet';
 import { TextField } from '@/components/ui/TextField';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { userMessage } from '@/db/repositories/errors';
 import { createPreset, updatePreset } from '@/db/repositories/presets';
 import type { Player } from '@/db/schema';
@@ -147,7 +148,7 @@ function PresetForm({
                 }}
                 className="h-touch w-touch items-center justify-center rounded-full active:bg-danger-tint"
               >
-                <Ionicons name="trash-outline" size={20} color={COLORS.danger} />
+                <Ionicons name="trash-outline" size={ICON.md} color={COLORS.danger} />
               </Pressable>
             )}
           </View>
@@ -168,13 +169,13 @@ function PresetForm({
                 >
                   <Ionicons
                     name={side === 'out' ? 'arrow-down-circle' : 'arrow-up-circle'}
-                    size={22}
+                    size={ICON.lg}
                     color={side === 'out' ? COLORS.danger : COLORS.brand}
                   />
                   <Text
                     numberOfLines={1}
                     // Same weight either way: toggling font weight leaves a ghost on Android.
-                    className={`flex-1 text-base font-semibold ${player ? 'text-ink' : 'text-ink-muted'}`}
+                    className={`flex-1 text-label ${player ? 'text-ink' : 'text-ink-muted'}`}
                   >
                     {player ? nameOf(player.id) : side === 'out' ? 'Off' : 'On'}
                   </Text>
@@ -198,9 +199,11 @@ function PresetForm({
                     >
                       <JerseyBadge number={p.jerseyNumber} kitColor={kitColor} size={30} />
                       {/* Sibling Texts, not nested: nested spans mis-measure on Android. */}
-                      <Text className="text-sm font-semibold text-ink">{nameOf(p.id)}</Text>
+                      <Text className="text-caption font-semibold text-ink">{nameOf(p.id)}</Text>
                       {position !== '' && (
-                        <Text className="text-xs font-semibold text-ink-muted">{position}</Text>
+                        <Text className="text-caption font-semibold text-ink-muted">
+                          {position}
+                        </Text>
                       )}
                     </Pressable>
                   );
@@ -219,7 +222,7 @@ function PresetForm({
         }}
       />
       {error && (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-danger">
+        <Text accessibilityLiveRegion="polite" className="text-caption text-danger">
           {error}
         </Text>
       )}

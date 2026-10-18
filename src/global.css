@@ -73,4 +73,36 @@
      font-size is set), so Tailwind's scale runs at 14/16 and min-h-12 is only 42dp. */
   --spacing-touch: 48px;
   --spacing-touch-lg: 56px;
+
+  /* Type scale: each role sets size, line height and weight (text-label is a 14dp semibold).
+     Line heights are ratios (calc(20 / 14) = 20dp at 14dp): react-native-css multiplies a
+     text utility's line height by the font size, so a px value comes out 14x too tall.
+     Tailwind's sizes (text-sm, text-base…) are switched off, so every Text uses a role; a
+     font-semibold / font-bold / font-black with it changes only the weight. Nothing read
+     during play is under 13dp (caption); text-tag is for pitch tokens and the bench column. */
+  --text-*: initial;
+  --text-display: 42px; /* live clock digits, the final score */
+  --text-display--line-height: 1;
+  --text-display--font-weight: 900;
+  --text-score: 26px; /* live score */
+  --text-score--line-height: calc(32 / 26);
+  --text-score--font-weight: 900;
+  --text-title: 21px; /* screen titles, team names, empty states */
+  --text-title--line-height: calc(28 / 21);
+  --text-title--font-weight: 700;
+  --text-heading: 17px; /* card and sheet titles, row titles, header buttons */
+  --text-heading--line-height: calc(24 / 17);
+  --text-heading--font-weight: 700;
+  --text-body: 14px; /* sentences: descriptions, log entries, field input */
+  --text-body--line-height: calc(20 / 14);
+  --text-body--font-weight: 400;
+  --text-label: 14px; /* buttons, player names, chips, hints */
+  --text-label--line-height: calc(20 / 14);
+  --text-label--font-weight: 600;
+  --text-caption: 13px; /* meta, errors, field labels, section headings */
+  --text-caption--line-height: calc(18 / 13);
+  --text-caption--font-weight: 400;
+  --text-tag: 11px; /* pitch token labels and bench chips, where space is fixed */
+  --text-tag--line-height: calc(14 / 11);
+  --text-tag--font-weight: 600;
 }

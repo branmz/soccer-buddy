@@ -22,20 +22,20 @@ export function TextField({ label, error, warning, ...inputProps }: TextFieldPro
       : 'border-line-strong';
   return (
     <View className="gap-1">
-      <Text className="text-sm font-medium text-ink-soft">{capitalizeWords(label)}</Text>
+      <Text className="text-caption font-semibold text-ink-soft">{capitalizeWords(label)}</Text>
       <TextInput
         accessibilityLabel={label}
         // gray-500: gray-400 placeholders wash out in sunlight.
         placeholderTextColor={COLORS.inkMuted}
-        className={`min-h-touch rounded-xl border bg-surface px-3 text-base text-ink ${borderClass}`}
+        className={`min-h-touch rounded-xl border bg-surface px-3 text-body text-ink ${borderClass}`}
         {...inputProps}
       />
       {error ? (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-danger">
+        <Text accessibilityLiveRegion="polite" className="text-caption text-danger">
           {error}
         </Text>
       ) : warning ? (
-        <Text accessibilityLiveRegion="polite" className="text-sm text-warning">
+        <Text accessibilityLiveRegion="polite" className="text-caption text-warning">
           {warning}
         </Text>
       ) : null}

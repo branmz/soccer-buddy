@@ -27,10 +27,10 @@ export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps
           accessibilityLabel={`Won ${wins}, drawn ${draws}, lost ${losses}. ${played} played, ${goalsFor} goals for, ${goalsAgainst} against`}
           className="gap-0.5"
         >
-          <Text className="text-lg font-bold text-ink">
+          <Text className="text-heading text-ink">
             Won {wins} · Drawn {draws} · Lost {losses}
           </Text>
-          <Text className="text-sm text-ink-muted">
+          <Text className="text-caption text-ink-muted">
             {played} played · GF–GA {goalsFor}–{goalsAgainst}
           </Text>
         </View>
@@ -44,11 +44,11 @@ export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps
           {form.map((result, i) => (
             <ResultBadge key={i} result={result} size="sm" />
           ))}
-          <Text className="pl-1 text-sm text-ink-muted">newest first</Text>
+          <Text className="pl-1 text-caption text-ink-muted">newest first</Text>
         </View>
       </Line>
       <Line label="Top scorers">
-        <Text className="text-base text-ink">{topScorers ?? 'No goals yet'}</Text>
+        <Text className="text-body text-ink">{topScorers ?? 'No goals yet'}</Text>
       </Line>
     </Card>
   );
@@ -57,7 +57,7 @@ export function SeasonSnapshot({ record, form, topScorers }: SeasonSnapshotProps
 function Line({ label, children }: { label: string; children: ReactNode }) {
   return (
     <View className="gap-1">
-      <Text className="text-xs font-semibold text-ink-muted uppercase">{label}</Text>
+      <Text className="text-caption font-semibold text-ink-muted uppercase">{label}</Text>
       {children}
     </View>
   );

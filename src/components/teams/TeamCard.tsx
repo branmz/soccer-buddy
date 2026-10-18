@@ -24,12 +24,12 @@ export function TeamCardBody({ team, isActive }: { team: TeamSummary; isActive: 
     <>
       <View className="flex-row items-center gap-2">
         {/* Two lines: a long club name keeps its squad suffix (U10 / U12) visible. */}
-        <Text numberOfLines={2} className="shrink text-2xl font-bold text-ink">
+        <Text numberOfLines={2} className="shrink text-title text-ink">
           {team.name}
         </Text>
         {isActive && (
           <View className="rounded-full bg-brand-tint-strong px-2.5 py-0.5">
-            <Text className="text-sm font-semibold text-brand-strong">Active</Text>
+            <Text className="text-caption font-semibold text-brand-strong">Active</Text>
           </View>
         )}
       </View>
@@ -40,7 +40,7 @@ export function TeamCardBody({ team, isActive }: { team: TeamSummary; isActive: 
             {team.awayColor && <ColorSwatch color={team.awayColor} size={20} />}
           </View>
         )}
-        <Text className="text-base text-ink-soft">
+        <Text className="text-body text-ink-soft">
           {team.fieldSize}v{team.fieldSize} · {team.activePlayerCount} {playerLabel}
         </Text>
       </View>

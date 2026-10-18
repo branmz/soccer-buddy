@@ -23,7 +23,7 @@ export function Card({ title, flush = false, className, children }: CardProps) {
   return (
     <View className={`rounded-2xl border border-line bg-surface ${layout}`}>
       {title !== undefined && (
-        <Text accessibilityRole="header" className="text-lg font-bold text-ink">
+        <Text accessibilityRole="header" className="text-heading text-ink">
           {capitalizeWords(title)}
         </Text>
       )}

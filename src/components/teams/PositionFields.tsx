@@ -82,7 +82,7 @@ export function PositionFields({
                 }`}
               >
                 <Text
-                  className={`text-sm font-semibold ${
+                  className={`text-caption font-semibold ${
                     selected ? 'text-white' : unavailable ? 'text-ink-muted' : 'text-ink'
                   }`}
                 >

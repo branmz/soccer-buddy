@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { Pressable, Text } from 'react-native';
 
 import { COLORS, ON_FILL } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { capitalizeWords } from '@/domain/text';
 
 type Variant = 'primary' | 'secondary' | 'danger';
@@ -73,9 +74,9 @@ export function HeaderButton({
         hideLabel ? 'w-touch' : 'px-3'
       } ${style.box}`}
     >
-      <Ionicons name={icon} size={hideLabel ? 24 : 20} color={style.icon} />
+      <Ionicons name={icon} size={hideLabel ? ICON.lg : ICON.md} color={style.icon} />
       {!hideLabel && (
-        <Text className={`text-lg font-semibold ${style.text}`}>{capitalizeWords(label)}</Text>
+        <Text className={`text-heading font-semibold ${style.text}`}>{capitalizeWords(label)}</Text>
       )}
     </Pressable>
   );

@@ -15,6 +15,15 @@ Read before writing code. For styling and screen rules, see also `docs/UI_RULES.
   classes and hex values are only for colors fixed by what they sit on: text, icons and chips
   on a solid fill (white on green, gray-950 on amber), the pitch's tokens and rings, referee
   cards, W/D/L badges
+- **Text uses a type role** (`src/global.css`): `text-display` (clock, final score),
+  `text-score`, `text-title`, `text-heading`, `text-body` (sentences), `text-label` (buttons,
+  names, chips; semibold), `text-caption` (meta, errors, field labels), `text-tag` (pitch tokens
+  and the bench column only). Each sets size, line height and weight. Tailwind's `text-sm` /
+  `text-base`… are switched off (they'd silently render at the default size;
+  `typeScale.test.ts` fails on them). To change only the weight, add `font-semibold` /
+  `font-bold` / `font-black` with the role (no `font-medium`). Icon sizes come from `ICON`
+  (`src/constants/icons.ts`): `sm` in small chips and captions, `md` in buttons and bars,
+  `lg` for icons that stand alone or lead a row
 - **Build screens from `src/components/ui`**, not hand-copied class strings: a white card is
   `Card` (optional `title`, `flush` for tables), a tappable list row is `ListRow`, the small grey
   uppercase label over a group is `SectionHeading`. Their `className` is for layout only (gap,

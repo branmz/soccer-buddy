@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { Pressable } from 'react-native';
 
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 
 type IconButtonProps = {
   icon: ComponentProps<typeof Ionicons>['name'];
@@ -10,17 +11,10 @@ type IconButtonProps = {
   label: string;
   onPress: () => void;
   color?: string;
-  size?: number;
 };
 
-/** A 44pt-minimum touch target around a single icon (header actions, row actions). */
-export function IconButton({
-  icon,
-  label,
-  onPress,
-  color = COLORS.brandStrong,
-  size = 24,
-}: IconButtonProps) {
+/** A 48dp touch target around a single icon (header actions, row actions). */
+export function IconButton({ icon, label, onPress, color = COLORS.brandStrong }: IconButtonProps) {
   return (
     <Pressable
       accessibilityRole="button"
@@ -29,7 +23,7 @@ export function IconButton({
       onPress={onPress}
       className="h-touch w-touch items-center justify-center rounded-full active:bg-muted"
     >
-      <Ionicons name={icon} size={size} color={color} />
+      <Ionicons name={icon} size={ICON.lg} color={color} />
     </Pressable>
   );
 }

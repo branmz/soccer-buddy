@@ -51,8 +51,11 @@ what to build next. Update its Status section when a milestone's PR merges.
 - Expo needs port 8081; a stale `expo start` from a closed terminal can hold it. Find it with
   `Get-NetTCPConnection -LocalPort 8081` and stop that process
 - CLI globs don't match route folders like `(tabs)`: pass Prettier/ESLint explicit quoted paths
-- NativeWind's rem is 14px, not 16: Tailwind sizes come out at 14/16 (`min-h-12` = 42dp,
-  `text-base` = 14). Touch targets use the px tokens `min-h-touch` (48) / `min-h-touch-lg` (56)
+- NativeWind's rem is 14px, not 16: Tailwind sizes come out at 14/16 (`min-h-12` = 42dp).
+  Touch targets use the px tokens `min-h-touch` (48) / `min-h-touch-lg` (56)
+- Text roles' line heights (`--text-*--line-height`) must be ratios like `calc(20 / 14)`:
+  react-native-css multiplies them by the font size, so `20px` renders 280dp tall
+  (`typeScale.test.ts` checks)
 - The coach's device screenshots are in `screenshots/` (git-ignored); read them when asked
 
 ## Project Layout
@@ -72,7 +75,7 @@ what to build next. Update its Status section when a milestone's PR merges.
   formation JSON parsing). No React, no DB imports. Unit tested in `src/domain/__tests__/`
 - `src/constants/` — `presetFormations.ts` (built-in formations per field size 5/7/9/11),
   `colors.ts` (`COLORS` / `ON_FILL` for icon/switch props, mirrors the `src/global.css`
-  theme tokens; a test checks they match), `navigation.ts`
+  theme tokens; a test checks they match), `icons.ts` (`ICON` sizes), `navigation.ts`
   (`STACK_OPTIONS`, used by every tab's Stack)
 - `src/stores/` — Zustand: `appStore` (activeTeamId, persisted via expo-sqlite/kv-store),
   `boardStore` (formation editor and match lineup editor). Live-screen UI state is local state

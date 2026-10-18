@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { Pressable, View } from 'react-native';
 
 import { SelectField } from '@/components/ui/SelectField';
+import { ICON } from '@/constants/icons';
 import { KIT_COLORS, kitColorName, readableTextColor } from '@/domain/colors';
 
 import { ColorSwatch } from './ColorSwatch';
@@ -77,7 +78,7 @@ export function KitColorFields({ home, away, onChangeHome, onChangeAway }: KitCo
                   <ColorSwatch color={hex} size={34} />
                   {selected && (
                     <View className="absolute">
-                      <Ionicons name="checkmark" size={20} color={readableTextColor(hex)} />
+                      <Ionicons name="checkmark" size={ICON.md} color={readableTextColor(hex)} />
                     </View>
                   )}
                 </View>
