@@ -9,6 +9,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ON_FILL } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import {
   breakName,
   isClockStopped,
@@ -139,7 +140,7 @@ export function ClockBar({
           onPress={onBack}
           className={`h-touch w-touch items-center justify-center rounded-full ${bar.press}`}
         >
-          <Ionicons name="chevron-back" size={26} color={bar.icon} />
+          <Ionicons name="chevron-back" size={ICON.lg} color={bar.icon} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -147,22 +148,19 @@ export function ClockBar({
           onPress={onScorePress}
           className={`min-h-touch flex-1 flex-row items-center justify-center gap-3 rounded-xl py-1 ${bar.press}`}
         >
-          <Text
-            numberOfLines={1}
-            className={`shrink text-right text-base font-semibold ${bar.soft}`}
-          >
+          <Text numberOfLines={1} className={`shrink text-right text-label ${bar.soft}`}>
             {teamName}
           </Text>
           <Animated.View style={scoreStyle}>
-            <Text className={`text-3xl font-black ${bar.strong}`}>
+            <Text className={`text-score ${bar.strong}`}>
               {score.us} – {score.them}
             </Text>
           </Animated.View>
-          <Text numberOfLines={1} className={`shrink text-base font-semibold ${bar.soft}`}>
+          <Text numberOfLines={1} className={`shrink text-label ${bar.soft}`}>
             {opponentName}
           </Text>
           {/* Says the score opens the log (Log left the bottom bar for pause / resume). */}
-          <Ionicons name="list" size={18} color={bar.icon} />
+          <Ionicons name="list" size={ICON.md} color={bar.icon} />
         </Pressable>
         <Pressable
           accessibilityRole="button"
@@ -171,7 +169,7 @@ export function ClockBar({
           onPress={onMore}
           className={`h-touch w-touch items-center justify-center rounded-full ${bar.press}`}
         >
-          <Ionicons name="ellipsis-vertical" size={24} color={bar.icon} />
+          <Ionicons name="ellipsis-vertical" size={ICON.lg} color={bar.icon} />
         </Pressable>
       </View>
 
@@ -180,20 +178,17 @@ export function ClockBar({
           <Text
             accessibilityRole="timer"
             accessibilityLabel={`Clock ${clock.display}${paused ? ', paused' : ''}`}
-            className={`text-5xl font-black ${digitsColor}`}
+            className={`text-display ${digitsColor}`}
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {clock.display}
           </Text>
           <View className="flex-row items-center gap-2">
-            <Text className={`text-base font-semibold ${bar.soft}`}>
+            <Text className={`text-label ${bar.soft}`}>
               {paused ? `PAUSED · ${period}` : period}
             </Text>
-            <Text className={`text-base ${bar.subs}`}>·</Text>
-            <Text
-              accessibilityLabel={subsSpoken}
-              className={`text-base font-semibold ${subsClass}`}
-            >
+            <Text className={`text-body ${bar.subs}`}>·</Text>
+            <Text accessibilityLabel={subsSpoken} className={`text-label ${subsClass}`}>
               Subs {subsUsed}
               {maxSubs === null ? '' : ` / ${maxSubs}`}
             </Text>
@@ -249,8 +244,8 @@ function EndButton({ label, icon, tone, onPress }: EndButtonProps) {
         }}
         className={`min-h-touch min-w-36 flex-row items-center justify-center gap-1.5 rounded-xl border px-3 ${style.box}`}
       >
-        <Ionicons name={icon} size={20} color={style.icon} />
-        <Text className={`text-base font-bold ${style.text}`}>{capitalizeWords(label)}</Text>
+        <Ionicons name={icon} size={ICON.md} color={style.icon} />
+        <Text className={`text-label font-bold ${style.text}`}>{capitalizeWords(label)}</Text>
       </Pressable>
     </Animated.View>
   );

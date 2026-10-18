@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { HeaderButton } from '@/components/ui/HeaderButton';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { userMessage } from '@/db/repositories/errors';
 import { deletePlayer, playersQuery } from '@/db/repositories/players';
 import { getTeam } from '@/db/repositories/teams';
@@ -151,7 +152,7 @@ export default function RosterScreen() {
                 <SectionHeading header={false}>{section.title}</SectionHeading>
                 <Ionicons
                   name={showInactive ? 'chevron-up' : 'chevron-down'}
-                  size={16}
+                  size={ICON.sm}
                   color={COLORS.inkMuted}
                 />
               </Pressable>
@@ -166,8 +167,8 @@ export default function RosterScreen() {
                   onPress={() => setRosterSort(nextSort(rosterSort))}
                   className="min-h-touch flex-row items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
                 >
-                  <Ionicons name="swap-vertical" size={16} color={COLORS.inkSoft} />
-                  <Text className="text-base font-semibold text-ink">{SORT_LABEL[rosterSort]}</Text>
+                  <Ionicons name="swap-vertical" size={ICON.sm} color={COLORS.inkSoft} />
+                  <Text className="text-label text-ink">{SORT_LABEL[rosterSort]}</Text>
                 </Pressable>
               </View>
             )
@@ -255,20 +256,20 @@ function PlayerRow({ player, kitColor, duplicateJersey, onPress }: PlayerRowProp
       <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} inactive={!player.isActive} />
       <Text
         numberOfLines={1}
-        className={`flex-1 text-base font-semibold ${player.isActive ? 'text-ink' : 'text-ink-muted'}`}
+        className={`flex-1 text-label ${player.isActive ? 'text-ink' : 'text-ink-muted'}`}
       >
         {player.name}
       </Text>
       {/* Main position stands out; the second one is secondary. Sibling Texts, not nested. */}
       {player.primaryPosition && (
         <View className="flex-row items-center">
-          <Text className="text-sm font-bold text-ink">{player.primaryPosition}</Text>
+          <Text className="text-caption font-bold text-ink">{player.primaryPosition}</Text>
           {player.secondaryPosition && (
-            <Text className="text-sm text-ink-muted"> / {player.secondaryPosition}</Text>
+            <Text className="text-caption text-ink-muted"> / {player.secondaryPosition}</Text>
           )}
         </View>
       )}
-      {duplicateJersey && <Ionicons name="warning-outline" size={20} color={COLORS.warning} />}
+      {duplicateJersey && <Ionicons name="warning-outline" size={ICON.md} color={COLORS.warning} />}
     </Pressable>
   );
 }

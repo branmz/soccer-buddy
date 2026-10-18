@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { Text, View } from 'react-native';
 
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { TimelineEntry, TimelineKind } from '@/domain/timeline';
 
 import { RefereeCardIcon } from './RefereeCardIcon';
@@ -29,7 +30,7 @@ export function EventTimeline({
   emptyText?: string;
 }) {
   if (entries.length === 0) {
-    return <Text className="text-base text-ink-muted">{emptyText}</Text>;
+    return <Text className="text-body text-ink-muted">{emptyText}</Text>;
   }
   return (
     <View>
@@ -40,21 +41,21 @@ export function EventTimeline({
           className="min-h-12 flex-row items-center gap-3 border-b border-muted py-2"
         >
           <Text
-            className="w-14 text-right text-base font-bold text-ink-muted"
+            className="w-14 text-right text-label font-bold text-ink-muted"
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {entry.minute}
           </Text>
           {entry.kind === 'yellow' || entry.kind === 'red' ? (
-            <RefereeCardIcon color={entry.kind} size={22} />
+            <RefereeCardIcon color={entry.kind} size={ICON.lg} />
           ) : (
             <Ionicons
               name={KIND_ICON[entry.kind].name}
-              size={22}
+              size={ICON.lg}
               color={KIND_ICON[entry.kind].color}
             />
           )}
-          <Text className="flex-1 text-base text-ink">{entry.text}</Text>
+          <Text className="flex-1 text-body text-ink">{entry.text}</Text>
         </View>
       ))}
     </View>

@@ -187,10 +187,10 @@ export default function GameDayScreen() {
         renderItem={({ item }) => (
           <ListRow onPress={() => openSetup(item)}>
             <View className="flex-1 gap-0.5">
-              <Text numberOfLines={1} className="text-lg font-bold text-ink">
+              <Text numberOfLines={1} className="text-heading text-ink">
                 vs {item.opponentName}
               </Text>
-              <Text className="text-sm text-ink-muted">
+              <Text className="text-caption text-ink-muted">
                 {item.isHome ? 'Home' : 'Away'}
                 {item.formationName ? ` · ${item.formationName}` : ''} · {item.periodCount} ×{' '}
                 {item.periodLengthMinutes} min

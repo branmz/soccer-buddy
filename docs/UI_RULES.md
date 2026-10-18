@@ -7,6 +7,9 @@ review (see `docs/PLAN.md` → UX review), and the coach approved each one on th
   (`border-2 ${on ? 'border-brand' : 'border-transparent'}`), never `on ? 'x' : ''`: a removed
   class, or toggled elevation, shadow or font weight, leaves a one-frame ghost. In chips, put
   sibling `Text`s in a row rather than nesting `Text` (nested spans mis-measure on Android)
+- **Size:** nothing read during play is under 13dp (`text-caption`). The one exception is the
+  11dp `text-tag`, used only where the width is fixed: pitch token labels and the bench column
+  (its heading, chips, Move To Bench and empty text)
 - **Contrast:** brand `#15803d` (white text 5:1); readable text never lighter than `ink-muted`;
   touch targets ≥ 48dp: `min-h-touch` / `h-touch w-touch` (56dp `min-h-touch-lg` for a screen's
   main action). Never `min-h-12`: NativeWind's rem is 14px, so it is only 42dp. One known

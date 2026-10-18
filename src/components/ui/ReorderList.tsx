@@ -21,6 +21,7 @@ import Animated, {
 import { scheduleOnRN } from 'react-native-worklets';
 
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import {
   idsInOrder,
   movePosition,
@@ -191,7 +192,7 @@ export function ReorderList<T extends { id: number }>({
             accessibilityLiveRegion="polite"
             numberOfLines={2}
             maxFontSizeMultiplier={1.15}
-            className="text-base font-medium text-ink"
+            className="text-label text-ink"
           >
             {dragging
               ? 'Drop it where it should go.'
@@ -368,7 +369,7 @@ function ReorderRow({
               className="h-16 w-16 items-center justify-center"
             >
               {/* A six-dot grip: three lines (reorder-three) read as a menu. */}
-              <MaterialCommunityIcons name="drag" size={32} color={COLORS.inkMuted} />
+              <MaterialCommunityIcons name="drag" size={ICON.xl} color={COLORS.inkMuted} />
             </View>
           </GestureDetector>
         )}

@@ -156,8 +156,8 @@ function PlayerForm({
       {player && (
         <View className="flex-row items-center justify-between">
           <View className="flex-1 pr-4">
-            <Text className="text-base font-medium text-ink">Active</Text>
-            <Text className="text-sm text-ink-muted">
+            <Text className="text-label text-ink">Active</Text>
+            <Text className="text-caption text-ink-muted">
               Inactive players are hidden from formations and match day.
             </Text>
           </View>
@@ -191,7 +191,7 @@ function PlayerForm({
       )}
       {player &&
         (hasHistory ? (
-          <Text className="text-center text-sm text-ink-muted">
+          <Text className="text-center text-caption text-ink-muted">
             {player.name} has match history, so they can&apos;t be deleted. Mark them inactive
             instead.
           </Text>

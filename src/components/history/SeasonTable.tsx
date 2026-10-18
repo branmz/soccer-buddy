@@ -5,6 +5,7 @@ import { Pressable, Text, View } from 'react-native';
 import { RefereeCardIcon } from '@/components/game/RefereeCardIcon';
 import { Card } from '@/components/ui/Card';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { Player } from '@/db/schema';
 import type { SeasonRow, SeasonTableSort, SortDirection } from '@/domain/history';
 import type { SeasonRecord } from '@/domain/stats';
@@ -41,14 +42,14 @@ const COLUMNS: Column[] = [
   { key: 'assists', header: 'A', label: 'Assists', width: 30, value: (r) => r.assists },
   {
     key: 'yellowCards',
-    header: <RefereeCardIcon color="yellow" size={16} />,
+    header: <RefereeCardIcon color="yellow" size={ICON.sm} />,
     label: 'Yellow cards',
     width: 30,
     value: (r) => r.yellowCards,
   },
   {
     key: 'redCards',
-    header: <RefereeCardIcon color="red" size={16} />,
+    header: <RefereeCardIcon color="red" size={ICON.sm} />,
     label: 'Red cards',
     width: 30,
     value: (r) => r.redCards,
@@ -66,7 +67,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
   const arrow = (
     <Ionicons
       name={sort.direction === 'desc' ? 'caret-down' : 'caret-up'}
-      size={10}
+      size={ICON.xs}
       color={COLORS.brandStrong}
     />
   );
@@ -81,7 +82,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
           className="min-h-touch flex-1 flex-row items-center gap-1"
         >
           <Text
-            className={`text-sm font-bold ${sort.key === 'name' ? 'text-brand-strong' : 'text-ink-muted'}`}
+            className={`text-caption font-bold ${sort.key === 'name' ? 'text-brand-strong' : 'text-ink-muted'}`}
           >
             Player
           </Text>
@@ -100,7 +101,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
             >
               {typeof column.header === 'string' ? (
                 <Text
-                  className={`text-sm font-bold ${active ? 'text-brand-strong' : 'text-ink-muted'}`}
+                  className={`text-caption font-bold ${active ? 'text-brand-strong' : 'text-ink-muted'}`}
                 >
                   {column.header}
                 </Text>
@@ -127,7 +128,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
           <View className="flex-1 flex-row items-center gap-1.5 pr-1">
             {row.player.jerseyNumber !== null && (
               <Text
-                className="w-6 text-right text-sm font-semibold text-ink-muted"
+                className="w-6 text-right text-caption font-semibold text-ink-muted"
                 style={{ fontVariant: ['tabular-nums'] }}
               >
                 {row.player.jerseyNumber}
@@ -135,7 +136,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
             )}
             <Text
               numberOfLines={1}
-              className={`shrink text-base ${row.player.isActive ? 'text-ink' : 'text-ink-muted'}`}
+              className={`shrink text-body ${row.player.isActive ? 'text-ink' : 'text-ink-muted'}`}
             >
               {row.player.name}
             </Text>
@@ -149,7 +150,7 @@ export function SeasonTable({ rows, sort, onSort }: SeasonTableProps) {
                 // Only the color marks the sorted column: a weight change flickers on Android. A
                 // zero is a dash in ink-muted: the shape sets it apart, readable in sun (a border
                 // gray all but vanished). The row's spoken label still says "0".
-                className={`text-center text-base font-semibold ${
+                className={`text-center text-label ${
                   value === 0 ? 'text-ink-muted' : active ? 'text-brand-strong' : 'text-ink-soft'
                 }`}
                 style={{ width: column.width, fontVariant: ['tabular-nums'] }}
@@ -187,12 +188,12 @@ export function SeasonRecordCard({ record }: { record: SeasonRecord }) {
       {tiles.map((tile) => (
         <View key={tile.label} className="flex-1 items-center gap-0.5">
           <Text
-            className="text-2xl font-black text-white"
+            className="text-title font-black text-white"
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {tile.value}
           </Text>
-          <Text className="text-xs font-semibold text-green-100 uppercase">{tile.label}</Text>
+          <Text className="text-caption font-semibold text-green-100 uppercase">{tile.label}</Text>
         </View>
       ))}
     </View>

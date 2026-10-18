@@ -90,7 +90,7 @@ export default function MatchLineupScreen() {
       {error && (
         <Text
           accessibilityLiveRegion="polite"
-          className="bg-danger-tint px-4 py-2 text-sm text-danger-strong"
+          className="bg-danger-tint px-4 py-2 text-caption text-danger-strong"
         >
           {error}
         </Text>

@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Keyboard, Pressable, Text, View } from 'react-native';
 
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { capitalizeWords } from '@/domain/text';
 
 type SelectFieldProps = {
@@ -39,7 +40,9 @@ export function SelectField({
       : 'border-line-strong bg-surface';
   return (
     <View className="flex-1 gap-1">
-      <Text className={`text-sm font-medium ${disabled ? 'text-ink-muted' : 'text-ink-soft'}`}>
+      <Text
+        className={`text-caption font-semibold ${disabled ? 'text-ink-muted' : 'text-ink-soft'}`}
+      >
         {capitalizeWords(label)}
       </Text>
       <Pressable
@@ -58,13 +61,13 @@ export function SelectField({
         <Text
           numberOfLines={1}
           // Same weight with or without a value: toggling font weight ghosts on Android.
-          className={`flex-1 text-base font-semibold ${valueText ? 'text-ink' : 'text-ink-muted'}`}
+          className={`flex-1 text-label ${valueText ? 'text-ink' : 'text-ink-muted'}`}
         >
           {valueText ?? placeholder}
         </Text>
         <Ionicons
           name={expanded ? 'chevron-up' : 'chevron-down'}
-          size={18}
+          size={ICON.md}
           color={disabled ? COLORS.inkFaint : COLORS.inkMuted}
         />
       </Pressable>

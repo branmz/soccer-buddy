@@ -5,6 +5,7 @@ import { GestureDetector } from 'react-native-gesture-handler';
 import Animated from 'react-native-reanimated';
 
 import { COLORS, ON_FILL } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { Player } from '@/db/schema';
 import {
   benchPlayers,
@@ -135,7 +136,7 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
           accessibilityLiveRegion="polite"
           numberOfLines={2}
           maxFontSizeMultiplier={1.15}
-          className="flex-1 text-base font-medium text-ink"
+          className="flex-1 text-label text-ink"
         >
           {hintText(
             mode,
@@ -159,8 +160,8 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
             className="min-h-touch flex-row items-center gap-1 rounded-full border border-brand bg-surface px-3 active:bg-brand-tint"
           >
             {/* Just the label, like the live editor: room for the hint beside Cancel. */}
-            <Text className="text-lg font-bold text-brand-strong">{selectedSlot.label}</Text>
-            <Ionicons name="chevron-down" size={18} color={COLORS.brandStrong} />
+            <Text className="text-heading text-brand-strong">{selectedSlot.label}</Text>
+            <Ionicons name="chevron-down" size={ICON.md} color={COLORS.brandStrong} />
           </Pressable>
         )}
         {selection && (
@@ -171,8 +172,8 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
             // of the hint, not as a button.
             className="min-h-touch flex-row items-center gap-1 rounded-full border border-line-strong bg-surface px-3 active:bg-muted"
           >
-            <Ionicons name="close" size={18} color={COLORS.ink} />
-            <Text className="text-base font-semibold text-ink">Cancel</Text>
+            <Ionicons name="close" size={ICON.md} color={COLORS.ink} />
+            <Text className="text-label text-ink">Cancel</Text>
           </Pressable>
         )}
       </View>
@@ -247,8 +248,12 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
               : 'border-line bg-muted active:bg-muted'
           }`}
         >
-          <Ionicons name="arrow-undo" size={20} color={canUndo ? COLORS.ink : COLORS.inkMuted} />
-          <Text className={`text-lg font-semibold ${canUndo ? 'text-ink' : 'text-ink-muted'}`}>
+          <Ionicons
+            name="arrow-undo"
+            size={ICON.md}
+            color={canUndo ? COLORS.ink : COLORS.inkMuted}
+          />
+          <Text className={`text-heading font-semibold ${canUndo ? 'text-ink' : 'text-ink-muted'}`}>
             Undo
           </Text>
         </Pressable>
@@ -266,11 +271,11 @@ export function FormationBoard({ roster, kitColor }: FormationBoardProps) {
         >
           <Ionicons
             name={movingSpots ? 'checkmark' : 'create-outline'}
-            size={20}
+            size={ICON.md}
             color={movingSpots ? ON_FILL : COLORS.brandStrong}
           />
           <Text
-            className={`text-lg font-semibold ${movingSpots ? 'text-white' : 'text-brand-strong'}`}
+            className={`text-heading font-semibold ${movingSpots ? 'text-white' : 'text-brand-strong'}`}
           >
             {movingSpots ? 'Done Editing' : 'Edit Spots'}
           </Text>

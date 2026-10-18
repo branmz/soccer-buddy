@@ -5,6 +5,7 @@ import { JerseyBadge } from '@/components/teams/JerseyBadge';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Sheet } from '@/components/ui/Sheet';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { Player } from '@/db/schema';
 
 type SquadSheetProps = {
@@ -30,7 +31,7 @@ export function SquadSheet({
   return (
     // The count goes under the title: Title Case made it "Who's Here? 13 Of 13".
     <Sheet visible={visible} title="Who's here?" onClose={onClose}>
-      <Text className="text-base text-ink-soft">
+      <Text className="text-body text-ink-soft">
         Tap a player to mark them absent. Absent players leave the lineup and quick subs skip them.
         If they turn up late, add them from the live match&apos;s ⋮ menu.
       </Text>
@@ -56,16 +57,16 @@ export function SquadSheet({
               />
               <Text
                 numberOfLines={1}
-                className={`flex-1 text-base font-semibold ${isHere ? 'text-ink' : 'text-ink-muted'}`}
+                className={`flex-1 text-label ${isHere ? 'text-ink' : 'text-ink-muted'}`}
               >
                 {player.name}
               </Text>
-              <Text className={`text-sm ${isHere ? 'text-brand' : 'text-ink-muted'}`}>
+              <Text className={`text-caption ${isHere ? 'text-brand' : 'text-ink-muted'}`}>
                 {isHere ? 'Here' : 'Absent'}
               </Text>
               <Ionicons
                 name={isHere ? 'checkbox' : 'square-outline'}
-                size={26}
+                size={ICON.lg}
                 color={isHere ? COLORS.brand : COLORS.inkMuted}
               />
             </Pressable>

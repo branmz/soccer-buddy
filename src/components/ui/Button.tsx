@@ -3,6 +3,7 @@ import type { ComponentProps } from 'react';
 import { Pressable, Text } from 'react-native';
 
 import { COLORS, ON_FILL } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { capitalizeWords } from '@/domain/text';
 
 /** `danger` is for the final confirm; `dangerOutline` for the entry point to a destructive flow. */
@@ -70,9 +71,13 @@ export function Button({
       } ${className}`}
     >
       {icon && (
-        <Ionicons name={icon} size={18} color={disabled ? DISABLED.icon : iconColor[variant]} />
+        <Ionicons
+          name={icon}
+          size={ICON.md}
+          color={disabled ? DISABLED.icon : iconColor[variant]}
+        />
       )}
-      <Text className={`text-base font-semibold ${disabled ? DISABLED.text : textClass[variant]}`}>
+      <Text className={`text-label ${disabled ? DISABLED.text : textClass[variant]}`}>
         {capitalizeWords(label)}
       </Text>
     </Pressable>

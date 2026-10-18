@@ -17,6 +17,7 @@ import { SegmentedControl } from '@/components/ui/SegmentedControl';
 import { SelectField } from '@/components/ui/SelectField';
 import { TextField } from '@/components/ui/TextField';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import { userMessage } from '@/db/repositories/errors';
 import { kickoff } from '@/db/repositories/liveMatch';
 import {
@@ -213,7 +214,7 @@ export default function MatchSetupScreen() {
           {kitColor && (
             <View className="-mt-2 flex-row items-center gap-2">
               <ColorSwatch color={kitColor} size={20} />
-              <Text className="text-sm text-ink-soft">
+              <Text className="text-caption text-ink-soft">
                 Wearing the {match.isHome || !team.awayColor ? 'home' : 'away'} kit
               </Text>
             </View>
@@ -252,9 +253,11 @@ export default function MatchSetupScreen() {
             </View>
           </View>
           {fieldErrors.periods && (
-            <Text className="text-sm text-danger">{fieldErrors.periods}</Text>
+            <Text className="text-caption text-danger">{fieldErrors.periods}</Text>
           )}
-          {fieldErrors.venue && <Text className="text-sm text-danger">{fieldErrors.venue}</Text>}
+          {fieldErrors.venue && (
+            <Text className="text-caption text-danger">{fieldErrors.venue}</Text>
+          )}
         </Card>
 
         <Card title="Lineup" className="gap-4">
@@ -273,11 +276,11 @@ export default function MatchSetupScreen() {
             onPress={() => setSquadOpen(true)}
             className="min-h-touch flex-row items-center gap-2 rounded-xl border border-line-strong bg-surface px-3 active:bg-canvas"
           >
-            <Ionicons name="people-outline" size={20} color={COLORS.brandStrong} />
-            <Text className="flex-1 text-base text-ink">
+            <Ionicons name="people-outline" size={ICON.md} color={COLORS.brandStrong} />
+            <Text className="flex-1 text-body text-ink">
               <Text className="font-semibold">{squad.size}</Text> of {roster.length} players here
             </Text>
-            <Text className="text-base font-semibold text-brand">Change</Text>
+            <Text className="text-label text-brand">Change</Text>
           </Pressable>
           {lineup && (
             <Pressable
@@ -297,7 +300,7 @@ export default function MatchSetupScreen() {
                 kitColor={kitColor}
                 maxHeight={520}
               />
-              <Text className="text-center text-sm text-ink-soft">
+              <Text className="text-center text-caption text-ink-soft">
                 {placed} of {lineup.slots.length} spots filled · {lineup.bench.length} on the bench
               </Text>
             </Pressable>
@@ -318,7 +321,7 @@ export default function MatchSetupScreen() {
         </Card>
 
         <Card title="Quick subs" className="gap-4">
-          <Text className="text-sm text-ink-soft">
+          <Text className="text-caption text-ink-soft">
             Plan subs ahead and make them with one tap during the match.
           </Text>
           {presets.map((preset) => (
@@ -338,18 +341,18 @@ export default function MatchSetupScreen() {
               }
               className="min-h-14 flex-row items-center gap-3 rounded-xl border border-line bg-surface px-3 py-2 active:bg-canvas"
             >
-              <Ionicons name="swap-vertical" size={22} color={COLORS.brandStrong} />
+              <Ionicons name="swap-vertical" size={ICON.lg} color={COLORS.brandStrong} />
               <View className="flex-1">
-                <Text numberOfLines={1} className="text-base font-bold text-ink">
+                <Text numberOfLines={1} className="text-label font-bold text-ink">
                   {preset.presetName}
                 </Text>
-                <Text numberOfLines={2} className="text-sm text-ink-muted">
+                <Text numberOfLines={2} className="text-caption text-ink-muted">
                   {preset.substitutions
                     .map((p) => `${nameOf(p.inPlayerId)} for ${nameOf(p.outPlayerId)}`)
                     .join(', ')}
                 </Text>
               </View>
-              <Text className="text-xs font-semibold text-ink-muted uppercase">
+              <Text className="text-caption font-semibold text-ink-muted uppercase">
                 {preset.teamId === null ? 'This match' : 'Every match'}
               </Text>
             </Pressable>
@@ -366,7 +369,7 @@ export default function MatchSetupScreen() {
       {/* No safe-area padding: the tab bar below already clears the navigation bar. */}
       <View className="gap-2 border-t border-line bg-surface px-4 py-3">
         {error && (
-          <Text accessibilityLiveRegion="polite" className="text-sm text-danger">
+          <Text accessibilityLiveRegion="polite" className="text-caption text-danger">
             {error}
           </Text>
         )}

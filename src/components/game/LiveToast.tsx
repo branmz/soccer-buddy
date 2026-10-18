@@ -2,6 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Pressable, Text, View } from 'react-native';
 
 import { COLORS, ON_FILL } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 
 /** `success`: something was recorded (offers Undo). `undone`: an undo happened (no button,
  *  so it can't be mistaken for a redo). `error`: something was refused. */
@@ -49,16 +50,16 @@ export function LiveToast({ toast, onUndo }: LiveToastProps) {
       // Mounted fresh for each toast (keyed), so the shadow never toggles (no Android ghosting).
       style={{ elevation: 6 }}
     >
-      <Ionicons name={style.icon} size={26} color={style.iconColor} />
-      <Text className={`flex-1 text-lg font-bold ${style.text}`}>{toast.text}</Text>
+      <Ionicons name={style.icon} size={ICON.lg} color={style.iconColor} />
+      <Text className={`flex-1 text-heading ${style.text}`}>{toast.text}</Text>
       {toast.tone === 'success' && onUndo && (
         <Pressable
           accessibilityRole="button"
           onPress={onUndo}
           className="min-h-touch flex-row items-center gap-1 rounded-lg border border-line-strong bg-surface px-4 active:bg-muted"
         >
-          <Ionicons name="arrow-undo" size={18} color={COLORS.ink} />
-          <Text className="text-base font-bold text-ink">Undo</Text>
+          <Ionicons name="arrow-undo" size={ICON.md} color={COLORS.ink} />
+          <Text className="text-label font-bold text-ink">Undo</Text>
         </Pressable>
       )}
     </View>

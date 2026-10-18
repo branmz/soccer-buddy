@@ -8,6 +8,7 @@ import { KitShirt } from '@/components/teams/KitShirt';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { COLORS } from '@/constants/colors';
+import { ICON } from '@/constants/icons';
 import type { Player } from '@/db/schema';
 import { formatMinutesPlayed } from '@/domain/history';
 import { matchResult, type MatchResult, type PlayerMatchStats, type Score } from '@/domain/stats';
@@ -52,21 +53,23 @@ export function FinishedSummary({
         className="items-center gap-1 bg-pitch-dark px-4 pb-5"
         style={{ paddingTop: insetTop + 12 }}
       >
-        <Text className="text-sm font-semibold text-green-100 uppercase">Full time · {result}</Text>
+        <Text className="text-caption font-semibold text-green-100 uppercase">
+          Full time · {result}
+        </Text>
         <View className="flex-row items-center gap-3">
-          <Text numberOfLines={1} className="shrink text-lg font-semibold text-green-100">
+          <Text numberOfLines={1} className="shrink text-heading font-semibold text-green-100">
             {teamName}
           </Text>
-          <Text className="text-5xl font-black text-white">
+          <Text className="text-display text-white">
             {score.us} – {score.them}
           </Text>
-          <Text numberOfLines={1} className="shrink text-lg font-semibold text-green-100">
+          <Text numberOfLines={1} className="shrink text-heading font-semibold text-green-100">
             {opponentName}
           </Text>
         </View>
         {subtitle && (
           <View className="flex-row items-center gap-1.5">
-            <Text className="text-sm text-green-100">{subtitle}</Text>
+            <Text className="text-caption text-green-100">{subtitle}</Text>
             {subtitleKitColor && <KitShirt color={subtitleKitColor} size={14} />}
           </View>
         )}
@@ -113,7 +116,7 @@ export function TimelineCard({
     <Card flush className="gap-1 px-4 pt-2 pb-2">
       {/* The title stays a heading (for screen-reader navigation) beside a separate toggle. */}
       <View className="min-h-touch flex-row items-center gap-2">
-        <Text accessibilityRole="header" className="flex-1 text-lg font-bold text-ink">
+        <Text accessibilityRole="header" className="flex-1 text-heading text-ink">
           {capitalizeWords(title)}
         </Text>
         <Pressable
@@ -125,12 +128,12 @@ export function TimelineCard({
           onPress={() => setOpen((o) => !o)}
           className="min-h-touch flex-row items-center gap-1 rounded-full px-2 active:bg-brand-tint"
         >
-          <Text className="text-base font-semibold text-brand-strong">
+          <Text className="text-label text-brand-strong">
             {open ? 'Hide' : `Show All ${entries.length}`}
           </Text>
           <Ionicons
             name={open ? 'chevron-up' : 'chevron-down'}
-            size={18}
+            size={ICON.md}
             color={COLORS.brandStrong}
           />
         </Pressable>
@@ -158,12 +161,12 @@ export function MinutesPlayedCard({ minutes, stats, kitColor }: MinutesPlayedCar
           className="min-h-11 flex-row items-center gap-3 border-b border-muted"
         >
           <JerseyBadge number={player.jerseyNumber} kitColor={kitColor} size={30} />
-          <Text numberOfLines={1} className="flex-1 text-base text-ink">
+          <Text numberOfLines={1} className="flex-1 text-body text-ink">
             {player.name}
           </Text>
           <StatMarks stats={stats.get(player.id)} />
           <Text
-            className="w-10 text-right text-base font-bold text-ink"
+            className="w-10 text-right text-label font-bold text-ink"
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {formatMinutesPlayed(played)}
@@ -181,25 +184,25 @@ function StatMarks({ stats }: { stats: PlayerMatchStats | undefined }) {
     {
       key: 'goals',
       count: stats.goals,
-      icon: <Ionicons name="football" size={18} color={COLORS.ink} />,
+      icon: <Ionicons name="football" size={ICON.md} color={COLORS.ink} />,
       label: 'goal',
     },
     {
       key: 'assists',
       count: stats.assists,
-      icon: <MaterialCommunityIcons name="shoe-cleat" size={18} color={COLORS.ink} />,
+      icon: <MaterialCommunityIcons name="shoe-cleat" size={ICON.md} color={COLORS.ink} />,
       label: 'assist',
     },
     {
       key: 'yellow',
       count: stats.yellowCards,
-      icon: <RefereeCardIcon color="yellow" size={18} />,
+      icon: <RefereeCardIcon color="yellow" size={ICON.md} />,
       label: 'yellow card',
     },
     {
       key: 'red',
       count: stats.redCards,
-      icon: <RefereeCardIcon color="red" size={18} />,
+      icon: <RefereeCardIcon color="red" size={ICON.md} />,
       label: 'red card',
     },
   ];
@@ -215,7 +218,7 @@ function StatMarks({ stats }: { stats: PlayerMatchStats | undefined }) {
       {shown.map((m) => (
         <View key={m.key} className="flex-row items-center">
           {m.icon}
-          {m.count > 1 && <Text className="text-sm font-bold text-ink-soft">×{m.count}</Text>}
+          {m.count > 1 && <Text className="text-caption font-bold text-ink-soft">×{m.count}</Text>}
         </View>
       ))}
     </View>
