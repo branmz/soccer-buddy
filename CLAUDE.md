@@ -27,6 +27,9 @@ what to build next. Update its Status section when a milestone's PR merges.
   Rebuild only after a native dep, plugin, `app.json` or `app.config.ts` change; JS loads from
   the dev server. Open it by scanning the QR code: locally `APP_VARIANT` is unset, so `a` /
   `--android` resolves the preview package and won't launch the dev build
+- `npx eas-cli@latest build -p android --profile production` then
+  `npx eas-cli@latest submit -p android --profile production` — Play release (.aab, draft on the
+  internal track). Listing and App content answers: `docs/store-listing.md`
 - `npm run check` — lint + format check + typecheck + test (must pass before every commit)
 - `npm run lint` / `npm run lint:fix` — ESLint, zero warnings allowed
 - `npm run format` / `npm run format:check` — Prettier

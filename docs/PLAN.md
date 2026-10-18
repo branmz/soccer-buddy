@@ -29,7 +29,8 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | UX review 5: amber breaks, one-row live editor, quick-sub delete confirm  | ✅ merged    | #25       |
 | —   | Dev build: `expo-dev-client`, `development` profile, `.dev` package       | ✅ merged    | #26       |
 | —   | Expo 57.0.30 patch upgrade (router, @expo/ui; no native code change)      | ✅ merged    | #27       |
-| —   | Type scale: text roles in `global.css`, `ICON` sizes, 13dp floor          | 🚧 in review | —         |
+| —   | Type scale: text roles in `global.css`, `ICON` sizes, 13dp floor          | ✅ merged    | #28       |
+| —   | Play release prep: light only, permissions, Pages privacy policy, listing | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
@@ -365,6 +366,23 @@ changed on each screen.
 - From phase 5, deferred: one Undo while editing the live formation (the edit bar's Undo
   and the match Undo stay separate); Title Case with lowercase minor words ("See All in
   History", app-wide); white instead of yellow stoppage digits (yellow has three meanings).
+
+## Release (Google Play, October 2026)
+
+Personal developer account, so: internal test → **closed test with 12+ testers for 14 days**
+→ apply for production access → staged rollout. The listing text, App content answers and
+graphics live in `docs/store-listing.md` and `store/`.
+
+- **Light only** (`userInterfaceStyle: "light"`): there's no dark mode; it stays deferred.
+- **Permissions:** only INTERNET and VIBRATE. Expo's default storage and overlay permissions are
+  blocked in `app.json` (`android.blockedPermissions`).
+- **Privacy policy and homepage:** `site/`, deployed by `.github/workflows/pages.yml` to
+  https://branmz.github.io/soccer-buddy/ (privacy policy at `/privacy-policy`).
+- **Builds:** `production` makes an .aab. The first upload to Play is manual; after that,
+  `eas submit` sends drafts to the internal track (service-account key
+  `play-service-account.json`, git-ignored).
+- The Play build is signed differently from the sideloaded preview APK: uninstall the preview
+  (its data is lost) before installing from Play. Backup / restore is shelved for later.
 
 ## Later milestones (from the original plan)
 
