@@ -9,8 +9,8 @@ what to build next. Update its Status section when a milestone's PR merges.
 
 ## Stack
 
-- Expo SDK 57 + React Native 0.86 + TypeScript (strict), runs in Expo Go. See `AGENTS.md`:
-  always check the versioned Expo docs (v57) before touching Expo APIs
+- Expo SDK 57 + React Native 0.86 + TypeScript (strict), runs in the dev build or Expo Go.
+  See `AGENTS.md`: always check the versioned Expo docs (v57) before touching Expo APIs
 - expo-router (tabs = @react-navigation/bottom-tabs under the hood)
 - expo-sqlite + drizzle-orm (drizzle-kit for migrations)
 - Zustand (UI/editor state only — SQLite is the source of truth)
@@ -20,7 +20,13 @@ what to build next. Update its Status section when a milestone's PR merges.
 
 ## Commands
 
-- `npx expo start --android` — run in Expo Go / emulator
+- `npx expo start` — dev server for the dev build (`expo-dev-client` makes it the default);
+  `npm run start:go` serves Expo Go instead
+- `npx eas-cli@latest build -p android --profile development` — the dev build APK
+  (`Coach Buddy (Dev)`, `com.branmz.coachbuddy.dev`, own database; set in `app.config.ts`).
+  Rebuild only after a native dep, plugin, `app.json` or `app.config.ts` change; JS loads from
+  the dev server. Open it by scanning the QR code: locally `APP_VARIANT` is unset, so `a` /
+  `--android` resolves the preview package and won't launch the dev build
 - `npm run check` — lint + format check + typecheck + test (must pass before every commit)
 - `npm run lint` / `npm run lint:fix` — ESLint, zero warnings allowed
 - `npm run format` / `npm run format:check` — Prettier
