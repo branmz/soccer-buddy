@@ -4,7 +4,7 @@ The living plan for this app. Read it with `CLAUDE.md`, which has the stack, com
 conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `UI_RULES.md`
 (all in `docs/`). Update the **Status** section when a milestone merges.
 
-## Status (as of 2026-10-14)
+## Status (as of 2026-10-18)
 
 | #   | Milestone                                                                 | State        | PR        |
 | --- | ------------------------------------------------------------------------- | ------------ | --------- |
@@ -26,11 +26,13 @@ conventions, and links the rules pages: `ARCHITECTURE.md`, `CODE_STYLE.md` and `
 | —   | Expo 57.0.29 patch upgrade (router, linking, splash screen, jest-expo)    | ✅ merged    | #22       |
 | —   | UI primitives: shared `Card`, `ListRow`, `SectionHeading`                 | ✅ merged    | #23       |
 | —   | Touch targets: true 48dp (`touch` tokens; `min-h-12` was 42dp)            | ✅ merged    | #24       |
-| —   | UX review 5: amber breaks, one-row live editor, quick-sub delete confirm  | 🚧 in review | —         |
+| —   | UX review 5: amber breaks, one-row live editor, quick-sub delete confirm  | ✅ merged    | #25       |
+| —   | Dev build: `expo-dev-client`, `development` profile, `.dev` package       | 🚧 in review | —         |
 
 ## Product decisions (confirmed with the coach/user)
 
-- Android-first, offline, local SQLite only. No backend, no auth. Runs in Expo Go (SDK 57).
+- Android-first, offline, local SQLite only. No backend, no auth. Runs in Expo Go (SDK 57)
+  or the development build (`Coach Buddy (Dev)`, package `com.branmz.coachbuddy.dev`).
 - **Field sizes 5v5 / 7v7 / 9v9 / 11v11.** Teams and formations carry `field_size`.
 - **Clock:** configurable periods (count × length), with start/pause/resume/end-period. Stoppage
   time shows as `45+2'`. Everything is derived from stored timestamps.
@@ -378,7 +380,8 @@ changed on each screen.
 - Commit and open the PR (via `gh`) **only after the coach has tested on the phone and said
   it's good**. Ask before starting the next milestone.
 - After each UI change, give a short on-device checklist. The coach runs `npx expo start` and
-  tests in Expo Go on Android, then reports issues. Expect several rounds of UI feedback.
+  tests in the dev build on Android (`npm run start:go` serves Expo Go instead), then reports
+  issues. Expect several rounds of UI feedback.
 - Before committing, run `npm run check` and the `code-reviewer` agent on the branch. Fix
   real findings and list the skipped ones with reasons.
 - Keep `CLAUDE.md` under 200 lines and update this file's Status section when a PR merges.
